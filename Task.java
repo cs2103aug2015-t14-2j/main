@@ -11,8 +11,7 @@ public class Task {
 	private Date lastModifiedTime;
 	
 	// A task has these properties
-	private Date startTime;
-	private Date endTime;
+	private Period period;
 	private Date deadline;
 	private String venue;
 	private PRIORITY priority;
@@ -32,8 +31,7 @@ public class Task {
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
 		
-		this.startTime = startTime;
-		this.endTime = endTime;
+		this.period = new Period(startTime, endTime);
 		this.deadline = deadline;
 		this.venue = venue;
 		this.priority = priority;
@@ -64,19 +62,19 @@ public class Task {
 	}
 	
 	public Date getStartTime() {
-		return startTime;
+		return this.period.getStartTime();
 	}
 
 	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
+		this.period.setStartTime(startTime);
 	}
 
 	public Date getEndTime() {
-		return endTime;
+		return this.period.getEndTime();
 	}
 
 	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
+		this.period.setEndTime(endTime);
 	}
 
 	public Date getDeadline() {
