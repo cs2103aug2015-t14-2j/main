@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 
 public class TaskHandler {
 	// Define success messages here
@@ -40,7 +41,7 @@ public class TaskHandler {
 	private static Calendar        calendar = Calendar.getInstance();
 	private static ArrayList<Task> taskList = new ArrayList<Task>(50);
 	private static ArrayList<Period> timetable = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
-	private static ArrayList<String> commandHistory = new ArrayList<String>(50);	// stack of userInputs history to implement undo action
+	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
