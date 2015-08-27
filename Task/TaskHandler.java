@@ -86,7 +86,7 @@ public class TaskHandler {
 	// Initialize settings, search for application files etc.
 	private static void init() {
 		dateFormat.setCalendar(calendar);
-//		System.out.println("current time is " + dateFormat.getCalendar().get(1));
+		//System.out.println("current time is " + dateFormat.getCalendar().get(1));
 		
 	}
 	
