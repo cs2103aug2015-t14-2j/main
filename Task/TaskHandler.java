@@ -19,29 +19,29 @@ import static Task.Task.PRIORITY;
 
 public class TaskHandler {
 	// Define success messages here
-	private static final String MESSAGE_WELCOME      = "Welcome to TaskBuddy!";
-	private static final String MESSAGE_ADD_TASK     = "Successfully added task.";
-	private static final String MESSAGE_GET_TASK     = "Task returned";
-	private static final String MESSAGE_DISPLAY      = "All tasks displayed.";
-	private static final String MESSAGE_SEARCH_TASK  = "Here are tasks matching your keywords:";
-	private static final String MESSAGE_EDIT_TASK    = "Choose the task you want to edit";
-	private static final String MESSAGE_EXIT         = "Thanks for using TaskBuddy! Changes saved to disk.";
+	private static final String MESSAGE_WELCOME        = "Welcome to TaskBuddy!";
+	private static final String MESSAGE_ADD_TASK       = "Successfully added task.";
+	private static final String MESSAGE_GET_TASK       = "Task returned";
+	private static final String MESSAGE_DISPLAY        = "All tasks displayed.";
+	private static final String MESSAGE_SEARCH_TASK    = "Here are tasks matching your keywords:";
+	private static final String MESSAGE_EDIT_TASK      = "Choose the task you want to edit";
+	private static final String MESSAGE_EXIT           = "Thanks for using TaskBuddy! Changes saved to disk.";
 	
 	// Define error messages here
-	private static final String ERROR_INVALID_COMMAND   = "Invalid Command.";
-	private static final String ERROR_INVALID_DATETIME  = "Invalid time specified. Please follow this format: 16 Aug 2015, 16:20:00";
-	private static final String ERROR_EMPTY_TASKLIST    = "You have no tasks!";
+	private static final String ERROR_INVALID_COMMAND  = "Invalid Command.";
+	private static final String ERROR_INVALID_DATETIME = "Invalid time specified. Please follow this format: 16 Aug 2015, 16:20:00";
+	private static final String ERROR_EMPTY_TASKLIST   = "You have no tasks!";
 	
 	
 	// Define help messages here
-	private static final String HELP_TITLE         = "********************************************Help menu for TaskBuddy!****************************************************";
-	private static final String HELP_SUBTITLE      = "[COMMAND]     [FORMAT]                                                                             [DESCRIPTION]";
-	private static final String HELP_ADD_TASK      = "  1.ADD       : add    [description], [starttime], [endtime], [deadline], [venue], [priority]      |";
-	private static final String HELP_GET_TASK      = "  2.GET       : get    [task-id]                                                                   |";
-	private static final String HELP_DISPLAY       = "  3.DISPLAY   : display                                                                            |";
-	private static final String HELP_SEARCH_TASK   = "  4.SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |";
-	private static final String HELP_EDIT_TASK     = "  5.EDIT      : edit   [task-id], [value1=keyword1]                                                |";
-	private static final String HELP_EXIT          = "  6.EXIT      : exit   []                                                                          |Terminate program";
+	private static final String HELP_TITLE             = "********************************************Help menu for TaskBuddy!****************************************************";
+	private static final String HELP_SUBTITLE          = "[COMMAND]     [FORMAT]                                                                             [DESCRIPTION]";
+	private static final String HELP_ADD_TASK          = "  1.ADD       : add    [description], [starttime], [endtime], [deadline], [venue], [priority]      |";
+	private static final String HELP_GET_TASK          = "  2.GET       : get    [task-id]                                                                   |";
+	private static final String HELP_DISPLAY           = "  3.DISPLAY   : display                                                                            |";
+	private static final String HELP_SEARCH_TASK       = "  4.SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |";
+	private static final String HELP_EDIT_TASK         = "  5.EDIT      : edit   [task-id], [value1=keyword1]                                                |";
+	private static final String HELP_EXIT              = "  6.EXIT      : exit   []                                                                          |Terminate program";
 	
 	
 	// Define minimum argument numbers here
@@ -62,11 +62,11 @@ public class TaskHandler {
 		EXIT
 	};
 	
-	private static Scanner         scanner = new Scanner(System.in);
-	private static Calendar        calendar = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-	private static ArrayList<Task> taskList = new ArrayList<Task>(50);
-	private static ArrayList<Period> timetable = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
+	private static Scanner         scanner           = new Scanner(System.in);
+	private static Calendar        calendar          = Calendar.getInstance();
+	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("HH:mm:ss");
+	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
+	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
 	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
 	
 	public static void main(String[] args) {
