@@ -29,23 +29,23 @@
 ### Outstanding tasks and issues ###
 
 1.  command line parsing - allow for "this is, a parameter", " and this is another parameter" parsing.
-
-2.  file I/O - implement a way to read tasks from a file and write tasks to the same file, suggested : JSON files using JSON-simple
+2.  User manual, deadline 7th September 2015
+3.  file I/O - implement a way to read tasks from a file and write tasks to the same file, suggested : JSON files using JSON-simple
 > Reference : http://www.mkyong.com/java/json-simple-example-read-and-write-json/
 
-3.  Maintain and update Timetable of tasks/periods that is organized chronologically.
+4.  Maintain and update Timetable of tasks/periods that is organized chronologically.
   1. Implement a comparator function that compares 2 periods and returns whether one is precedes the other
   2. Do we allow for multiple tasks to occupy same Timetable slots?
-4) Support undo operation.
+5. Support undo operation.
   1. Maintain a stack of the 20 most recent user commands that resulted in a write to file
   2. Implement a stack of the most recent file states?
-5.  Email integration - connect to a user-specified mailbox + parse emails to extract tasks, suggested resource : SIFT api from EasilyDo
+6.  Email integration - connect to a user-specified mailbox + parse emails to extract tasks, suggested resource : SIFT api from EasilyDo
 > Reference : https://developer.easilydo.com/sift/documentation#discovery-endpoint
-6.  Flexible data entry for users - how do we allow a broad range of user inputs for dates and be able to infer what the user means?
-7.  Add and remove tags to a task to categorize them
-8.  Search by keywords in description and tags
-9.  Add iOS notifications to alert user of a upcoming deadline at x hours before the deadline
-10. GUI - nice Graphical User Interface
+7.  Flexible data entry for users - how do we allow a broad range of user inputs for dates and be able to infer what the user means?
+8.  Add and remove tags to a task to categorize them
+9.  Search by keywords in description and tags
+10.  Add iOS notifications to alert user of a upcoming deadline at x hours before the deadline
+11. GUI - nice Graphical User Interface
 
 ### Commenting and documentation standards ###
 
