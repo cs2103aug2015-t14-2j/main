@@ -1,9 +1,15 @@
+package Task;
+
 import java.util.Date;
 import java.lang.IllegalArgumentException;
+import java.text.SimpleDateFormat;
+import java.text.SimpleDateFormat;
 
 public class Period {
 	private Date startTime;
 	private Date endTime;
+	
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, YYYY HH:mm:ss Z");
 	
 	public Period (Date startTime, Date endTime) throws IllegalArgumentException {
 		if(startTime.after(endTime)) {
@@ -12,6 +18,10 @@ public class Period {
 		}
 		this.startTime = startTime;
 		this.endTime   = endTime;
+	}
+	
+	public String toString(Period period) {
+		return dateFormat.format(period.getStartTime()) + " - " + dateFormat.format(period.getEndTime()); 
 	}
 
 	public Date getStartTime() {
