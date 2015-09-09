@@ -15,7 +15,7 @@ import static Task.Task.PRIORITY;
  *  Represents the handler for tasks
  * 
  *  @author A0097689 Tan Si Kai
- *  @author A0145472E  Jean Pierre Castillo
+ *  @author A0009586 Jean Pierre Castillo
  *  @author A******  Audrey Tiah
  */
 public class TaskHandler {
@@ -112,7 +112,11 @@ public class TaskHandler {
 		}
 	}
 	
-	// Executes user input
+	/**
+	 * Executes user input
+	 * @param userInput The input to be executed
+	 * @return The feedback to give to the user
+	 */
 	public static String executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
 		StringParser parser = new StringParser(command, userInput);
@@ -151,16 +155,26 @@ public class TaskHandler {
 		}
 	}
 	
+	/**
+	 * Adds a task to the task list
+	 * @param task The task to be added to the taskList
+	 */
 	private static void addTask(Task task) {
 		System.out.println(task.toString());
 		taskList.add(task);
 	}
 	
-	// Remove a specific task from the file
+	/**
+	 * Remove a specific task from the file
+	 * @param task The task to be deleted from the taskList
+	 */
 	private static void removeTask(Task task) {
-		
+		// TODO remove the task from tasklist
 	}
 	
+	/**
+	 * Shows the Help menu to the user
+	 */
 	private static void showHelpMenu() {
 		showToUser(ERROR_INVALID_COMMAND + "\n");
 		showToUser(HELP_TITLE);
@@ -173,35 +187,69 @@ public class TaskHandler {
 		showToUser(HELP_EXIT);
 	}
 	
+	/**
+	 * Displays all the current tasks in the taskList
+	 */
 	private static void displayAllTasks() {
 		for (int i = 0; i < taskList.size() ; i++) {
 			showToUser(taskList.get(i).toString());
 		}
 	}
 	
-	// Takes a command and returns the correct number of arguments expected
+	/**
+	 * Takes a command and returns the correct number of arguments expected
+	 * @param command The command to be evaluated for number of arguments
+	 * @return The number of arguments for that command
+	 */
 	public static int determineNumberOfArgs(COMMAND_TYPE command) {
+		//TODO: unimplemented
 		return 0;
 	}
 	
-	// Figure out free time slots
+	/**
+	 * Figure out free time slots
+	 * @param timetable The timetable to get free time slots for
+	 * @return An array of possible time slots
+	 */
 	public static ArrayList<Period> getFreeTimeSlots(ArrayList<Period> timetable) {
 		ArrayList<Period> result = new ArrayList<Period>(50);
 		
 		return result;
 	}
 	
-	// Given a tag, and startTime and endTime, return all tasks with that tag
+	/**
+	 * Given a tag, and startTime and endTime, return all tasks with that tag
+	 * @param tag 
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
 	public static ArrayList<Task> getByTag (String tag, Date startTime, Date endTime) {
 		return taskList;
 	}
 	
-	// Given a search keyword, and startTime and endTime, return all tasks with that keyword in their description within the search space
-	public static ArrayList<Task> searchByDescription (String keyword, Date startTime, Date endTime) {
+	/**
+	 * Given a search keyword, and startTime and endTime, return all tasks with that keyword in their description within the search space
+	 * @param keyword
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	//TODO:Delete?
+	/*public static ArrayList<Task> searchByDescription (String keyword, Date startTime, Date endTime) {
 		return taskList;
+	}*/
+	
+	public ArrayList<Task> searchTasks(Task task){
+		//TODO:Unimplemented
+		return null;
 	}
 	
-	// Takes a single word and figure out the command
+	/**
+	 * Takes a single word and figure out the command
+	 * @param commandTypeString The string containing a command
+	 * @return The enum value corresponding to the commandTypeString
+	 */
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
 		if (commandTypeString == null) {
 			throw new Error("command type string cannot be null!");
@@ -224,11 +272,21 @@ public class TaskHandler {
 		}
 	}
 	
+	/**
+	 * Gets the first word from a string
+	 * @param userCommand The string containing one or more words
+	 * @return The first word in the string
+	 */
 	private static String getFirstWord(String userCommand) {
 		String commandTypeString = userCommand.trim().split("\\s+")[0];
 		return commandTypeString;
 	}
 	
+	/**
+	 * Removes the first word from a string
+	 * @param userCommand The string to be split
+	 * @return The original string without the first word
+	 */
 	private static String removeFirstWord(String userCommand) {
 		String[] parameters = userCommand.trim().split(" ", 2);
 		return parameters[1];
