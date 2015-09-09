@@ -18,14 +18,14 @@ public class Task {
 	private Date lastModifiedTime;
 	
 	// A task has these properties
-	private Period period;
-	private Date deadline;
-	private String venue;
-	private PRIORITY priority;
-	private String description;
-	private boolean isDone;
-	private boolean isPastDeadline;
-	private boolean hasEnded;
+	private Period period = null;
+	private Date deadline = null;
+	private String venue = null;
+	private PRIORITY priority = null;
+	private String description = null;
+	private boolean isDone = false;
+	private boolean isPastDeadline = false;
+	private boolean hasEnded = false;
 	private ArrayList<String> tags = new ArrayList<String>();
 	
 	// These are the possible priority levels

@@ -119,7 +119,7 @@ public class TaskHandler {
 	 */
 	public static String executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
-		StringParser parser = new StringParser(command, userInput);
+		StringParser parser = new StringParser(command, removeFirstWord(userInput));
 		switch (command) {
 			case ADD_TASK:
 				if (parser.canAddTask()) {
