@@ -1,9 +1,3 @@
-/*
- *  @author A0097689 Tan Si Kai
- *  @author A******  Jean Pierre
- *  @author A******  Audrey Tiah
- */
-
 package Task;
 
 import java.io.File;
@@ -17,6 +11,13 @@ import java.util.Date;
 import java.util.LinkedList;
 import static Task.Task.PRIORITY;
 
+/**
+ *  Represents the handler for tasks
+ * 
+ *  @author A0097689 Tan Si Kai
+ *  @author A0145472E  Jean Pierre Castillo
+ *  @author A******  Audrey Tiah
+ */
 public class TaskHandler {
 	// Define success messages here
 	private static final String MESSAGE_WELCOME        = "Welcome to TaskBuddy!";
@@ -51,26 +52,19 @@ public class TaskHandler {
 	private static final int NUM_ARGS_SEARCH_TASK  = 1;
 	private static final int NUM_ARGS_EDIT_TASK    = 1;
 	
-	// These are the possible command types
-	enum COMMAND_TYPE {
-		ADD_TASK, 
-		GET_TASK,
-		DISPLAY,
-		SEARCH_TASK, 
-		EDIT_TASK, 
-		INVALID_COMMAND, 
-		EXIT
-	};
+	private static Scanner         		scanner         = new Scanner(System.in);
+	private static Calendar        		calendar        = Calendar.getInstance();
+	private static SimpleDateFormat 	dateFormat      = new SimpleDateFormat("HH:mm:ss");
+	private static ArrayList<Task> 		taskList        = new ArrayList<Task>(50);
+	private static ArrayList<Period> 	timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
+	private static LinkedList<String> 	commandHistory 	= new LinkedList<String>();	// stack of userInputs history to implement undo action
 	
-	private static Scanner         scanner           = new Scanner(System.in);
-	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("HH:mm:ss");
-	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
-	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
-	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
-	
+	/**
+	 * Starts the 
+	 * @param args The file path to load the file in
+	 */
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+		// TODO @Audrey use args to load the file
 		init();
 		showToUser(MESSAGE_WELCOME);
 		while(true) {
@@ -83,14 +77,19 @@ public class TaskHandler {
 		}
 	}
 	
-	// Initialize settings, search for application files etc.
+	/**
+	 * Initialize settings, search for application files etc.
+	 */
 	private static void init() {
 		dateFormat.setCalendar(calendar);
 		//System.out.println("current time is " + dateFormat.getCalendar().get(1));
 		
 	}
 	
-	// Displays text to user, do not print if empty string
+	/**
+	 * Displays text to user, do not print if empty string
+	 * @param text Text to show the user
+	 */
 	private static void showToUser(String text) {
 		if(text.isEmpty()) {
 			return;
@@ -99,9 +98,13 @@ public class TaskHandler {
 		System.out.println(text);
 	}
 
-	// Pattern matching on expected command patterns to decide if it is a valid command
+	/**
+	 * Pattern matching on expected command patterns to decide if it is a valid command
+	 * @param userInput
+	 * @return
+	 */
 	public static boolean isValidCommand(String userInput) {
-		if(true) {
+		if(userInput.length() != 0) {
 			return true;
 		} else {
 			showHelpMenu();
@@ -112,17 +115,12 @@ public class TaskHandler {
 	// Executes user input
 	public static String executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
-		
+		StringParser parser = new StringParser(command, userInput);
 		switch (command) {
 			case ADD_TASK:
-				String[] parameters = parseCommaSeparatedInput(userInput);
-				boolean enoughParameters = parameters.length >= NUM_ARGS_ADD_TASK ? true : false;
-				if (enoughParameters) {
-					boolean canAddTask  = validateAddTask(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
-					if (canAddTask) {
-						addTask(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);
-						
-					}					
+				if (parser.canAddTask()) {
+					addTask(parser.getTask());
+					
 				} else {
 					showHelpMenu();
 					return ""; 
@@ -153,42 +151,9 @@ public class TaskHandler {
 		}
 	}
 	
-	// Validates user inputs for adding a task are correct and valid before calling addTask
-	private static boolean validateAddTask(String desc, String startTime, String endTime, String deadline, String venue) {
-		// Short circuit style, returns false on first failed validation
-		// Limitation is user cannot see all wrong inputs
-		if(!isValidDate(startTime)) {
-			return false;
-		}
-		if(!isValidDate(endTime)) {
-			return false;
-		}
-		if(!isValidDate(deadline)) {
-			return false;
-		}
-		if(!isValidVenue(venue)) {
-			// Google maps API validation
-			return false;
-		}
-		
-		return true;
-	}
-	
-	private static void addTask(String desc, String startTime, String endTime, String deadline, String venue, String priority) {
-		try {
-			Date startDate    = dateFormat.parse(startTime);
-			Date endDate      = dateFormat.parse(endTime);
-			Date deadlineDate = dateFormat.parse(deadline);
-			
-			Task task = new Task(desc, startDate, endDate, deadlineDate, venue, priority);
-			System.out.println(task.toString());
-			taskList.add(task);
-			
-		} catch (ParseException e) {			
-			e.printStackTrace();
-			
-		}
-		
+	private static void addTask(Task task) {
+		System.out.println(task.toString());
+		taskList.add(task);
 	}
 	
 	// Remove a specific task from the file
@@ -259,15 +224,6 @@ public class TaskHandler {
 		}
 	}
 	
-	// Takes in original line of user input, removes first word and parses the remainder into 
-	// a string array delimited by commas
-	private static String[] parseCommaSeparatedInput(String input) {
-		String[] parametersArray = removeFirstWord(input).split("\\s*,\\s*"); 
-		System.out.println(Arrays.toString(parametersArray));
-
-		return parametersArray;
-	}
-	
 	private static String getFirstWord(String userCommand) {
 		String commandTypeString = userCommand.trim().split("\\s+")[0];
 		return commandTypeString;
@@ -277,12 +233,5 @@ public class TaskHandler {
 		String[] parameters = userCommand.trim().split(" ", 2);
 		return parameters[1];
 	}
-	
-	private static boolean isValidDate(String dateString) {
-		return true;
-	}
-	
-	private static boolean isValidVenue(String venueString) {
-		return true;
-	}
+
 }
