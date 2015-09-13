@@ -1,7 +1,6 @@
 package Task;
 
 import java.util.HashMap;
-import Task.TaskHandler.COMMAND_TYPE;
 
 // This class deals with validation of all user input.
 // It specifies which validation functions are required for which parameters.

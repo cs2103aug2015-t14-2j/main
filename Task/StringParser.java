@@ -2,24 +2,51 @@ package Task;
 
 import java.util.Date;
 
+import java.util.HashMap;
+
+/**
+ *  Represents the handler for tasks
+ * 
+ *  @author A0097689 Tan Si Kai
+ *  @author A0009586 Jean Pierre Castillo
+ *  @author A0118772  Audrey Tiah
+ */
+
 public class StringParser {
 	
-	/**
-	 * The task made up of the parsed string
-	 */
-	private Task _task = null;
+	private static final String SPACE_CHARACTER = "\\s+";
+	
+	private static final int QUOTE_INTEGER = 34;
+	
+	private HashMap<PARAMETER, String> keywordHash = null;
 	
 	/**
 	 * Initiates the parser and parses the userInput based on the type of command
 	 * @param command The type of command to be executed
 	 * @param userInput
 	 */
-	public StringParser(COMMAND_TYPE command,String userInput){
+	public StringParser(){
+		keywordHash = new HashMap<PARAMETER, String>(0);
+	}
+	
+	/**
+	 * 
+	 * @param command
+	 * @param query
+	 * @return
+	 */
+	public HashMap<PARAMETER, String> getValuesFromInput(COMMAND_TYPE command, String userInput) {
 		
 		switch (command) {
 		case ADD_TASK:
-			String[] keywordsInInput={"do","on","from","to","by","on","at","with","remind","#"};
-			addAttributesToTask(keywordsInInput);
+			//Have "do" search for first to get rid of string
+			userInput = transferQuoteToHashMap("do",userInput);
+			userInput = transferQuoteToHashMap("at",userInput);
+			
+			String[] keywordsInInput={"on","from","to","by","on","at","with","remind","#"};
+			
+			addAttributesToHashTable(keywordsInInput, userInput.split(SPACE_CHARACTER));
+			break;
 		case GET_TASK:
 			
 		case DISPLAY:
@@ -31,57 +58,67 @@ public class StringParser {
 		default:
 			
 		}
-	}
-
-	private void addAttributesToTask(String[] keywordsInInput) {
-		// TODO Auto-generated method stub
 		
+		return keywordHash;
 	}
 
 	/**
-	 * Validates user inputs for adding a task are correct and valid before calling addTask
-	 * @param userInput the string 
+	 * 
+	 * @param userInput
 	 * @return
 	 */
-	private static boolean validateAddTask(String[] userInput) {
-		// Short circuit style, returns false on first failed validation
-		// Limitation is user cannot see all wrong inputs
-		
-		return true;
+	private String transferQuoteToHashMap(String keyword, String userInput) {
+		//TODO ASSUMES "" are places correctly after keyword
+		int positionOfKeyword = userInput.toLowerCase().indexOf(keyword, 0);
+		int startOfQuote = userInput.indexOf(QUOTE_INTEGER, positionOfKeyword);
+		int endOfQuote = userInput.indexOf(QUOTE_INTEGER, startOfQuote + 1);
+		keywordHash.put(PARAMETER.DESC, getDescriptionInString(userInput, startOfQuote, endOfQuote));
+		return trimStringPortionOut(userInput, positionOfKeyword, endOfQuote);
 	}
-	
+
 	/**
-	 * Validates a date in many formats
-	 * @param dateString the string containing a date
-	 * @return If the string inputed is a recognized date
+	 * 
+	 * @param userInput
+	 * @param startOfDesc
+	 * @param endOfDesc
+	 * @return
 	 */
-	private static boolean isValidDate(String dateString) {
-		
-		return true;
+	private String trimStringPortionOut(String userInput, int startOfDesc, int endOfDesc) {
+		StringBuilder result = new StringBuilder();
+	    for (char c : userInput.toCharArray()) {
+	        if (userInput.indexOf(c) < startOfDesc || userInput.indexOf(c) > endOfDesc) {
+	            result.append(c);
+	        }
+	    }
+	    return result.toString();
 	}
-	
+
 	/**
-	 * returns today's date. Used to extrapolate the date the user refers to when parsing input
-	 * @return Today's date
+	 * 
+	 * @param userInput
+	 * @param startOfDesc
+	 * @param endOfDesc
+	 * @return
 	 */
-	private static Date getCurrentDate(){
-		return new Date();
+	private String getDescriptionInString(String userInput, int startOfDesc, int endOfDesc) {
+		StringBuilder result = new StringBuilder();
+	    for (char c : userInput.toCharArray()) {
+	        if (userInput.indexOf(c) >= startOfDesc || userInput.indexOf(c) <= endOfDesc) {
+	            result.append(c);
+	        }
+	    }
+	    return result.toString();
 	}
-	
+
 	/**
-	 * Gets the synthesized task
-	 * @return The task that was made
+	 * 
+	 * @param keywordsInInput
+	 * @param stringToParse
 	 */
-	public Task getTask(){
-		return _task;
-	}
-	
-	/**
-	 * Used to verify if a task can be added; ie. does it have at least a description
-	 * @return A boolean representing a task's ability to be added to a task collection
-	 */
-	public boolean canAddTask(){
-		return (_task == null) && (_task.getDescription() != null);
+	private void addAttributesToHashTable(String[] keywordsInInput, String[] stringToParse) {
+		for(int i = 0; i < keywordsInInput.length; i++){
+			
+		}
 	}
 	
 }

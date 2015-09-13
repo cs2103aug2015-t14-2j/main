@@ -8,8 +8,8 @@ import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
-import static Task.Task.PRIORITY;
 
 /**
  *  Represents the handler for tasks
@@ -46,6 +46,7 @@ public class TaskHandler {
 	
 	
 	// Define minimum argument numbers here
+	//TODO: Do these make sense to have now?
 	private static final int NUM_ARGS_ADD_TASK     = 6;
 	private static final int NUM_ARGS_GET_TASK     = 3;
 	private static final int NUM_ARGS_DISPLAY_TASK = 0;
@@ -104,7 +105,7 @@ public class TaskHandler {
 	 * @return
 	 */
 	public static boolean isValidCommand(String userInput) {
-		if(userInput.length() != 0) {
+		if(userInput.length() != 0 && userInput.split(" ").length > 1) {
 			return true;
 		} else {
 			showHelpMenu();
@@ -119,12 +120,34 @@ public class TaskHandler {
 	 */
 	public static String executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
-		StringParser parser = new StringParser(command, removeFirstWord(userInput));
+		StringParser parser = new StringParser();
+		HashMap<PARAMETER, String> parsedParamTable;
 		switch (command) {
 			case ADD_TASK:
-				if (parser.canAddTask()) {
-					addTask(parser.getTask());
-					
+				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				//TODO: shouldn't it be if it has a description?
+				boolean enoughParameters = parsedParamTable.size() >= NUM_ARGS_ADD_TASK ? true : false;
+				if (enoughParameters) {
+					boolean canAddTask  = validateAddTask(parsedParamTable.get(PARAMETER.DESC),
+															parsedParamTable.get(PARAMETER.VENUE), 
+															parsedParamTable.get(PARAMETER.START_DATE),
+															parsedParamTable.get(PARAMETER.END_DATE), 
+															parsedParamTable.get(PARAMETER.START_TIME),
+															parsedParamTable.get(PARAMETER.END_TIME),
+															parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+															parsedParamTable.get(PARAMETER.DEADLINE_TIME),
+															parsedParamTable.get(PARAMETER.REMIND_TIMES));
+					if (canAddTask) {
+						addTask(parsedParamTable.get(PARAMETER.DESC),
+								parsedParamTable.get(PARAMETER.VENUE), 
+								parsedParamTable.get(PARAMETER.START_DATE),
+								parsedParamTable.get(PARAMETER.END_DATE), 
+								parsedParamTable.get(PARAMETER.START_TIME),
+								parsedParamTable.get(PARAMETER.END_TIME),
+								parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+								parsedParamTable.get(PARAMETER.DEADLINE_TIME),
+								parsedParamTable.get(PARAMETER.REMIND_TIMES));
+					}					
 				} else {
 					showHelpMenu();
 					return ""; 
@@ -159,9 +182,21 @@ public class TaskHandler {
 	 * Adds a task to the task list
 	 * @param task The task to be added to the taskList
 	 */
-	private static void addTask(Task task) {
-		System.out.println(task.toString());
-		taskList.add(task);
+	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime, String remindTimes) {
+		try {
+			Date _startDate    = dateFormat.parse(startTime);
+			Date _endDate      = dateFormat.parse(endTime);
+			Date _deadlineTime = dateFormat.parse(deadlineTime);
+			
+			//TODO: Modify task to match enum of params
+			Task task = new Task(desc, _startDate, _endDate, _deadlineTime, venue);
+			System.out.println(task.toString());
+			taskList.add(task);
+			
+		} catch (ParseException e) {			
+			e.printStackTrace();
+			
+		}
 	}
 	
 	/**
@@ -170,6 +205,64 @@ public class TaskHandler {
 	 */
 	private static void removeTask(Task task) {
 		// TODO remove the task from tasklist
+	}
+	
+	/**
+	 * 
+	 * @param desc
+	 * @param startTime
+	 * @param endTime
+	 * @param deadline
+	 * @param venue
+	 * @return
+	 */
+	private static boolean validateAddTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime, String remindTimes) {
+		// Short circuit style, returns false on first failed validation
+		// Limitation is user cannot see all wrong inputs
+		if(!isValidDate(startDate)) {
+			return false;
+		}
+		if(!isValidDate(endDate)) {
+			return false;
+		}
+		if(!isValidDate(deadlineDate)) {
+			return false;
+		}
+		if(!isValidTime(startTime)) {
+			return false;
+		}
+		if(!isValidTime(endTime)) {
+			return false;
+		}
+		if(!isValidTime(deadlineTime)) {
+			return false;
+		}
+		//TODO: needed?
+		/*if(!isValidVenue(venue)) {
+			
+			// Google maps API validation
+			return false;
+		}*/
+		
+		return true;
+	}
+	
+	/**
+	 * Validates a date
+	 * @param dateString The date to be validated
+	 * @return A boolean representing if the date in question is valid
+	 */
+	private static boolean isValidDate(String dateString) {
+		return true;
+	}
+	
+	/**
+	 * Validates a time
+	 * @param timeString The time to be validated
+	 * @return A boolean representing if the time in question is valid
+	 */
+	private static boolean isValidTime(String timeString) {
+		return true;
 	}
 	
 	/**
