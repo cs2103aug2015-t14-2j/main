@@ -40,12 +40,17 @@ public class StringParser {
 		switch (command) {
 		case ADD_TASK:
 			//Have "do" search for first to get rid of string
-			userInput = transferQuoteToHashMap("do",userInput);
-			userInput = transferQuoteToHashMap("at",userInput);
+			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput);
+			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput);
 			
-			String[] keywordsInInput={"on","from","to","by","on","at","with","remind","#"};
+			String[] 	  keywordsInInput	={"from","to","by","remind","#"};
+			PARAMETER[][] paramInInput		={{PARAMETER.START_DATE, PARAMETER.START_TIME},
+												{PARAMETER.END_DATE, PARAMETER.END_TIME},
+												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME},
+												{PARAMETER.REMIND_TIMES},
+												{PARAMETER.HASHTAGS}};
 			
-			addAttributesToHashTable(keywordsInInput, userInput.split(SPACE_CHARACTER));
+			addAttributesToHashTable(keywordsInInput, paramInInput, userInput.split(SPACE_CHARACTER));
 			break;
 		case GET_TASK:
 			
@@ -67,9 +72,9 @@ public class StringParser {
 	 * @param userInput
 	 * @return
 	 */
-	private String transferQuoteToHashMap(String keyword, String userInput) {
+	private String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput) {
 		//TODO ASSUMES "" are places correctly after keyword
-		int positionOfKeyword = userInput.toLowerCase().indexOf(keyword, 0);
+		int positionOfKeyword = userInput.toLowerCase().indexOf(keywordString, 0);
 		int startOfQuote = userInput.indexOf(QUOTE_INTEGER, positionOfKeyword);
 		int endOfQuote = userInput.indexOf(QUOTE_INTEGER, startOfQuote + 1);
 		keywordHash.put(PARAMETER.DESC, getDescriptionInString(userInput, startOfQuote, endOfQuote));
@@ -111,14 +116,32 @@ public class StringParser {
 	}
 
 	/**
-	 * 
+	 * Assuming each word is either a word or parameter this
+	 * method places the keyword with the appropriate parameters
 	 * @param keywordsInInput
 	 * @param stringToParse
 	 */
-	private void addAttributesToHashTable(String[] keywordsInInput, String[] stringToParse) {
-		for(int i = 0; i < keywordsInInput.length; i++){
-			
+	private void addAttributesToHashTable(String[] keywordsInInput,PARAMETER[][] paramInInput, String[] stringToParse) {
+		for(int i = 0; i < stringToParse.length; i++){
+			int commandFromKeywordIndex = stringCompareToList(stringToParse[i], keywordsInInput);
+			if(commandFromKeywordIndex == 0){
+				for(int j = 0; j < paramInInput[commandFromKeywordIndex].length; j++){
+					if(stringCompareToList(stringToParse[i], keywordsInInput) != 0){
+						keywordHash.put(paramInInput[commandFromKeywordIndex][j], keywordsInInput[i]);
+						i++;
+					}
+				}
+			}
 		}
+	}
+
+	private int stringCompareToList(String input, String[] keywordsInInput) {
+		for(int i = 0;i< keywordsInInput.length;i++){
+		   if(keywordsInInput[i].equalsIgnoreCase(input)){
+			   return i;
+		   }
+		}
+		return 0;
 	}
 	
 }
