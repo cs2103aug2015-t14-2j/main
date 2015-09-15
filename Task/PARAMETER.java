@@ -8,7 +8,7 @@ package Task;
  *  @author A0118772  Audrey Tiah
  */
 
-enum PARAMETER {
+public enum PARAMETER {
 	DESC,
 	VENUE,
 	START_DATE,
