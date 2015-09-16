@@ -18,11 +18,12 @@ public class Validator {
 	private static final String ERROR_INSUFFICIENT_ARGUMENT = "";
 	private static final String ERROR_START_AFTER_END = "";
 	private static final String ERROR_INVALID_PRIORITY_FORMAT = "";
+	private static final String NO_INPUT = "VALID";
 	/* ...ADD IN MORE HERE */
 
 	// This is optional, you can implement using other ways you like
 	enum PARAMETER {
-		DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE, PRIORITY, REMIND_TIME ,STARTENDTIME
+		DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE, PRIORITY, REMIND_TIME, STARTENDTIME
 	};
 
 	// Constructor
@@ -36,7 +37,7 @@ public class Validator {
 	// fails, set the error message
 	// for that particular validation function.
 	// Returns a HashMap of PARAMETER => error_message_string
-	public HashMap<PARAMETER, String> validateUserInput(COMMAND_TYPE command,
+	public static HashMap<PARAMETER, String> validateUserInput(COMMAND_TYPE command,
 			HashMap<PARAMETER, String> parsedUserInput) {
 
 		HashMap<PARAMETER, String> errorHashMap = new HashMap<PARAMETER, String>();
@@ -64,21 +65,32 @@ public class Validator {
 		} else {
 			errorHashMap.put(PARAMETER.END_DATE, VALID_INPUT);
 		}
-		
-		if (isValidStartDate(parsedUserInput.get(PARAMETER.START_DATE)) && isValidEndDate(parsedUserInput.get(PARAMETER.END_DATE))){
-			if (!isValidDatePeriod(parsedUserInput.get(PARAMETER.START_DATE),parsedUserInput.get(PARAMETER.END_DATE))){
-				errorHashMap.put(PARAMETER.STARTENDTIME, ERROR_START_AFTER_END);
-			}else if (!isValidTimePeriod(parsedUserInput.get(PARAMETER.START_TIME),parsedUserInput.get(PARAMETER.END_TIME))){
-				errorHashMap.put(PARAMETER.STARTENDTIME, ERROR_START_AFTER_END);
-			}else{
-				errorHashMap.put(PARAMETER.STARTENDTIME, VALID_INPUT);
+
+		try {
+			if (isValidStartDate(parsedUserInput.get(PARAMETER.START_DATE))
+					&& isValidEndDate(parsedUserInput.get(PARAMETER.END_DATE))) {
+				if (!isValidDatePeriod(parsedUserInput.get(PARAMETER.START_DATE),
+						parsedUserInput.get(PARAMETER.END_DATE))) {
+					errorHashMap.put(PARAMETER.STARTENDTIME, ERROR_START_AFTER_END);
+				} else if (!isValidTimePeriod(parsedUserInput.get(PARAMETER.START_TIME),
+						parsedUserInput.get(PARAMETER.END_TIME))) {
+					errorHashMap.put(PARAMETER.STARTENDTIME, ERROR_START_AFTER_END);
+				} else {
+					errorHashMap.put(PARAMETER.STARTENDTIME, VALID_INPUT);
+				}
 			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.START_DATE, "NO_INPUT");
 		}
-		
-		if (!isValidDeadline(parsedUserInput.get(PARAMETER.DEADLINE))) {
-			errorHashMap.put(PARAMETER.DEADLINE, ERROR_INVALID_DATE_FORMAT);
-		} else {
-			errorHashMap.put(PARAMETER.DEADLINE, VALID_INPUT);
+
+		try {
+			if (!isValidDeadline(parsedUserInput.get(PARAMETER.DEADLINE))) {
+				errorHashMap.put(PARAMETER.DEADLINE, ERROR_INVALID_DATE_FORMAT);
+			} else {
+				errorHashMap.put(PARAMETER.DEADLINE, VALID_INPUT);
+			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.DEADLINE, "NO_INPUT");
 		}
 
 		if (!isValidStartTime(parsedUserInput.get(PARAMETER.START_TIME))) {
@@ -139,7 +151,7 @@ public class Validator {
 	 *
 	 * TODO: when is a description invalid? Empty? Too many characters?
 	 */
-	private boolean isValidDesc(String value) {
+	private static boolean isValidDesc(String value) {
 
 		// just spaces? " "
 		if (isValidString(value)) {
@@ -149,7 +161,7 @@ public class Validator {
 	}
 
 	/* TODO: When is venue invalid? */
-	private boolean isValidVenue(String value) {
+	private static boolean isValidVenue(String value) {
 
 		value = value.trim();
 		if (value.equals(null)) {
@@ -162,7 +174,7 @@ public class Validator {
 	 * Currently only: (21/05/2016 , 21/05, 21 May 2016, 21 May ) formats are
 	 * accepted. TODO: Invalid dates like 66/38/2894? DONE
 	 */
-	private boolean isValidStartDate(String value) {
+	private static boolean isValidStartDate(String value) {
 		if (isValidDateFormat(value)) {
 			return true;
 		}
@@ -170,10 +182,10 @@ public class Validator {
 	}
 
 	/*
-	 * Currently only validating formats. as above. TODO: EndDate < StartDate DONE
-	 * error, EndDate < today's date error. DONE
+	 * Currently only validating formats. as above. TODO: EndDate < StartDate
+	 * DONE error, EndDate < today's date error. DONE
 	 */
-	private boolean isValidEndDate(String value) {
+	private static boolean isValidEndDate(String value) {
 		if (isValidDateFormat(value)) {
 			return true;
 		}
@@ -184,7 +196,7 @@ public class Validator {
 	/*
 	 * Similar to end date DONE
 	 */
-	private boolean isValidDeadline(String value) {
+	private static boolean isValidDeadline(String value) {
 		if (isValidDateFormat(value)) {
 			return true;
 		}
@@ -195,33 +207,34 @@ public class Validator {
 	/*
 	 * Invalid time like 25pm, 5050 dealt with yet. DONE
 	 */
-	private boolean isValidStartTime(String value) {
+	private static boolean isValidStartTime(String value) {
 		if (isValidTimeFormat(value)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isValidEndTime(String value) {
+	private static boolean isValidEndTime(String value) {
 		if (isValidTimeFormat(value)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isValidRemindTime(String value) {
+	private static boolean isValidRemindTime(String value) {
 		if (isValidTimeFormat(value)) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isValidPriority(String value) {
+	private static boolean isValidPriority(String value) {
 		value = value.trim(); // in case of front and back white spaces
-		if (!value.equalsIgnoreCase("low") || !value.equalsIgnoreCase("medium") || !value.equalsIgnoreCase("high")) {
-			return false;
+		value = value.toLowerCase();
+		if (value.equals("low") || value.equals("medium") || value.equals("high")) {
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	/*
@@ -231,9 +244,9 @@ public class Validator {
 	 * fit.
 	 */
 
-	private boolean isValidDatePeriod(String startDate, String endDate) {
+	private static boolean isValidDatePeriod(String startDate, String endDate) {
 		int startYear = 0; // initialise year to this year
-		int startMonth=0, startDay = 0; // in case no specification of year
+		int startMonth = 0, startDay = 0; // in case no specification of year
 		int endYear = 0;
 		int endMonth = 0, endDay = 0;
 
@@ -297,10 +310,9 @@ public class Validator {
 			default:
 				break;
 			}
-			if (splitStrSpace.length == 3){
+			if (splitStrSpace.length == 3) {
 				startYear = Integer.parseInt(splitStrSpace[2]);
-			}
-			else{
+			} else {
 				startYear = Calendar.getInstance().get(Calendar.YEAR);
 			}
 		}
@@ -363,19 +375,18 @@ public class Validator {
 			default:
 				break;
 			}
-			if (splitStrSpace.length == 3){
+			if (splitStrSpace.length == 3) {
 				endYear = Integer.parseInt(splitStrSpace[2]);
-			}
-			else{
+			} else {
 				endYear = Calendar.getInstance().get(Calendar.YEAR);
 			}
 		}
-		
-		if (endYear < startYear){
+
+		if (endYear < startYear) {
 			return false;
-		}else if(startYear == endYear && startMonth < endMonth){
+		} else if (startYear == endYear && startMonth < endMonth) {
 			return false;
-		}else if(startYear == endYear && startMonth == endMonth && startDay < endDay){
+		} else if (startYear == endYear && startMonth == endMonth && startDay < endDay) {
 			return false;
 		}
 		return true;
@@ -383,7 +394,7 @@ public class Validator {
 
 	// Should have a better way. This is purely String-parse-integer way. Maybe
 	// java time conversion way? ONLY DEALS WITH TIME.
-	private boolean isValidTimePeriod(String startTime, String endTime) {
+	private static boolean isValidTimePeriod(String startTime, String endTime) {
 		int startHrs = 0;
 		int startMins = 0;
 		int endHrs = 0;
@@ -442,7 +453,7 @@ public class Validator {
 		return true;
 	}
 
-	private boolean isValidString(String string) {
+	private static boolean isValidString(String string) {
 		string = string.trim();
 		if (string.equals(null)) {
 			return false;
@@ -450,7 +461,7 @@ public class Validator {
 		return true;
 	}
 
-	private boolean isValidDateFormat(String string) {
+	private static boolean isValidDateFormat(String string) {
 		string = string.trim();
 		if (isNumberDateFormat(string) || isWordMonthFormat(string)) {
 			return true;
@@ -458,7 +469,7 @@ public class Validator {
 		return false;
 	}
 
-	private boolean isValidTimeFormat(String string) {
+	private static boolean isValidTimeFormat(String string) {
 		string = string.trim();
 		if (is12hrTimeFormat(string) || is24hrTimeFormat(string)) {
 			return true;
@@ -540,7 +551,7 @@ public class Validator {
 	public static Boolean is12hrTimeFormat(String string) {
 		string = string.trim();
 		int length = string.length();
-		String numString = string.substring(length - 2);
+		String numString = string.substring(0,length - 2);
 		String ampmstring = string.substring(length - 2, length);
 		if (ampmstring.equals("am") || ampmstring.equals("pm")) {
 			if (numString.length() <= 1 && Integer.parseInt(numString) <= 12) { // DEALS
