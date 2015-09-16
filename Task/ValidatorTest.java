@@ -22,9 +22,6 @@ public class ValidatorTest {
 		testHashMap.put(PARAMETER.START_TIME, "1200");
 		testHashMap.put(PARAMETER.END_TIME, "8pm");
 		testHashMap.put(PARAMETER.PRIORITY, "LOW");
-		
-		testHashMap.put(PARAMETER.DEADLINE, "");
-		testHashMap.put(PARAMETER.REMIND_TIME, "2pm");
 
 		
 		HashMap<PARAMETER, String> returnTest = Validator.validateUserInput(COMMAND_TYPE.ADD_TASK,testHashMap);

@@ -48,22 +48,34 @@ public class Validator {
 			errorHashMap.put(PARAMETER.DESC, VALID_INPUT);
 		}
 
-		if (!isValidVenue(parsedUserInput.get(PARAMETER.VENUE))) {
-			errorHashMap.put(PARAMETER.VENUE, ERROR_INVALID_VENUE);
-		} else {
-			errorHashMap.put(PARAMETER.VENUE, VALID_INPUT);
+		try {
+			if (!isValidVenue(parsedUserInput.get(PARAMETER.VENUE))) {
+				errorHashMap.put(PARAMETER.VENUE, ERROR_INVALID_VENUE);
+			} else {
+				errorHashMap.put(PARAMETER.VENUE, VALID_INPUT);
+			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.VENUE, NO_INPUT);
 		}
 
-		if (!isValidStartDate(parsedUserInput.get(PARAMETER.START_DATE))) {
-			errorHashMap.put(PARAMETER.START_DATE, ERROR_INVALID_DATE_FORMAT);
-		} else {
-			errorHashMap.put(PARAMETER.START_DATE, VALID_INPUT);
+		try {
+			if (!isValidStartDate(parsedUserInput.get(PARAMETER.START_DATE))) {
+				errorHashMap.put(PARAMETER.START_DATE, ERROR_INVALID_DATE_FORMAT);
+			} else {
+				errorHashMap.put(PARAMETER.START_DATE, VALID_INPUT);
+			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.START_DATE, NO_INPUT);
 		}
 
-		if (!isValidEndDate(parsedUserInput.get(PARAMETER.END_DATE))) {
-			errorHashMap.put(PARAMETER.END_DATE, ERROR_INVALID_DATE_FORMAT);
-		} else {
-			errorHashMap.put(PARAMETER.END_DATE, VALID_INPUT);
+		try {
+			if (!isValidEndDate(parsedUserInput.get(PARAMETER.END_DATE))) {
+				errorHashMap.put(PARAMETER.END_DATE, ERROR_INVALID_DATE_FORMAT);
+			} else {
+				errorHashMap.put(PARAMETER.END_DATE, VALID_INPUT);
+			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.END_DATE, NO_INPUT);
 		}
 
 		try {
@@ -80,7 +92,7 @@ public class Validator {
 				}
 			}
 		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.START_DATE, "NO_INPUT");
+			errorHashMap.put(PARAMETER.START_DATE, NO_INPUT);
 		}
 
 		try {
@@ -90,33 +102,51 @@ public class Validator {
 				errorHashMap.put(PARAMETER.DEADLINE, VALID_INPUT);
 			}
 		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.DEADLINE, "NO_INPUT");
+			errorHashMap.put(PARAMETER.DEADLINE, NO_INPUT);
 		}
 
-		if (!isValidStartTime(parsedUserInput.get(PARAMETER.START_TIME))) {
-			errorHashMap.put(PARAMETER.START_TIME, ERROR_INVALID_TIME_FORMAT);
-		} else {
-			errorHashMap.put(PARAMETER.START_TIME, VALID_INPUT);
+		try {
+			if (!isValidStartTime(parsedUserInput.get(PARAMETER.START_TIME))) {
+				errorHashMap.put(PARAMETER.START_TIME, ERROR_INVALID_TIME_FORMAT);
+			} else {
+				errorHashMap.put(PARAMETER.START_TIME, VALID_INPUT);
+			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.START_TIME, NO_INPUT);
 		}
 
-		if (!isValidEndTime(parsedUserInput.get(PARAMETER.END_TIME))) {
-			errorHashMap.put(PARAMETER.END_TIME, ERROR_INVALID_TIME_FORMAT);
-		} else {
-			errorHashMap.put(PARAMETER.END_TIME, VALID_INPUT);
+		try {
+			if (!isValidEndTime(parsedUserInput.get(PARAMETER.END_TIME))) {
+				errorHashMap.put(PARAMETER.END_TIME, ERROR_INVALID_TIME_FORMAT);
+			} else {
+				errorHashMap.put(PARAMETER.END_TIME, VALID_INPUT);
+			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.END_TIME, NO_INPUT);
 		}
 
-		if (!isValidRemindTime(parsedUserInput.get(PARAMETER.REMIND_TIME))) {
-			errorHashMap.put(PARAMETER.REMIND_TIME, ERROR_INVALID_TIME_FORMAT);
-		} else {
-			errorHashMap.put(PARAMETER.REMIND_TIME, VALID_INPUT);
+		try {
+			if (!isValidRemindTime(parsedUserInput.get(PARAMETER.REMIND_TIME))) {
+				errorHashMap.put(PARAMETER.REMIND_TIME, ERROR_INVALID_TIME_FORMAT);
+			} else {
+				errorHashMap.put(PARAMETER.REMIND_TIME, VALID_INPUT);
+			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.REMIND_TIME, NO_INPUT);
 		}
 
-		if (!isValidPriority(parsedUserInput.get(PARAMETER.PRIORITY))) {
-			errorHashMap.put(PARAMETER.PRIORITY, ERROR_INVALID_PRIORITY_FORMAT);
-		} else {
-			errorHashMap.put(PARAMETER.PRIORITY, VALID_INPUT);
+		try {
+			if (!isValidPriority(parsedUserInput.get(PARAMETER.PRIORITY))) {
+				errorHashMap.put(PARAMETER.PRIORITY, ERROR_INVALID_PRIORITY_FORMAT);
+			} else {
+				errorHashMap.put(PARAMETER.PRIORITY, VALID_INPUT);
+			}
+		} catch (NullPointerException e) {
+			errorHashMap.put(PARAMETER.PRIORITY, NO_INPUT);
 		}
+
 		return errorHashMap;
+
 	}
 
 	// Takes command and hashmap of user input and runs through to see if all
@@ -551,7 +581,7 @@ public class Validator {
 	public static Boolean is12hrTimeFormat(String string) {
 		string = string.trim();
 		int length = string.length();
-		String numString = string.substring(0,length - 2);
+		String numString = string.substring(0, length - 2);
 		String ampmstring = string.substring(length - 2, length);
 		if (ampmstring.equals("am") || ampmstring.equals("pm")) {
 			if (numString.length() <= 1 && Integer.parseInt(numString) <= 12) { // DEALS
