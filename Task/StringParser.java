@@ -20,6 +20,9 @@ public class StringParser {
 	private static final int QUOTE_INTEGER = 34;
 	private static final int WITHIN_KEYWORD = 0;
 	private static final int SEPERATED_BY_SPACES = 1;
+	private static final int PARAM_NOT_FOUND = -1;
+
+	private static final int HASHTAG_LENGTH = 1;
 	
 	//The hashmap contructed
 	private HashMap<PARAMETER, ArrayList<String>> keywordHash = null;
@@ -66,12 +69,22 @@ public class StringParser {
 			userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
 			userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
 			
-			String[] 	  keywordsInInput	={"from","to","by","remind","#"};
-			PARAMETER[][] paramInInput		={{PARAMETER.START_DATE, PARAMETER.START_TIME},
+			String[] 	  keywordsInInput	={"on","from","to","by"};
+			PARAMETER[][] paramInInput		={{PARAMETER.START_DATE},
+												{PARAMETER.START_DATE, PARAMETER.START_TIME},
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
 												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}};
 			
+			if(findKeywordIndexInput(userInput,"on",0) > 0){
+				paramInInput[1] = new PARAMETER[] {PARAMETER.START_TIME};
+				paramInInput[2] = new PARAMETER[] {PARAMETER.END_TIME};
+			}
+			
 			addAttributesToHashTable(keywordsInInput, paramInInput, userInput.split(SPACE_CHARACTER));
+			
+			if(findKeywordIndexInput(userInput,"on",0) > 0){
+				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
+			}
 			break;
 		case GET_TASK:
 			
@@ -98,8 +111,8 @@ public class StringParser {
 	 */
 	private String transferMultipleArgsToHashMap(PARAMETER keyword, String keywordString, int typeOfArguments,
 			String userInput) {
-		int indexOfOccurance = findKeywordIndexInput(keywordString,userInput);
-		int indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance+1);
+		int indexOfOccurance = findKeywordIndexInput(userInput,keywordString,0);
+		int indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
 		if(indexOfNextSpeace < 0){
 			indexOfNextSpeace = userInput.length();
 		}
@@ -107,19 +120,40 @@ public class StringParser {
 			keywordHash.put(keyword, new ArrayList<String>());
 		}
 		
-		//TODO: Finish # and reminders
 		while(typeOfArguments == WITHIN_KEYWORD && indexOfOccurance > 0){
-			keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance + 1,indexOfNextSpeace));
-			userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace);
-			indexOfOccurance = findKeywordIndexInput(keywordString,userInput);
+			keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance + HASHTAG_LENGTH,indexOfNextSpeace - 1));
+			userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace - 1);
+			indexOfOccurance = findKeywordIndexInput(userInput,keywordString,indexOfOccurance);
 		}
-		while(typeOfArguments == SEPERATED_BY_SPACES && indexOfOccurance > 0){
+		
+		if(typeOfArguments == SEPERATED_BY_SPACES && indexOfOccurance >= 0){
 			userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace);
-			indexOfOccurance = findKeywordIndexInput(keywordString,userInput);
+			indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
+			
+			//used to check for all numerical reminders after remind keyword
+			while(containsOnlyNumbers(userInput.substring(indexOfOccurance,indexOfNextSpeace))){
+				indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
+				if(indexOfNextSpeace < 0){
+					keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance,userInput.length()));
+					userInput = trimStringPortionOut(userInput,indexOfOccurance,userInput.length());
+					break;
+				}
+				keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance,indexOfNextSpeace - 1));
+				userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace);
+			}
 		}
 		
 		
 		return userInput;
+	}
+
+	/**
+	 * Used to check if the contents of a string are numerical
+	 * @param numString The string to be checked for all numbers
+	 * @return A boolean representation of wheather the string provided is all numbers
+	 */
+	private boolean containsOnlyNumbers(String numString) {
+		return numString.matches("[0-9]+");
 	}
 
 	/**
@@ -130,13 +164,13 @@ public class StringParser {
 	 * @return The trimmed string without the 
 	 */
 	public String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput) {
-		int positionOfKeyword = findKeywordIndexInput(userInput, keywordString);
+		int positionOfKeyword = findKeywordIndexInput(userInput, keywordString,0);
 		int startOfQuote = userInput.indexOf(QUOTE_INTEGER, positionOfKeyword);
 		int endOfQuote = userInput.indexOf(QUOTE_INTEGER, startOfQuote + 1);
 		if(startOfQuote > 0 && endOfQuote > 0){
 			keywordHash.put(keyword, new ArrayList<String>()); //Ignore the quote delimeters
 			keywordHash.get(keyword).add((getKeywordnInString(userInput, startOfQuote + 1, endOfQuote - 1)));
-			return trimStringPortionOut(userInput, positionOfKeyword, endOfQuote);
+			return trimStringPortionOut(userInput, positionOfKeyword, endOfQuote + 1);
 		} else{
 			return userInput;
 		}
@@ -149,12 +183,18 @@ public class StringParser {
 	 * @param keywordString The keyword to be searched
 	 * @return The index of the keyword found
 	 */
-	public int findKeywordIndexInput(String userInput, String keywordString) {
+	public int findKeywordIndexInput(String userInput, String keywordString, int StartIndex) {
 		boolean outsideOfQuotes = true;
+		if(keywordString == null || keywordString.length()==0 || userInput == null || userInput.length() == 0){
+			return -1;
+		}
 		char[] keyword = keywordString.toCharArray();
 		int indexInKeyword = 0;
 		char[] userInputCharArr = userInput.toCharArray();
-		for (int c = 0; c < userInputCharArr.length;c++) {
+		if(StartIndex < 0){
+			StartIndex = 0;
+		}
+		for (int c = StartIndex; c < userInputCharArr.length;c++) {
 			if(userInputCharArr[c] == QUOTE_INTEGER){
 				outsideOfQuotes = !outsideOfQuotes;
 			}
@@ -180,6 +220,9 @@ public class StringParser {
 	 */
 	public String trimStringPortionOut(String userInput, int startOfDesc, int endOfDesc) {
 		StringBuilder result = new StringBuilder();
+		if(userInput == null){
+			return null;
+		}
 		char[] userInputCharArr = userInput.toCharArray();
 	    for (int c = 0; c < userInputCharArr.length; c++) {
 	        if (c < startOfDesc || c > endOfDesc) {
@@ -198,6 +241,9 @@ public class StringParser {
 	 */
 	public String getKeywordnInString(String userInput, int startOfDesc, int endOfDesc) {
 		StringBuilder result = new StringBuilder();
+		if(userInput == null){
+			return null;
+		}
 		char[] userInputCharArr = userInput.toCharArray();
 	    for (int c = 0; c < userInputCharArr.length; c++) {
 	        if (c >= startOfDesc && c <= endOfDesc) {
@@ -214,10 +260,12 @@ public class StringParser {
 	 * @return The index of the keyword input matches
 	 */
 	public int stringCompareToList(String input, String[] keywordsInInput) {
-		for(int i = 0;i< keywordsInInput.length;i++){
-		   if(keywordsInInput[i].equalsIgnoreCase(input)){
-			   return i;
-		   }
+		if(input != null && keywordsInInput != null){
+			for(int i = 0;i< keywordsInInput.length;i++){
+			   if(keywordsInInput[i].equalsIgnoreCase(input)){
+				   return i;
+			   }
+			}
 		}
 		return -1;
 	}
@@ -230,8 +278,8 @@ public class StringParser {
 	 */
 	private void addAttributesToHashTable(String[] keywordsInInput,PARAMETER[][] paramInInput, String[] stringToParse) {
 		//Traverses the string word by word
-		for(int i = 0; i < stringToParse.length; i++){
-			i = keywordIndexForParams(keywordsInInput, paramInInput, stringToParse, i);
+		for(int currentWord = 0; currentWord < stringToParse.length;){
+			currentWord = keywordIndexForParams(keywordsInInput, paramInInput, stringToParse, currentWord);
 		}
 	}
 	
@@ -243,20 +291,22 @@ public class StringParser {
 	 * @param i The current word index from the userString
 	 * @return The new word index after the params are extracted
 	 */
-	private int keywordIndexForParams(String[] keywordsInInput, PARAMETER[][] paramInInput, String[] stringToParse, int i) {
-		int commandFromKeywordIndex = stringCompareToList(stringToParse[i], keywordsInInput);
-		if(commandFromKeywordIndex > 0){
+	private int keywordIndexForParams(String[] keywordsInInput, PARAMETER[][] paramInInput, String[] stringToParse, int currentWord) {
+		int commandFromKeywordIndex = stringCompareToList(stringToParse[currentWord], keywordsInInput);
+		//Start from the first parameter
+		currentWord++;
+		if(commandFromKeywordIndex != PARAM_NOT_FOUND){
 			//extracts the arguments for each keyword given they are not keywords
 			for(int j = 0; j < paramInInput[commandFromKeywordIndex].length; j++){
-				//TODO: fix for arguments that arent given for a keyword
-				if(stringCompareToList(stringToParse[i], keywordsInInput) != 0 && i < stringToParse.length){
-					i++;
+				//TODO: fix for arguments that aren't given for a keyword
+				if(stringCompareToList(stringToParse[currentWord], keywordsInInput) == PARAM_NOT_FOUND && currentWord < stringToParse.length){
 					keywordHash.put(paramInInput[commandFromKeywordIndex][j], new ArrayList<String>()); //Ignore the quote delimeters
-					keywordHash.get(paramInInput[commandFromKeywordIndex][j]).add(stringToParse[i]);
+					keywordHash.get(paramInInput[commandFromKeywordIndex][j]).add(stringToParse[currentWord]);
+					currentWord++;
 				}
 			}
 		}
-		return i;
+		return currentWord;
 	}
 	
 }

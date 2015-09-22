@@ -7,3 +7,6 @@
 /Parser$PARAMETER.class
 /Validator.class
 /Validator$PARAMETER.class
+/COMMAND_TYPE.class
+/PARAMETER.class
+/StringParser.class
