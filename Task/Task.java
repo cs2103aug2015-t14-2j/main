@@ -11,11 +11,12 @@ import java.text.SimpleDateFormat;
 
 public class Task {
 	// Helpers
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, YYYY HH:mm:ss Z");
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy HH:mm");
 	
 	// A task has these meta data
 	private Date createdTime;
 	private Date lastModifiedTime;
+	private int  taskId;
 	
 	// A task has these properties
 	private Period period;
@@ -47,20 +48,22 @@ public class Task {
 	};
 	
 	// Constructor
-	public Task (String desc) {
+	public Task (int taskId, String desc) {
+		this.taskId = taskId;
 		this.description = desc;
 		
 	}
 	
-	public Task (String desc, Date startTime, Date endTime, Date deadline, String venue, String priority) {
+	public Task (int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, String priority) {
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
+		this.taskId = taskId;
 		
 		this.period = new Period(startTime, endTime);
 		this.deadline = deadline;
 		this.venue = venue;
 //		this.priority = priority;
-		this.setPriority(priority);
+		// this.setPriority(priority);
 		this.description = desc;
 		this.isDone = false;
 		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
@@ -69,13 +72,32 @@ public class Task {
 		
 	}
 	
+	public Task (int taskId, Date createdTime, Date lastModifiedTime, String desc, Date startTime, Date endTime, Date deadline, String venue, boolean isDone, boolean isPastDeadline, boolean hasEnded, ArrayList<String> tags) {
+		this.taskId = taskId;
+		this.createdTime = createdTime;
+		this.lastModifiedTime = lastModifiedTime;
+		
+		this.period = new Period(startTime, endTime);
+		this.deadline = deadline;
+		this.venue = venue;
+//		this.priority = priority;
+//		this.setPriority(priority);
+		this.description = desc;
+		this.isDone = isDone;
+		this.isPastDeadline = isPastDeadline;
+		this.hasEnded = hasEnded;
+		this.tags = tags;
+	}
+	
 	public String toString() {
 		String result = "";
 		result += "Task :\n";
+		result += "   Task ID        : " + this.taskId + "\n";
 		result += "   Description    : " + this.description + "\n";
 		result += "   Start Time     : " + dateFormat.format(this.period.getStartTime()) + "\n";
 		result += "   End Time       : " + dateFormat.format(this.period.getEndTime()) + "\n";
-		result += "   Priority       : " + this.priority.toString() + "\n";
+		result += "   Deadline       : " + dateFormat.format(this.getDeadline()) + "\n"; 
+//		result += "   Priority       : " + this.priority.toString() + "\n";
 		result += "   Venue          : " + this.venue + "\n";
 		result += "   isDone         : " + this.isDone + "\n";
 		result += "   isPastDeadline : " + this.isPastDeadline + "\n";
@@ -101,6 +123,26 @@ public class Task {
 		
 	}
 	
+	public Date getCreatedTime() {
+		return this.createdTime;
+	}
+
+	public Date getModifiedTime() {
+		return this.lastModifiedTime;
+	}
+
+	public void setModifiedTime(Date time) {
+		this.lastModifiedTime = time;
+	}
+
+	public int getTaskId() {
+		return this.taskId;
+	}
+
+	public void setTaskId(int taskId) {
+		this.taskId = taskId;
+	}
+
 	public Date getStartTime() {
 		return this.period.getStartTime();
 	}

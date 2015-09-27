@@ -9,7 +9,7 @@ public class Period {
 	private Date startTime;
 	private Date endTime;
 	
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM d, YYYY HH:mm:ss Z");
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy HH:mm");
 	
 	public Period (Date startTime, Date endTime) throws IllegalArgumentException {
 		if(startTime.after(endTime)) {

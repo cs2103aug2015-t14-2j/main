@@ -1,0 +1,32 @@
+{
+	"Tasks" : [
+		{
+			"taskId" : 1,
+			"createdTime" : "Thu Sep 10 2015 1356",
+			"lastModifiedTime" : "Thu Sep 10 2015 1356",
+			"startTime"   : "Fri Sep 11 2015 1200",
+			"endTime" : "Fri Sep 11 2015 1400",
+			"deadline" : "Sat Sep 12 2015 1200",
+			"venue" : "NUS",
+			"description" : "Buy lunch",
+			"isDone" : false,
+			"isPastDeadline" : false,
+			"hasEnded" : false,
+			"tags" : ["#GE2015", "#Elections","#homework"]
+		},
+		{
+			"taskId" : 2,
+			"createdTime" : "Thu Sep 10 2015 1356",
+			"lastModifiedTime" : "Thu Sep 10 2015 1356",
+			"startTime"   : "Fri Sep 11 2015 1200",
+			"endTime" : "Fri Sep 11 2015 1400",
+			"deadline" : "Sat Sep 12 2015 1200",
+			"venue" : "NUS",
+			"description" : "Buy lunch",
+			"isDone" : false,
+			"isPastDeadline" : false,
+			"hasEnded" : false,
+			"tags" : ["#GE2015", "#Elections","#homework"]
+		}
+	]
+}
