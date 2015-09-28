@@ -7,12 +7,7 @@
 package Task;
 
 import java.io.*;
-import java.io.IOException;
-import org.json.simple.parser.ParseException;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-import java.util.Iterator;
+import Task.FileIO;
 
 import java.text.SimpleDateFormat;
 //import java.text.ParseException;
@@ -71,17 +66,15 @@ public class TaskHandler {
 	
 	private static Scanner         scanner           = new Scanner(System.in);
 	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE MMM dd yyyy HHmm");
+	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
 	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
 	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
 	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
 	private static String 			filePath	     = "./data/calendar.json";		// relative path to calendar.json 
-	private static FileWriter       writer; 
-	private static FileReader       reader;
 	private static int 				currentTaskId;          
+	private static FileIO           fileIO;
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		init();
 		showToUser(MESSAGE_WELCOME);
 		while(true) {
@@ -97,112 +90,9 @@ public class TaskHandler {
 	// Initialize settings, search for application files etc.
 	private static void init() {
 		dateFormat.setCalendar(calendar);
-		readFromFile(TaskHandler.filePath);
-	}
-	
-	// 
-	private static void readFromFile(String path) {
-		try {
-			reader = new FileReader(path);
-			//System.out.println("current time is " + dateFormat.getCalendar().get(1));
-			JSONParser parser = new JSONParser();
-			try {
-				JSONObject jsonObject = (JSONObject) parser.parse(reader);
-				
-				JSONArray taskListFile = (JSONArray) jsonObject.get("Tasks");
-				Iterator<JSONObject> taskIterator = taskListFile.iterator();
-				while(taskIterator.hasNext()) {
-					jsonObject                   = taskIterator.next();
-					long taskId                  = (long) jsonObject.get("taskId");
-					String createdTime           = (String) jsonObject.get("createdTime");
-					String lastModifiedTime      = (String) jsonObject.get("lastModifiedTime");
-					String startTime             = (String) jsonObject.get("startTime");
-					String endTime               = (String) jsonObject.get("endTime");
-					String deadline              = (String) jsonObject.get("deadline");
-					String venue                 = (String) jsonObject.get("venue");
-					String description           = (String) jsonObject.get("description");
-					boolean isDone                = (boolean) jsonObject.get("isDone");
-					boolean isPastDeadline        = (boolean) jsonObject.get("isPastDeadline");
-					boolean hasEnded              = (boolean) jsonObject.get("hasEnded");
-					
-					JSONArray tagList            = (JSONArray) jsonObject.get("tags");
-					Iterator<String> tagIterator = tagList.iterator();
-					ArrayList<String> hashTags   = new ArrayList<String>();
-					
-					while (tagIterator.hasNext()) {
-						hashTags.add(tagIterator.next());
-						
-					}
-					
-					Date createdTimeDate      = dateFormat.parse(createdTime);
-					Date lastModifiedTimeDate = dateFormat.parse(lastModifiedTime);
-					Date deadlineDate         = dateFormat.parse(deadline);
-					Date startDate            = dateFormat.parse(startTime);
-					Date endDate              = dateFormat.parse(endTime);
-
-					Task memTask = new Task((int) taskId, createdTimeDate, lastModifiedTimeDate, description, startDate, endDate, deadlineDate, venue, isDone, isPastDeadline, hasEnded, hashTags);
-					taskList.add(memTask);
-					currentTaskId = (int) taskId;
-//					System.out.println(taskId + " " + createdTime + " " + lastModifiedTime + " " + startTime + " " + endTime + " " + deadline + " " + venue + " " + description + " " + isDone + " " + isPastDeadline + " " + hasEnded + " " + hashTags);
-					System.out.println(memTask.toString());
-
-				}
-				
-				reader.close();
-			} catch (ParseException e) {
-				e.printStackTrace();
-			} catch (java.text.ParseException e1) {
-				e1.printStackTrace();
-			}
-			
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static void writeToFile(String path) {
-		JSONObject calendarObj = new JSONObject();
-
-		JSONArray taskListFile = new JSONArray();
-
-		Iterator<Task> taskIterator = taskList.iterator();
-		while (taskIterator.hasNext()) {
-			Task currentTask = taskIterator.next();
-			JSONObject obj = new JSONObject();
-			obj.put("taskId", currentTask.getTaskId());
-			obj.put("createdTime", dateFormat.format(currentTask.getCreatedTime()));
-			obj.put("lastModifiedTime", dateFormat.format(currentTask.getModifiedTime()));
-			obj.put("startTime", dateFormat.format(currentTask.getStartTime()));
-			obj.put("endTime", dateFormat.format(currentTask.getEndTime()));
-			obj.put("deadline", dateFormat.format(currentTask.getDeadline()));
-			obj.put("venue", currentTask.getVenue());
-			obj.put("description", currentTask.getDescription());
-			obj.put("isDone", currentTask.isDone());
-			obj.put("isPastDeadline", currentTask.isPastDeadline());
-			obj.put("hasEnded", currentTask.isHasEnded());
-			
-			Iterator<String> tagIterator = currentTask.getTags().iterator();
-			JSONArray tagListFile = new JSONArray();
-			while (tagIterator.hasNext()) {
-				tagListFile.add(tagIterator.next());
-			}
-			obj.put("tags", tagListFile);
-			
-			taskListFile.add(obj);
-		}
-		
-		calendarObj.put("Tasks", taskListFile);
-
-		try {
-			writer = new FileWriter(path);
-			writer.write(calendarObj.toJSONString());
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		fileIO = new FileIO(TaskHandler.filePath);
+		taskList = fileIO.readFromFile();
+		currentTaskId = fileIO.getCurrentTaskId();
 	}
 
 	// Displays text to user, do not print if empty string
@@ -261,7 +151,7 @@ public class TaskHandler {
 				return "";
 			case EXIT:
 				showToUser(MESSAGE_EXIT);
-				writeToFile(TaskHandler.filePath);
+				fileIO.writeToFile(taskList);
 				System.exit(0);
 			default:
 				return "There is an error in your code.";
@@ -296,7 +186,7 @@ public class TaskHandler {
 			Date endDate      = dateFormat.parse(endTime);
 			Date deadlineDate = dateFormat.parse(deadline);
 			
-			Task task = new Task(currentTaskId+1, desc, startDate, endDate, deadlineDate, venue, priority);
+			Task task = new Task(currentTaskId+1, desc, startDate, endDate, deadlineDate, venue, new ArrayList<String>());
 			System.out.println(task.toString());
 			taskList.add(task);
 			

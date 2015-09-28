@@ -9,7 +9,7 @@ public class Period {
 	private Date startTime;
 	private Date endTime;
 	
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy HH:mm");
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
 	
 	public Period (Date startTime, Date endTime) throws IllegalArgumentException {
 		if(startTime.after(endTime)) {
@@ -20,8 +20,19 @@ public class Period {
 		this.endTime   = endTime;
 	}
 	
-	public String toString(Period period) {
-		return dateFormat.format(period.getStartTime()) + " - " + dateFormat.format(period.getEndTime()); 
+	public boolean equals(Period period) {
+		if (!this.startTime.equals(period.startTime)) {
+			return false;
+		}
+		if (!this.endTime.equals(period.endTime)) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public String toString() {
+		return dateFormat.format(this.getStartTime()) + " - " + dateFormat.format(this.getEndTime()); 
 	}
 
 	public Date getStartTime() {
@@ -39,6 +50,4 @@ public class Period {
 	public void setEndTime(Date endTime) {
 		this.endTime = endTime;
 	}
-	
-	
 }
