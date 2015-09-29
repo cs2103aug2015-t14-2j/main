@@ -230,6 +230,7 @@ public class FileIO {
 		jsonWriter.endObject();
 	}
 	
+	// Utility method
 	private String parseNullOrString(JsonReader jsonReader) throws IOException {
 		if (jsonReader.peek() == JsonToken.NULL) {
 			jsonReader.nextNull();
@@ -239,6 +240,7 @@ public class FileIO {
 		}
 	}
 	
+	// Utility method
 	private String toNullOrDateString(Date date) {
 		if (date == null) {
 			return null;

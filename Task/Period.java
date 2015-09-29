@@ -20,7 +20,13 @@ public class Period {
 		this.endTime   = endTime;
 	}
 	
-	public boolean equals(Period period) {
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Period)) {
+			return false;
+		}
+		
+		Period period = ((Period) obj);
 		if (!this.startTime.equals(period.startTime)) {
 			return false;
 		}

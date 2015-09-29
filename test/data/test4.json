@@ -29,6 +29,23 @@
             "tags": [
                 "#GE2015"
             ]
+        },
+        {
+            "taskId": 3,
+            "createdTime": "Thu, 10 Sep, 2015 1356",
+            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
+            "startTime": null,
+            "endTime": null,
+            "deadline": "Tue, 29 Sep, 2015 1200",
+            "venue": null,
+            "description": "Shop for groceries!",
+            "isDone": false,
+            "isPastDeadline": true,
+            "hasEnded": false,
+            "tags": [
+                "#GE2015",
+                "#Elections"
+            ]
         }
     ]
 }

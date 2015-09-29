@@ -92,7 +92,7 @@ public class Task {
 		this.isDone = false;
 		this.isPastDeadline = false;
 		this.hasEnded = hasEnded(this.createdTime , endTime);
-		this.tags = tags;
+		this.tags = new ArrayList<String>(tags);
 	}
 	
 	/**
@@ -117,7 +117,7 @@ public class Task {
 		this.isDone = false;
 		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
 		this.hasEnded = false;
-		this.tags = tags;
+		this.tags = new ArrayList<String>(tags);
 	}
 	
 	/**
@@ -144,7 +144,7 @@ public class Task {
 		this.isDone = false;
 		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
 		this.hasEnded = hasEnded(this.createdTime , endTime);
-		this.tags = tags;
+		this.tags = new ArrayList<String>(tags);
 		
 	}
 	
@@ -181,7 +181,7 @@ public class Task {
 		this.isDone = isDone;
 		this.isPastDeadline = isPastDeadline;
 		this.hasEnded = hasEnded;
-		this.tags = tags;
+		this.tags = new ArrayList<String>(tags);
 	}
 	
 	public String toString() {
@@ -220,17 +220,23 @@ public class Task {
 		return result;
 	}
 	
-	public boolean equals(Task task) {
-		if (!this.period.equals(task.period)) {
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Task)) {
 			return false;
 		}
-		if (!this.deadline.equals(task.deadline)) {
+		Task task = ((Task)obj);
+
+		if (!bothNullOrEqual(this.period, task.period)) {
 			return false;
 		}
-		if (!this.venue.equals(task.venue)) {
+		if (!bothNullOrEqual(this.deadline, task.deadline)) {
 			return false;
 		}
-		if (!this.description.equals(task.description)) {
+		if (!bothNullOrEqual(this.venue, task.venue)) {
+			return false;
+		}
+		if (!bothNullOrEqual(this.description, task.description)) {
 			return false;
 		}
 		if (this.isDone != task.isDone) {
@@ -242,9 +248,17 @@ public class Task {
 		if (this.hasEnded != task.hasEnded) {
 			return false;
 		}
-		// Hashtags are not compared
+		if (!bothNullOrEqual(this.tags, task.tags)) {
+			return false;
+		}
+		// Hashtags and taskId are not compared
 		
 		return true;
+	}
+	
+	// Utility method
+	private static boolean bothNullOrEqual(Object x, Object y) {
+		return ( x == null ? y == null : x.equals(y));
 	}
 	
 	public boolean isPastDeadline (Date now, Date deadline) {
@@ -284,7 +298,11 @@ public class Task {
 	}
 
 	public Date getStartTime() {
-		return this.period.getStartTime();
+		if (this.period == null) {
+			return null;
+		} else {
+			return this.period.getStartTime();			
+		}
 	}
 
 	public void setStartTime(Date startTime) {
@@ -292,7 +310,11 @@ public class Task {
 	}
 
 	public Date getEndTime() {
-		return this.period.getEndTime();
+		if (this.period == null) {
+			return null;
+		} else {
+			return this.period.getEndTime();			
+		}
 	}
 
 	public void setEndTime(Date endTime) {
