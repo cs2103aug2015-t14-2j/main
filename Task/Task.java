@@ -32,24 +32,6 @@ public class Task {
 	private boolean hasEnded = false;
 	private ArrayList<String> tags = new ArrayList<String>();
 	
-	// These are the possible priority levels
-	enum PRIORITY {
-		LOW, MEDIUM, HIGH;
-		
-		public String toString(PRIORITY priority) {
-			switch (priority) {
-				case LOW:
-					return "low";
-				case MEDIUM:
-					return "medium";
-				case HIGH:
-					return "high";
-				default:
-					return "ERROR";
-			}
-		}
-	};
-	
 	/**
 	 * Constructor for tasks without startTime, endTime and deadline. 
 	 * To be called when user adds a new task.
@@ -213,7 +195,6 @@ public class Task {
 		result += "   Start Time     : " + startTime + "\n";
 		result += "   End Time       : " + endTime + "\n";
 		result += "   Deadline       : " + deadline + "\n";
-//		result += "   Priority       : " + this.priority.toString() + "\n";
 		result += "   Venue          : " + this.venue + "\n";
 		result += "   isDone         : " + this.isDone + "\n";
 		result += "   isPastDeadline : " + this.isPastDeadline + "\n";

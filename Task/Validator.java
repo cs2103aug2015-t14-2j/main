@@ -2,6 +2,7 @@ package Task;
 
 import java.util.Calendar;
 import java.util.HashMap;
+//import Task.PARAMETER;
 
 // This class deals with validation of all user input.
 // It specifies which validation functions are required for which parameters.
@@ -20,14 +21,25 @@ public class Validator {
 	private static final String NO_INPUT = "VALID";
 	/* ...ADD IN MORE HERE */
 
-	// This is optional, you can implement using other ways you like
-	enum PARAMETER {
-		DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE, PRIORITY, REMIND_TIME, STARTENDTIME
-	};
+//	 This is optional, you can implement using other ways you like
+	 enum PARAMETER {
+	 	DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE, PRIORITY, REMIND_TIME, STARTENDTIME
+	 };
 
 	// Constructor
 	public Validator() {
 
+	}
+	
+	/**
+	 * Takes the output hashMap from validateUserInput and returns a boolean indicating whether it is
+	 * safe to add a task using those parameters
+	 * 
+	 * @param errorHashMap
+	 * @return
+	 */
+	public boolean isValidAddTask(HashMap<PARAMETER, String> errorHashMap) {
+		return true;
 	}
 
 	// Takes a HashMap returned from the Parser class and runs through each of
@@ -36,7 +48,7 @@ public class Validator {
 	// fails, set the error message
 	// for that particular validation function.
 	// Returns a HashMap of PARAMETER => error_message_string
-	public static HashMap<PARAMETER, String> validateUserInput(COMMAND_TYPE command,
+	public HashMap<PARAMETER, String> validateUserInput(COMMAND_TYPE command,
 			HashMap<PARAMETER, String> parsedUserInput) {
 
 		HashMap<PARAMETER, String> errorHashMap = new HashMap<PARAMETER, String>();
