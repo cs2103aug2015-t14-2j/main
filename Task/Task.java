@@ -1,13 +1,17 @@
-/*
- * @author A0097689 Tan Si Kai
- * This class represents a task that the user adds in
- */
 
 package Task;
 
 import java.util.Date;
 import java.util.ArrayList;
 import java.text.SimpleDateFormat;
+
+/**
+ * This class represents a task that the user adds in
+ * 
+ *  @author A0097689 Tan Si Kai
+ *  @author A0009586 Jean Pierre Castillo
+ *  @author A0118772  Audrey Tiah
+ */
 
 public class Task {
 	// Helpers
@@ -19,14 +23,13 @@ public class Task {
 	private int  taskId;
 	
 	// A task has these properties
-	private Period period;
-	private Date deadline;
-	private String venue;
-	private PRIORITY priority;
-	private String description;
-	private boolean isDone;
-	private boolean isPastDeadline;
-	private boolean hasEnded;
+	private Period period = null;
+	private Date deadline = null;
+	private String venue = null;
+	private String description = null;
+	private boolean isDone = false;
+	private boolean isPastDeadline = false;
+	private boolean hasEnded = false;
 	private ArrayList<String> tags = new ArrayList<String>();
 	
 	// These are the possible priority levels
@@ -119,7 +122,7 @@ public class Task {
 		this.hasEnded = false;
 		this.tags = new ArrayList<String>(tags);
 	}
-	
+
 	/**
 	 * Constructor for tasks with startTime, endTime and deadline.
 	 * Used when user adds a new task. 
@@ -335,22 +338,6 @@ public class Task {
 
 	public void setVenue(String venue) {
 		this.venue = venue;
-	}
-
-	public PRIORITY getPriority() {
-		return priority;
-	}
-
-	public void setPriority(String priority) {
-		if(priority.equalsIgnoreCase("high")) {
-			this.priority = PRIORITY.HIGH;
-		} else if (priority.equalsIgnoreCase("medium")) {
-			this.priority = PRIORITY.MEDIUM;
-		} else if (priority.equalsIgnoreCase("low")) {
-			this.priority = PRIORITY.LOW;
-		} else {
-			throw new Error("Invalid priority parameter!");
-		}
 	}
 
 	public String getDescription() {

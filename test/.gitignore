@@ -1,2 +1,7 @@
 /Calendar.class
+<<<<<<< HEAD
 /TestFileIO.class
+=======
+/StringParserTest.class
+/TaskHandlerTest.class
+>>>>>>> parser_Implement

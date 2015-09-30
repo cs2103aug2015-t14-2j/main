@@ -1,9 +1,3 @@
-/*
- *  @author A0097689 Tan Si Kai
- *  @author A******  Jean Pierre
- *  @author A******  Audrey Tiah
- */
-
 package Task;
 
 import java.io.*;
@@ -16,9 +10,16 @@ import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
-import static Task.Task.PRIORITY;
 
+/**
+ *  Represents the handler for tasks
+ * 
+ *  @author A0097689 Tan Si Kai
+ *  @author A0009586 Jean Pierre Castillo
+ *  @author A0118772  Audrey Tiah
+ */
 public class TaskHandler {
 	// Define success messages here
 	private static final String MESSAGE_WELCOME        = "Welcome to TaskBuddy!";
@@ -47,6 +48,7 @@ public class TaskHandler {
 	
 	
 	// Define minimum argument numbers here
+	//TODO: Do these make sense to have now?
 	private static final int NUM_ARGS_ADD_TASK     = 6;
 	private static final int NUM_ARGS_GET_TASK     = 3;
 	private static final int NUM_ARGS_DISPLAY_TASK = 0;
@@ -74,7 +76,12 @@ public class TaskHandler {
 	private static int 				currentTaskId;          
 	private static FileIO           fileIO;
 	
+	/**
+	 * Starts the 
+	 * @param args The file path to load the file in
+	 */
 	public static void main(String[] args) {
+		// TODO @Audrey use args to load the file
 		init();
 		showToUser(MESSAGE_WELCOME);
 		while(true) {
@@ -87,15 +94,20 @@ public class TaskHandler {
 		}
 	}
 	
-	// Initialize settings, search for application files etc.
+	/**
+	 * Initialize settings, search for application files etc.
+	 */
 	private static void init() {
 		dateFormat.setCalendar(calendar);
 		fileIO = new FileIO(TaskHandler.filePath);
 		taskList = fileIO.readFromFile();
 		currentTaskId = fileIO.getCurrentTaskId();
 	}
-
-	// Displays text to user, do not print if empty string
+	
+	/**
+	 * Displays text to user, do not print if empty string
+	 * @param text Text to show the user
+	 */
 	private static void showToUser(String text) {
 		if(text.isEmpty()) {
 			return;
@@ -104,9 +116,13 @@ public class TaskHandler {
 		System.out.println(text);
 	}
 
-	// Pattern matching on expected command patterns to decide if it is a valid command
+	/**
+	 * Pattern matching on expected command patterns to decide if it is a valid command
+	 * @param userInput
+	 * @return
+	 */
 	public static boolean isValidCommand(String userInput) {
-		if(true) {
+		if(userInput.length() != 0 && userInput.split(" ").length > 1) {
 			return true;
 		} else {
 			showHelpMenu();
@@ -114,19 +130,40 @@ public class TaskHandler {
 		}
 	}
 	
-	// Executes user input
+	/**
+	 * Executes user input
+	 * @param userInput The input to be executed
+	 * @return The feedback to give to the user
+	 */
 	public static String executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
-		
+		StringParser parser = new StringParser();
+		HashMap<PARAMETER, ArrayList<String>> parsedParamTable;
 		switch (command) {
 			case ADD_TASK:
-				String[] parameters = parseCommaSeparatedInput(userInput);
-				boolean enoughParameters = parameters.length >= NUM_ARGS_ADD_TASK ? true : false;
+				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				//TODO: shouldn't it be if it has a description?
+				boolean enoughParameters = parsedParamTable.size() >= NUM_ARGS_ADD_TASK ? true : false;
 				if (enoughParameters) {
-					boolean canAddTask  = validateAddTask(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4]);
+					boolean canAddTask  = validateAddTask(parsedParamTable.get(PARAMETER.DESC).get(0),
+															parsedParamTable.get(PARAMETER.VENUE).get(0), 
+															parsedParamTable.get(PARAMETER.START_DATE).get(0),
+															parsedParamTable.get(PARAMETER.END_DATE).get(0), 
+															parsedParamTable.get(PARAMETER.START_TIME).get(0),
+															parsedParamTable.get(PARAMETER.END_TIME).get(0),
+															parsedParamTable.get(PARAMETER.DEADLINE_DATE).get(0),
+															parsedParamTable.get(PARAMETER.DEADLINE_TIME).get(0),
+															parsedParamTable.get(PARAMETER.REMIND_TIMES).get(0));
 					if (canAddTask) {
-						addTask(parameters[0], parameters[1], parameters[2], parameters[3], parameters[4], parameters[5]);
-						
+						addTask(parsedParamTable.get(PARAMETER.DESC).get(0),
+								parsedParamTable.get(PARAMETER.VENUE).get(0), 
+								parsedParamTable.get(PARAMETER.START_DATE).get(0),
+								parsedParamTable.get(PARAMETER.END_DATE).get(0), 
+								parsedParamTable.get(PARAMETER.START_TIME).get(0),
+								parsedParamTable.get(PARAMETER.END_TIME).get(0),
+								parsedParamTable.get(PARAMETER.DEADLINE_DATE).get(0),
+								parsedParamTable.get(PARAMETER.DEADLINE_TIME).get(0),
+								parsedParamTable.get(PARAMETER.REMIND_TIMES).get(0));
 					}					
 				} else {
 					showHelpMenu();
@@ -159,23 +196,71 @@ public class TaskHandler {
 		}
 	}
 	
-	// Validates user inputs for adding a task are correct and valid before calling addTask
-	private static boolean validateAddTask(String desc, String startTime, String endTime, String deadline, String venue) {
+	/**
+	 * Adds a task to the task list
+	 * @param task The task to be added to the taskList
+	 */
+	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime, String remindTimes) {
+		try {
+			Date _startDate    = dateFormat.parse(startTime);
+			Date _endDate      = dateFormat.parse(endTime);
+			Date _deadlineTime = dateFormat.parse(deadlineTime);
+			
+			//TODO: Modify task to match enum of params
+			Task task = new Task(desc, _startDate, _endDate, _deadlineTime, venue);
+			System.out.println(task.toString());
+			taskList.add(task);
+			
+		} catch (ParseException e) {			
+			e.printStackTrace();
+			
+		}
+	}
+	
+	/**
+	 * Remove a specific task from the file
+	 * @param task The task to be deleted from the taskList
+	 */
+	private static void removeTask(Task task) {
+		// TODO remove the task from tasklist
+	}
+	
+	/**
+	 * 
+	 * @param desc
+	 * @param startTime
+	 * @param endTime
+	 * @param deadline
+	 * @param venue
+	 * @return
+	 */
+	private static boolean validateAddTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime, String remindTimes) {
 		// Short circuit style, returns false on first failed validation
 		// Limitation is user cannot see all wrong inputs
-		if(!isValidDate(startTime)) {
+		if(!isValidDate(startDate)) {
 			return false;
 		}
-		if(!isValidDate(endTime)) {
+		if(!isValidDate(endDate)) {
 			return false;
 		}
-		if(!isValidDate(deadline)) {
+		if(!isValidDate(deadlineDate)) {
 			return false;
 		}
-		if(!isValidVenue(venue)) {
+		if(!isValidTime(startTime)) {
+			return false;
+		}
+		if(!isValidTime(endTime)) {
+			return false;
+		}
+		if(!isValidTime(deadlineTime)) {
+			return false;
+		}
+		//TODO: needed?
+		/*if(!isValidVenue(venue)) {
+			
 			// Google maps API validation
 			return false;
-		}
+		}*/
 		
 		return true;
 	}
@@ -193,15 +278,11 @@ public class TaskHandler {
 		} catch (java.text.ParseException e) {			
 			e.printStackTrace();
 			
-		}
-		
-	}
+		}		
 	
-	// Remove a specific task from the file
-	private static void removeTask(Task task) {
-		
-	}
-	
+	/**
+	 * Shows the Help menu to the user
+	 */
 	private static void showHelpMenu() {
 		showToUser(ERROR_INVALID_COMMAND + "\n");
 		showToUser(HELP_TITLE);
@@ -214,35 +295,69 @@ public class TaskHandler {
 		showToUser(HELP_EXIT);
 	}
 	
+	/**
+	 * Displays all the current tasks in the taskList
+	 */
 	private static void displayAllTasks() {
 		for (int i = 0; i < taskList.size() ; i++) {
 			showToUser(taskList.get(i).toString());
 		}
 	}
 	
-	// Takes a command and returns the correct number of arguments expected
+	/**
+	 * Takes a command and returns the correct number of arguments expected
+	 * @param command The command to be evaluated for number of arguments
+	 * @return The number of arguments for that command
+	 */
 	public static int determineNumberOfArgs(COMMAND_TYPE command) {
+		//TODO: unimplemented
 		return 0;
 	}
 	
-	// Figure out free time slots
+	/**
+	 * Figure out free time slots
+	 * @param timetable The timetable to get free time slots for
+	 * @return An array of possible time slots
+	 */
 	public static ArrayList<Period> getFreeTimeSlots(ArrayList<Period> timetable) {
 		ArrayList<Period> result = new ArrayList<Period>(50);
 		
 		return result;
 	}
 	
-	// Given a tag, and startTime and endTime, return all tasks with that tag
+	/**
+	 * Given a tag, and startTime and endTime, return all tasks with that tag
+	 * @param tag 
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
 	public static ArrayList<Task> getByTag (String tag, Date startTime, Date endTime) {
 		return taskList;
 	}
 	
-	// Given a search keyword, and startTime and endTime, return all tasks with that keyword in their description within the search space
-	public static ArrayList<Task> searchByDescription (String keyword, Date startTime, Date endTime) {
+	/**
+	 * Given a search keyword, and startTime and endTime, return all tasks with that keyword in their description within the search space
+	 * @param keyword
+	 * @param startTime
+	 * @param endTime
+	 * @return
+	 */
+	//TODO:Delete?
+	/*public static ArrayList<Task> searchByDescription (String keyword, Date startTime, Date endTime) {
 		return taskList;
+	}*/
+	
+	public ArrayList<Task> searchTasks(Task task){
+		//TODO:Unimplemented
+		return null;
 	}
 	
-	// Takes a single word and figure out the command
+	/**
+	 * Takes a single word and figure out the command
+	 * @param commandTypeString The string containing a command
+	 * @return The enum value corresponding to the commandTypeString
+	 */
 	private static COMMAND_TYPE determineCommandType(String commandTypeString) {
 		if (commandTypeString == null) {
 			throw new Error("command type string cannot be null!");
@@ -265,30 +380,24 @@ public class TaskHandler {
 		}
 	}
 	
-	// Takes in original line of user input, removes first word and parses the remainder into 
-	// a string array delimited by commas
-	private static String[] parseCommaSeparatedInput(String input) {
-		String[] parametersArray = removeFirstWord(input).split("\\s*,\\s*"); 
-		System.out.println(Arrays.toString(parametersArray));
-
-		return parametersArray;
-	}
-	
+	/**
+	 * Gets the first word from a string
+	 * @param userCommand The string containing one or more words
+	 * @return The first word in the string
+	 */
 	private static String getFirstWord(String userCommand) {
 		String commandTypeString = userCommand.trim().split("\\s+")[0];
 		return commandTypeString;
 	}
 	
+	/**
+	 * Removes the first word from a string
+	 * @param userCommand The string to be split
+	 * @return The original string without the first word
+	 */
 	private static String removeFirstWord(String userCommand) {
 		String[] parameters = userCommand.trim().split(" ", 2);
 		return parameters[1];
 	}
-	
-	private static boolean isValidDate(String dateString) {
-		return true;
-	}
-	
-	private static boolean isValidVenue(String venueString) {
-		return true;
-	}
+
 }
