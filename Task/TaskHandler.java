@@ -6,9 +6,11 @@
 
 package Task;
 
-import java.io.File;
+import java.io.*;
+import Task.FileIO;
+
 import java.text.SimpleDateFormat;
-import java.text.ParseException;
+//import java.text.ParseException;
 import java.util.Scanner;
 import java.util.Calendar;
 import java.util.ArrayList;
@@ -64,13 +66,15 @@ public class TaskHandler {
 	
 	private static Scanner         scanner           = new Scanner(System.in);
 	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("HH:mm:ss");
+	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
 	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
 	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
 	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
+	private static String 			filePath	     = "./data/calendar.json";		// relative path to calendar.json 
+	private static int 				currentTaskId;          
+	private static FileIO           fileIO;
 	
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		init();
 		showToUser(MESSAGE_WELCOME);
 		while(true) {
@@ -86,10 +90,11 @@ public class TaskHandler {
 	// Initialize settings, search for application files etc.
 	private static void init() {
 		dateFormat.setCalendar(calendar);
-		//System.out.println("current time is " + dateFormat.getCalendar().get(1));
-		
+		fileIO = new FileIO(TaskHandler.filePath);
+		taskList = fileIO.readFromFile();
+		currentTaskId = fileIO.getCurrentTaskId();
 	}
-	
+
 	// Displays text to user, do not print if empty string
 	private static void showToUser(String text) {
 		if(text.isEmpty()) {
@@ -146,6 +151,7 @@ public class TaskHandler {
 				return "";
 			case EXIT:
 				showToUser(MESSAGE_EXIT);
+				fileIO.writeToFile(taskList);
 				System.exit(0);
 			default:
 				return "There is an error in your code.";
@@ -180,11 +186,11 @@ public class TaskHandler {
 			Date endDate      = dateFormat.parse(endTime);
 			Date deadlineDate = dateFormat.parse(deadline);
 			
-			Task task = new Task(desc, startDate, endDate, deadlineDate, venue, priority);
+			Task task = new Task(currentTaskId+1, desc, startDate, endDate, deadlineDate, venue, new ArrayList<String>());
 			System.out.println(task.toString());
 			taskList.add(task);
 			
-		} catch (ParseException e) {			
+		} catch (java.text.ParseException e) {			
 			e.printStackTrace();
 			
 		}
