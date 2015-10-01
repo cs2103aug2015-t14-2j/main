@@ -26,6 +26,8 @@
 
 >E.g. hotfix-empty-calendar-throws-null-exception
 
+4. When something can be encapsulated into its own object create a new class
+
 ### Outstanding tasks and issues ###
 
 1.  command line parsing - allow for "this is, a parameter", " and this is another parameter" parsing.
@@ -60,7 +62,7 @@
  */
 ```
 
-2. Add a JavaDoc before every function 
+2. Add a JavaDoc before every function and global variable
 
 ```
 /**
@@ -70,8 +72,70 @@
  */
 ```
 
-3. Include inline comments whenever possible
+3. Include inline comments whenever its not explicit
 
 ```
 public static final String ADD_MESSAGE = "added!"    // Message to display to user after successful add operation
 ```
+
+4. Every loop should have a comment regarding the goal of the loop
+
+```
+// Finds scheduled tasks
+for(int i = 0; i < taskList.length(); i++){
+	if (taskList.type ==  SCHEDULED_TASK){
+		return taskList[i];
+	}	
+}
+```
+
+
+5. Avoid third level nested loops
+
+```
+// Finds the first 'a' char in a tag
+for(int i = 0; i < taskList.length(); i++){
+	for(int j = 0; i < taskList[i].tags.length(); j++){
+		for(int k = 0; k < taskList[i].tags[j].length() ; k++){
+			if(taskList[i].tags[j][k] == 'a'){
+				return taskList[i].tags[j]; //Avoid this
+			}
+		}
+	}
+}
+```
+
+
+### Testing standards ###
+
+1. @ tags
+Preceed each test with @test and setup tear down with appropriate tags
+
+  @Test
+  public void printString() {
+
+    // assert statements
+    assertEquals("10 x 0 must be 0", 0, tester.multiply(10, 0));
+
+  }
+
+2. Testing command line outputs
+A suggested way of doing so is the following:
+
+    @Rule
+    public final StandardOutputStreamLog printedText = new StandardOutputStreamLog();
+
+    @Test
+    public void HelloWorld() {
+        System.out.print("hello world");
+        assertEquals("hello world", log.getLog());
+    }
+
+}
+
+3. Private method implicit testing
+When not possible to access a method use other methods to proove full functionality
+
+4. Null, 0, 1, many tests
+The basic tests for most methods
+

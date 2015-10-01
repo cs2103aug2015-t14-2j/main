@@ -1,6 +1,11 @@
 package Task;
 
-import java.io.File;
+import java.io.*;
+import Task.FileIO;
+import Task.COMMAND_TYPE;
+import Task.StringParser;
+import Task.Validator;
+
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
 import java.util.Scanner;
@@ -53,12 +58,16 @@ public class TaskHandler {
 	private static final int NUM_ARGS_SEARCH_TASK  = 1;
 	private static final int NUM_ARGS_EDIT_TASK    = 1;
 	
-	private static Scanner         		scanner         = new Scanner(System.in);
-	private static Calendar        		calendar        = Calendar.getInstance();
-	private static SimpleDateFormat 	dateFormat      = new SimpleDateFormat("HH:mm:ss");
-	private static ArrayList<Task> 		taskList        = new ArrayList<Task>(50);
-	private static ArrayList<Period> 	timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
-	private static LinkedList<String> 	commandHistory 	= new LinkedList<String>();	// stack of userInputs history to implement undo action
+	private static Scanner         scanner           = new Scanner(System.in);
+	private static Calendar        calendar          = Calendar.getInstance();
+	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
+	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
+	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
+	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
+	private static String 			filePath	     = "./data/calendar.json";		// relative path to calendar.json 
+	private static int 				currentTaskId;          
+	private static FileIO           fileIO;
+	private static Validator        validate         = new Validator();
 	
 	/**
 	 * Starts the 
@@ -83,8 +92,9 @@ public class TaskHandler {
 	 */
 	private static void init() {
 		dateFormat.setCalendar(calendar);
-		//System.out.println("current time is " + dateFormat.getCalendar().get(1));
-		
+		fileIO = new FileIO(TaskHandler.filePath);
+		taskList = fileIO.readFromFile();
+		currentTaskId = fileIO.getCurrentTaskId();
 	}
 	
 	/**
@@ -128,15 +138,15 @@ public class TaskHandler {
 				//TODO: shouldn't it be if it has a description?
 				boolean enoughParameters = parsedParamTable.size() >= NUM_ARGS_ADD_TASK ? true : false;
 				if (enoughParameters) {
-					boolean canAddTask  = validateAddTask(parsedParamTable.get(PARAMETER.DESC),
-															parsedParamTable.get(PARAMETER.VENUE), 
-															parsedParamTable.get(PARAMETER.START_DATE),
-															parsedParamTable.get(PARAMETER.END_DATE), 
-															parsedParamTable.get(PARAMETER.START_TIME),
-															parsedParamTable.get(PARAMETER.END_TIME),
-															parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-															parsedParamTable.get(PARAMETER.DEADLINE_TIME),
-															parsedParamTable.get(PARAMETER.REMIND_TIMES));
+					boolean canAddTask = validate.isValidAddTask(validate.validateUserInput(command, parsedParamTable));
+//					boolean canAddTask  = Validator.validateUserInput(parsedParamTable.get(PARAMETER.DESC),
+//															parsedParamTable.get(PARAMETER.VENUE), 
+//															parsedParamTable.get(PARAMETER.START_DATE),
+//															parsedParamTable.get(PARAMETER.END_DATE), 
+//															parsedParamTable.get(PARAMETER.START_TIME),
+//															parsedParamTable.get(PARAMETER.END_TIME),
+//															parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+//															parsedParamTable.get(PARAMETER.DEADLINE_TIME));
 					if (canAddTask) {
 						addTask(parsedParamTable.get(PARAMETER.DESC),
 								parsedParamTable.get(PARAMETER.VENUE), 
@@ -145,8 +155,7 @@ public class TaskHandler {
 								parsedParamTable.get(PARAMETER.START_TIME),
 								parsedParamTable.get(PARAMETER.END_TIME),
 								parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-								parsedParamTable.get(PARAMETER.DEADLINE_TIME),
-								parsedParamTable.get(PARAMETER.REMIND_TIMES));
+								parsedParamTable.get(PARAMETER.DEADLINE_TIME));
 					}					
 				} else {
 					showHelpMenu();
@@ -171,6 +180,7 @@ public class TaskHandler {
 				return "";
 			case EXIT:
 				showToUser(MESSAGE_EXIT);
+				fileIO.writeToFile(taskList);
 				System.exit(0);
 			default:
 				return "There is an error in your code.";
@@ -182,16 +192,19 @@ public class TaskHandler {
 	 * Adds a task to the task list
 	 * @param task The task to be added to the taskList
 	 */
-	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime, String remindTimes) {
+	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime, String remindTimes, ArrayList<String> tags) {
+		int taskId = currentTaskId + 1;
 		try {
 			Date _startDate    = dateFormat.parse(startTime);
 			Date _endDate      = dateFormat.parse(endTime);
 			Date _deadlineTime = dateFormat.parse(deadlineTime);
+			Date _remindTime   = dateFormat.parse(remindTimes);
 			
 			//TODO: Modify task to match enum of params
-			Task task = new Task(desc, _startDate, _endDate, _deadlineTime, venue);
+			Task task = new Task(taskId, desc, _startDate, _endDate, _deadlineTime, venue, tags);
 			System.out.println(task.toString());
 			taskList.add(task);
+			currentTaskId += 1;
 			
 		} catch (ParseException e) {			
 			e.printStackTrace();
@@ -207,62 +220,20 @@ public class TaskHandler {
 		// TODO remove the task from tasklist
 	}
 	
-	/**
-	 * 
-	 * @param desc
-	 * @param startTime
-	 * @param endTime
-	 * @param deadline
-	 * @param venue
-	 * @return
-	 */
-	private static boolean validateAddTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime, String remindTimes) {
-		// Short circuit style, returns false on first failed validation
-		// Limitation is user cannot see all wrong inputs
-		if(!isValidDate(startDate)) {
-			return false;
-		}
-		if(!isValidDate(endDate)) {
-			return false;
-		}
-		if(!isValidDate(deadlineDate)) {
-			return false;
-		}
-		if(!isValidTime(startTime)) {
-			return false;
-		}
-		if(!isValidTime(endTime)) {
-			return false;
-		}
-		if(!isValidTime(deadlineTime)) {
-			return false;
-		}
-		//TODO: needed?
-		/*if(!isValidVenue(venue)) {
+	private static void addTask(String desc, String startTime, String endTime, String deadline, String venue, String priority) {
+		try {
+			Date startDate    = dateFormat.parse(startTime);
+			Date endDate      = dateFormat.parse(endTime);
+			Date deadlineDate = dateFormat.parse(deadline);
 			
-			// Google maps API validation
-			return false;
-		}*/
-		
-		return true;
-	}
-	
-	/**
-	 * Validates a date
-	 * @param dateString The date to be validated
-	 * @return A boolean representing if the date in question is valid
-	 */
-	private static boolean isValidDate(String dateString) {
-		return true;
-	}
-	
-	/**
-	 * Validates a time
-	 * @param timeString The time to be validated
-	 * @return A boolean representing if the time in question is valid
-	 */
-	private static boolean isValidTime(String timeString) {
-		return true;
+			Task task = new Task(currentTaskId+1, desc, startDate, endDate, deadlineDate, venue, new ArrayList<String>());
+			System.out.println(task.toString());
+			taskList.add(task);
+			
+		} catch (ParseException e) {			
+			e.printStackTrace();
+			
+		}
 	}
 	
 	/**
@@ -383,6 +354,10 @@ public class TaskHandler {
 	private static String removeFirstWord(String userCommand) {
 		String[] parameters = userCommand.trim().split(" ", 2);
 		return parameters[1];
+	}
+	
+	private static void updateCurrentTaskId() {
+		currentTaskId = fileIO.getCurrentTaskId();
 	}
 
 }
