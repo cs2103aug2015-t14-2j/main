@@ -30,7 +30,6 @@ public class Task {
 	private boolean isDone = false;
 	private boolean isPastDeadline = false;
 	private boolean hasEnded = false;
-	private ArrayList<String> tags = new ArrayList<String>();
 	
 	/**
 	 * Constructor for tasks without startTime, endTime and deadline. 
@@ -51,7 +50,6 @@ public class Task {
 		this.isDone = false;
 		this.isPastDeadline = false;
 		this.hasEnded = false;
-		this.tags = new ArrayList<String>();
 	}
 	
 	/**
@@ -65,7 +63,7 @@ public class Task {
 	 * @param venue
 	 * @param tags
 	 */
-	public Task (int taskId, String desc, Date startTime, Date endTime, String venue, ArrayList<String> tags) {
+	public Task (int taskId, String desc, Date startTime, Date endTime, String venue) {
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
@@ -77,7 +75,6 @@ public class Task {
 		this.isDone = false;
 		this.isPastDeadline = false;
 		this.hasEnded = hasEnded(this.createdTime , endTime);
-		this.tags = new ArrayList<String>(tags);
 	}
 	
 	/**
@@ -102,7 +99,6 @@ public class Task {
 		this.isDone = false;
 		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
 		this.hasEnded = false;
-		this.tags = new ArrayList<String>(tags);
 	}
 
 	/**
@@ -129,7 +125,6 @@ public class Task {
 		this.isDone = false;
 		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
 		this.hasEnded = hasEnded(this.createdTime , endTime);
-		this.tags = new ArrayList<String>(tags);
 		
 	}
 	
@@ -150,7 +145,7 @@ public class Task {
 	 * @param hasEnded
 	 * @param tags
 	 */
-	public Task (Date createdTime, Date lastModifiedTime, int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, boolean isDone, boolean isPastDeadline, boolean hasEnded, ArrayList<String> tags) {
+	public Task (Date createdTime, Date lastModifiedTime, int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, boolean isDone, boolean isPastDeadline, boolean hasEnded) {
 		this.createdTime = createdTime;
 		this.lastModifiedTime = lastModifiedTime;
 		this.taskId = taskId;
@@ -166,7 +161,6 @@ public class Task {
 		this.isDone = isDone;
 		this.isPastDeadline = isPastDeadline;
 		this.hasEnded = hasEnded;
-		this.tags = new ArrayList<String>(tags);
 	}
 	
 	public String toString() {
@@ -199,7 +193,6 @@ public class Task {
 		result += "   isDone         : " + this.isDone + "\n";
 		result += "   isPastDeadline : " + this.isPastDeadline + "\n";
 		result += "   hasEnded       : " + this.isPastDeadline + "\n";
-		result += "   Tags           : " + this.tags.toString() + "\n";
 		
 		return result;
 	}
@@ -232,10 +225,6 @@ public class Task {
 		if (this.hasEnded != task.hasEnded) {
 			return false;
 		}
-		if (!bothNullOrEqual(this.tags, task.tags)) {
-			return false;
-		}
-		// Hashtags and taskId are not compared
 		
 		return true;
 	}
@@ -351,13 +340,5 @@ public class Task {
 
 	public void setHasEnded(boolean hasEnded) {
 		this.hasEnded = hasEnded;
-	}
-
-	public ArrayList<String> getTags() {
-		return tags;
-	}
-
-	public void setTags(ArrayList<String> tags) {
-		this.tags = tags;
 	}
 }

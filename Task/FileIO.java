@@ -120,7 +120,6 @@ public class FileIO {
 		boolean isDone          = false;
 		boolean isPastDeadline  = false;
 		boolean hasEnded        = false;
-		ArrayList<String> hashTags = new ArrayList<String>();
 		
 		try {				
 			jsonReader.beginObject();
@@ -160,13 +159,6 @@ public class FileIO {
 					case "hasEnded" :
 						hasEnded = jsonReader.nextBoolean();
 						break;
-					case "tags" :
-						jsonReader.beginArray();
-							while (jsonReader.hasNext()) {
-								hashTags.add(jsonReader.nextString());
-							}
-						jsonReader.endArray();
-						break;
 					default:
 						break;
 					
@@ -183,7 +175,7 @@ public class FileIO {
 			Date deadlineDate         = parseStringToDate(deadline);
 			Date startDate            = parseStringToDate(startTime);
 			Date endDate              = parseStringToDate(endTime);
-			task = new Task(createdTimeDate, lastModifiedTimeDate, taskId, description, startDate, endDate, deadlineDate, venue, isDone, isPastDeadline, hasEnded, hashTags);
+			task = new Task(createdTimeDate, lastModifiedTimeDate, taskId, description, startDate, endDate, deadlineDate, venue, isDone, isPastDeadline, hasEnded);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
@@ -219,13 +211,6 @@ public class FileIO {
 		jsonWriter.name("isDone").value(currentTask.isDone());
 		jsonWriter.name("isPastDeadline").value(currentTask.isPastDeadline());
 		jsonWriter.name("hasEnded").value(currentTask.isHasEnded());
-		jsonWriter.name("tags");
-			
-		jsonWriter.beginArray();
-		for (String tag : currentTask.getTags()) {
-			jsonWriter.value(tag);
-		}
-		jsonWriter.endArray();
 		
 		jsonWriter.endObject();
 	}
