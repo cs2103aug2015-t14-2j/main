@@ -1,4 +1,4 @@
-package Task;
+package test;
 
 import static org.junit.Assert.*;
 
@@ -6,8 +6,10 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import Task.TaskHandler.COMMAND_TYPE;
+import Task.COMMAND_TYPE;
+import Task.Validator;
 import Task.Validator.PARAMETER;
+import Task.*;
 
 public class ValidatorTest {
 

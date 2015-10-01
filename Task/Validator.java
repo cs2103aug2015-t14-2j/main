@@ -22,7 +22,7 @@ public class Validator {
 	/* ...ADD IN MORE HERE */
 
 //	 This is optional, you can implement using other ways you like
-	 enum PARAMETER {
+	 public enum PARAMETER {
 	 	DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE, PRIORITY, REMIND_TIME, STARTENDTIME
 	 };
 
@@ -48,7 +48,7 @@ public class Validator {
 	// fails, set the error message
 	// for that particular validation function.
 	// Returns a HashMap of PARAMETER => error_message_string
-	public HashMap<PARAMETER, String> validateUserInput(COMMAND_TYPE command,
+	public static HashMap<PARAMETER, String> validateUserInput(COMMAND_TYPE command,
 			HashMap<PARAMETER, String> parsedUserInput) {
 
 		HashMap<PARAMETER, String> errorHashMap = new HashMap<PARAMETER, String>();

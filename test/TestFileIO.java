@@ -53,7 +53,7 @@ public class TestFileIO {
 			startTime = dateFormat.parse("Thu, 10 Sep, 2015 1200");
 			endTime = dateFormat.parse("Fri, 11 Sep, 2015 1400");
 			deadline = dateFormat.parse("Sat, 12 Sep, 2015 1200");
-			expectedTask1 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded, tags);
+			expectedTask1 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded);
 		} catch (ParseException e1) {
 			e1.printStackTrace();
 		}
@@ -73,7 +73,7 @@ public class TestFileIO {
 			startTime = dateFormat.parse("Mon, 14 Sep, 2015 1800");
 			endTime = dateFormat.parse("Mon, 14 Sep, 2015 2000");
 			deadline = null;
-			expectedTask2 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded, tags);
+			expectedTask2 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded);
 		} catch (ParseException e2) {
 			e2.printStackTrace();
 		}
@@ -93,7 +93,7 @@ public class TestFileIO {
 			startTime = null;
 			endTime = null;
 			deadline = dateFormat.parse("Tue, 29 Sep, 2015 1200");
-			expectedTask3 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded, tags);
+			expectedTask3 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded);
 		} catch (ParseException e3) {
 			e3.printStackTrace();
 		}
@@ -113,7 +113,7 @@ public class TestFileIO {
 			startTime = null;
 			endTime = null;
 			deadline = null;
-			expectedTask4 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded, tags);
+			expectedTask4 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded);
 		} catch (ParseException e4) {
 			e4.printStackTrace();
 		}

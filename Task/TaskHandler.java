@@ -131,34 +131,23 @@ public class TaskHandler {
 	public static String executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
 		StringParser parser = new StringParser();
-		HashMap<PARAMETER, ArrayList<String>> parsedParamTable;
+		HashMap<PARAMETER, String> parsedParamTable;
 		switch (command) {
 			case ADD_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
 				//TODO: shouldn't it be if it has a description?
 				boolean enoughParameters = parsedParamTable.size() >= NUM_ARGS_ADD_TASK ? true : false;
 				if (enoughParameters) {
-					boolean canAddTask = validate.isValidAddTask(validate.validateUserInput(command, parsedParamTable));
-//					boolean canAddTask  = Validator.validateUserInput(parsedParamTable.get(PARAMETER.DESC).get(0),
-//															parsedParamTable.get(PARAMETER.VENUE).get(0), 
-//															parsedParamTable.get(PARAMETER.START_DATE).get(0),
-//															parsedParamTable.get(PARAMETER.END_DATE).get(0), 
-//															parsedParamTable.get(PARAMETER.START_TIME).get(0),
-//															parsedParamTable.get(PARAMETER.END_TIME).get(0),
-//															parsedParamTable.get(PARAMETER.DEADLINE_DATE).get(0),
-//															parsedParamTable.get(PARAMETER.DEADLINE_TIME).get(0),
-//															parsedParamTable.get(PARAMETER.REMIND_TIMES).get(0));
-					if (canAddTask) {
-						addTask(parsedParamTable.get(PARAMETER.DESC).get(0),
-								parsedParamTable.get(PARAMETER.VENUE).get(0), 
-								parsedParamTable.get(PARAMETER.START_DATE).get(0),
-								parsedParamTable.get(PARAMETER.END_DATE).get(0), 
-								parsedParamTable.get(PARAMETER.START_TIME).get(0),
-								parsedParamTable.get(PARAMETER.END_TIME).get(0),
-								parsedParamTable.get(PARAMETER.DEADLINE_DATE).get(0),
-								parsedParamTable.get(PARAMETER.DEADLINE_TIME).get(0),
-								parsedParamTable.get(PARAMETER.REMIND_TIMES).get(0),
-								parsedParamTable.get(PARAMETER.HASHTAGS));
+					//boolean canAddTask = validate.isValidAddTask(validate.validateUserInput(command, parsedParamTable));
+					if (true) { //TODO: CHANGE to canAddTask!!!!!
+						addTask(parsedParamTable.get(PARAMETER.DESC),
+								parsedParamTable.get(PARAMETER.VENUE), 
+								parsedParamTable.get(PARAMETER.START_DATE),
+								parsedParamTable.get(PARAMETER.END_DATE), 
+								parsedParamTable.get(PARAMETER.START_TIME),
+								parsedParamTable.get(PARAMETER.END_TIME),
+								parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+								parsedParamTable.get(PARAMETER.DEADLINE_TIME));
 					}					
 				} else {
 					showHelpMenu();
@@ -195,16 +184,15 @@ public class TaskHandler {
 	 * Adds a task to the task list
 	 * @param task The task to be added to the taskList
 	 */
-	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime, String remindTimes, ArrayList<String> tags) {
+	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
 		int taskId = currentTaskId + 1;
 		try {
 			Date _startDate    = dateFormat.parse(startTime);
 			Date _endDate      = dateFormat.parse(endTime);
 			Date _deadlineTime = dateFormat.parse(deadlineTime);
-			Date _remindTime   = dateFormat.parse(remindTimes);
 			
-			//TODO: Modify task to match enum of params
-			Task task = new Task(taskId, desc, _startDate, _endDate, _deadlineTime, venue, tags);
+			//TODO: Modify task to match enum of params //TODO: Change to appropriate input!!!!
+			Task task = new Task(taskId, desc, _startDate, _endDate/*, _deadlineTime*/, venue);
 			System.out.println(task.toString());
 			taskList.add(task);
 			currentTaskId += 1;

@@ -25,13 +25,13 @@ public class StringParser {
 	private static final int HASHTAG_LENGTH = 1;
 	
 	//The hashmap contructed
-	private HashMap<PARAMETER, ArrayList<String>> keywordHash = null;
+	private HashMap<PARAMETER, String> keywordHash = null;
 	
 	/**
 	 * Gets the current HashMap
 	 * @return The HashMap
 	 */
-	public HashMap<PARAMETER, ArrayList<String>> getKeywordHash() {
+	public HashMap<PARAMETER, String> getKeywordHash() {
 		return keywordHash;
 	}
 
@@ -39,7 +39,7 @@ public class StringParser {
 	 * Used to clear the HashMap in use
 	 */
 	public void clearHashmap(){
-		keywordHash = new HashMap<PARAMETER, ArrayList<String>>(0);
+		keywordHash = new HashMap<PARAMETER, String>(0);
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class StringParser {
 	 * @param userInput
 	 */
 	public StringParser(){
-		keywordHash = new HashMap<PARAMETER, ArrayList<String>>(0);
+		keywordHash = new HashMap<PARAMETER, String>(0);
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public class StringParser {
 	 * @param query
 	 * @return
 	 */
-	public HashMap<PARAMETER, ArrayList<String>> getValuesFromInput(COMMAND_TYPE command, String userInput) {
+	public HashMap<PARAMETER, String> getValuesFromInput(COMMAND_TYPE command, String userInput) {
 		
 		switch (command) {
 		case ADD_TASK:
@@ -66,8 +66,8 @@ public class StringParser {
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput);
 			
 			//Take the repeating param keywords out
-			userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
-			userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
+			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
+			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
 			
 			String[] 	  keywordsInInput	={"on","from","to","by"};
 			PARAMETER[][] paramInInput		={{PARAMETER.START_DATE},
@@ -102,52 +102,6 @@ public class StringParser {
 	}
 
 	/**
-	 * used to obtain the keywords with multiple parameters
-	 * @param keyword The PARAMETER to be placed in the hashMap
-	 * @param keywordString The string representation of the keyword
-	 * @param typeOfArguments Used to distinguish the way arguments are read; 0 for #, 1 for remind times
-	 * @param userInput The string to be parsed
-	 * @return The parsed string without the keyword and its params
-	 */
-	private String transferMultipleArgsToHashMap(PARAMETER keyword, String keywordString, int typeOfArguments,
-			String userInput) {
-		int indexOfOccurance = findKeywordIndexInput(userInput,keywordString,0);
-		int indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
-		if(indexOfNextSpeace < 0){
-			indexOfNextSpeace = userInput.length();
-		}
-		if (indexOfOccurance > 0){
-			keywordHash.put(keyword, new ArrayList<String>());
-		}
-		
-		while(typeOfArguments == WITHIN_KEYWORD && indexOfOccurance > 0){
-			keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance + HASHTAG_LENGTH,indexOfNextSpeace - 1));
-			userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace - 1);
-			indexOfOccurance = findKeywordIndexInput(userInput,keywordString,indexOfOccurance);
-		}
-		
-		if(typeOfArguments == SEPERATED_BY_SPACES && indexOfOccurance >= 0){
-			userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace);
-			indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
-			
-			//used to check for all numerical reminders after remind keyword
-			while(containsOnlyNumbers(userInput.substring(indexOfOccurance,indexOfNextSpeace))){
-				indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
-				if(indexOfNextSpeace < 0){
-					keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance,userInput.length()));
-					userInput = trimStringPortionOut(userInput,indexOfOccurance,userInput.length());
-					break;
-				}
-				keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance,indexOfNextSpeace - 1));
-				userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace);
-			}
-		}
-		
-		
-		return userInput;
-	}
-
-	/**
 	 * Used to check if the contents of a string are numerical
 	 * @param numString The string to be checked for all numbers
 	 * @return A boolean representation of wheather the string provided is all numbers
@@ -168,8 +122,7 @@ public class StringParser {
 		int startOfQuote = userInput.indexOf(QUOTE_INTEGER, positionOfKeyword);
 		int endOfQuote = userInput.indexOf(QUOTE_INTEGER, startOfQuote + 1);
 		if(startOfQuote > 0 && endOfQuote > 0){
-			keywordHash.put(keyword, new ArrayList<String>()); //Ignore the quote delimeters
-			keywordHash.get(keyword).add((getKeywordnInString(userInput, startOfQuote + 1, endOfQuote - 1)));
+			keywordHash.put(keyword, (getKeywordnInString(userInput, startOfQuote + 1, endOfQuote - 1))); //Ignore the quote delimeters
 			return trimStringPortionOut(userInput, positionOfKeyword, endOfQuote + 1);
 		} else{
 			return userInput;
@@ -300,8 +253,7 @@ public class StringParser {
 			for(int j = 0; j < paramInInput[commandFromKeywordIndex].length; j++){
 				//TODO: fix for arguments that aren't given for a keyword
 				if(stringCompareToList(stringToParse[currentWord], keywordsInInput) == PARAM_NOT_FOUND && currentWord < stringToParse.length){
-					keywordHash.put(paramInInput[commandFromKeywordIndex][j], new ArrayList<String>()); //Ignore the quote delimeters
-					keywordHash.get(paramInInput[commandFromKeywordIndex][j]).add(stringToParse[currentWord]);
+					keywordHash.put(paramInInput[commandFromKeywordIndex][j], stringToParse[currentWord]); //Ignore the quote delimeters
 					currentWord++;
 				}
 			}
