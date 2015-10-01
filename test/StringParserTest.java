@@ -33,13 +33,13 @@ public class StringParserTest {
 				"by 12/11 1100 at \"hong kong\" do \"to be or not\" ");
 		
 		assertEquals("to be or not",
-				parser.getKeywordHash().get(PARAMETER.DESC).get(0));
+				parser.getKeywordHash().get(PARAMETER.DESC));
 		assertEquals("hong kong",
-				parser.getKeywordHash().get(PARAMETER.VENUE).get(0));
+				parser.getKeywordHash().get(PARAMETER.VENUE));
 		assertEquals("12/11",
-				parser.getKeywordHash().get(PARAMETER.DEADLINE_DATE).get(0));
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_DATE));
 		assertEquals("1100",
-				parser.getKeywordHash().get(PARAMETER.DEADLINE_TIME).get(0));
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_TIME));
 		
 		//Having same day scheduling
 		parser = new StringParser();
@@ -47,52 +47,26 @@ public class StringParserTest {
 				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 11/15");
 		
 		assertEquals("11/15",
-				parser.getKeywordHash().get(PARAMETER.START_DATE).get(0));
+				parser.getKeywordHash().get(PARAMETER.START_DATE));
 		assertEquals("11/15",
-				parser.getKeywordHash().get(PARAMETER.END_DATE).get(0));
+				parser.getKeywordHash().get(PARAMETER.END_DATE));
 		assertEquals("1100",
-				parser.getKeywordHash().get(PARAMETER.START_TIME).get(0));
+				parser.getKeywordHash().get(PARAMETER.START_TIME));
 		assertEquals("1500",
-				parser.getKeywordHash().get(PARAMETER.END_TIME).get(0));
+				parser.getKeywordHash().get(PARAMETER.END_TIME));
 		
 		//Incorrect Format
 		parser = new StringParser();
 		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
 				"from 1100 at \"hong kong\" to 12/11 1500 do \"to be or not\" on 1300"); //#miley #hola remind 30 60 90
 		assertEquals("1300",
-				parser.getKeywordHash().get(PARAMETER.START_DATE).get(0));
+				parser.getKeywordHash().get(PARAMETER.START_DATE));
 		assertEquals("1300",
-				parser.getKeywordHash().get(PARAMETER.END_DATE).get(0));
+				parser.getKeywordHash().get(PARAMETER.END_DATE));
 		assertEquals("1100",
-				parser.getKeywordHash().get(PARAMETER.START_TIME).get(0));
+				parser.getKeywordHash().get(PARAMETER.START_TIME));
 		assertEquals("12/11",
-				parser.getKeywordHash().get(PARAMETER.END_TIME).get(0));
-		
-		//multiple # and reminders
-		parser = new StringParser();
-		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
-				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 11/15 #miley #hola remind 30 50 60");
-		assertEquals("miley",
-				parser.getKeywordHash().get(PARAMETER.HASHTAGS).get(0));
-		assertEquals("hola",
-				parser.getKeywordHash().get(PARAMETER.HASHTAGS).get(1));
-		assertEquals("30",
-				parser.getKeywordHash().get(PARAMETER.REMIND_TIMES).get(0));
-		assertEquals("60",
-				parser.getKeywordHash().get(PARAMETER.REMIND_TIMES).get(2));
-		
-		//multiple # and reminders with different order
-		parser = new StringParser();
-		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
-				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 11/15 #miley remind 30 50 60 #hola");
-		assertEquals("miley",
-				parser.getKeywordHash().get(PARAMETER.HASHTAGS).get(0));
-		assertEquals("hola",
-				parser.getKeywordHash().get(PARAMETER.HASHTAGS).get(1));
-		assertEquals("30",
-				parser.getKeywordHash().get(PARAMETER.REMIND_TIMES).get(0));
-		assertEquals("60",
-				parser.getKeywordHash().get(PARAMETER.REMIND_TIMES).get(2));
+				parser.getKeywordHash().get(PARAMETER.END_TIME));
 	}
 
 	@Test
@@ -105,9 +79,9 @@ public class StringParserTest {
 						parser.transferQuoteToHashMap(PARAMETER.VENUE,"at",
 								" at \"hong kong\" by 12/11 1100"));
 		assertEquals("to be or not",
-						parser.getKeywordHash().get(PARAMETER.DESC).get(0));
+						parser.getKeywordHash().get(PARAMETER.DESC));
 		assertEquals("hong kong",
-						parser.getKeywordHash().get(PARAMETER.VENUE).get(0));
+						parser.getKeywordHash().get(PARAMETER.VENUE));
 	}
 
 	@Test
