@@ -76,15 +76,14 @@ public class StringParser {
 												{PARAMETER.START_DATE, PARAMETER.START_TIME},
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
 												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}};
-			
-			if(findKeywordIndexInput(userInput,"on",0) > 0){
+			if(findKeywordIndexInput(userInput,"on",0) >= 0){
 				paramInInputAdd[1] = new PARAMETER[] {PARAMETER.START_TIME};
 				paramInInputAdd[2] = new PARAMETER[] {PARAMETER.END_TIME};
 			}
 			
 			addAttributesToHashTable(keywordsInInputAdd, paramInInputAdd, userInput.split(SPACE_CHARACTER));
 			
-			if(findKeywordIndexInput(userInput,"on",0) > 0){
+			if(findKeywordIndexInput(userInput,"on",0) >= 0){
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
 			break;
@@ -107,14 +106,14 @@ public class StringParser {
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
 												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}};
 			
-			if(findKeywordIndexInput(userInput,"on",0) > 0){
+			if(findKeywordIndexInput(userInput,"on",0) >= 0){
 				paramInInputEd[1] = new PARAMETER[] {PARAMETER.START_TIME};
 				paramInInputEd[2] = new PARAMETER[] {PARAMETER.END_TIME};
 			}
 			
 			addAttributesToHashTable(keywordsInInputEd, paramInInputEd, userInput.split(SPACE_CHARACTER));
 			
-			if(findKeywordIndexInput(userInput,"on",0) > 0){
+			if(findKeywordIndexInput(userInput,"on",0) >= 0){
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
 			break;
@@ -134,7 +133,7 @@ public class StringParser {
 		default:
 			
 		}
-		//removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
+		removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
 		
 		return keywordHash;
 	}
