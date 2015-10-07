@@ -122,13 +122,19 @@ public class StringParser {
 		case GET_TASK:
 			
 		case DISPLAY:
+			userInput = getTaskID(userInput);
+			break;
+			
+		case DELETE_TASK:
+			userInput = getTaskID(userInput);
+			break;
 			
 		case SEARCH_TASK:
 						
 		default:
 			
 		}
-		removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
+		//removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
 		
 		return keywordHash;
 	}
@@ -136,7 +142,10 @@ public class StringParser {
 	private String getTaskID(String userInput) {
 		if(containsOnlyNumbers(userInput.split(SPACE_CHARACTER,2)[0])){
 			keywordHash.put(PARAMETER.TASKID, userInput.split(SPACE_CHARACTER,2)[0]);
-			return userInput.split(SPACE_CHARACTER,2)[1];
+			if(userInput.split(SPACE_CHARACTER,2).length > 1){
+				return userInput.split(SPACE_CHARACTER,2)[1];
+			}
+			else return "";
 		}
 		return userInput;
 	}

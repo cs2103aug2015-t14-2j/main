@@ -296,7 +296,7 @@ public class TaskHandler {
 			if(t.getTaskId() == Integer.parseInt(stringID)){
 				String removedTask = Integer.toString(t.getTaskId());
 				taskList.remove(t);
-				System.out.println("Task" + removedTask + "was erased");
+				return "Task" + removedTask + "was erased";
 			}
 			
 		}
@@ -325,7 +325,10 @@ public class TaskHandler {
 	 */
 	private static void displayTask(String taskID) {
 		if(taskID != null){
-			showToUser(taskList.get(Integer.parseInt(taskID)).toString());
+			if(taskList.size() >= Integer.parseInt(taskID) && Integer.parseInt(taskID) > 0){
+				showToUser(taskList.get(Integer.parseInt(taskID) - 1).toString());
+			}
+			//TODO: what if its out of bounds?
 		} else {
 			displayAllTasks();
 		}
@@ -413,6 +416,8 @@ public class TaskHandler {
 			return COMMAND_TYPE.SEARCH_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("edit")) {
 			return COMMAND_TYPE.EDIT_TASK;
+		} else if (commandTypeString.equalsIgnoreCase("delete")) {
+			return COMMAND_TYPE.DELETE_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 			return COMMAND_TYPE.EXIT;
 		} else {
@@ -437,7 +442,11 @@ public class TaskHandler {
 	 */
 	private static String removeFirstWord(String userCommand) {
 		String[] parameters = userCommand.trim().split(" ", 2);
-		return parameters[1];
+		if(parameters.length > 1){
+			return parameters[1];
+		} else{
+			return "";
+		}
 	}
 	
 	private static void updateCurrentTaskId() {
