@@ -296,7 +296,9 @@ public class Validator {
 				startDay = Integer.parseInt(splitStrSlash[0]);
 				startMonth = Integer.parseInt(splitStrSlash[1]);
 				startYear = Integer.parseInt(splitStrSlash[2]);
-
+				if (startYear < 100){
+					startYear = startYear + 2000;
+				}
 			} catch (IndexOutOfBoundsException e) {
 				startDay = Integer.parseInt(splitStrSlash[0]);
 				startMonth = Integer.parseInt(splitStrSlash[1]);
@@ -362,6 +364,9 @@ public class Validator {
 				endDay = Integer.parseInt(splitStrSlash[0]);
 				endMonth = Integer.parseInt(splitStrSlash[1]);
 				endYear = Integer.parseInt(splitStrSlash[2]);
+				if (endYear < 100){
+					endYear = endYear + 2000;
+				}
 
 			} catch (IndexOutOfBoundsException e) {
 				endDay = Integer.parseInt(splitStrSlash[0]);
@@ -530,10 +535,16 @@ public class Validator {
 
 					if (Integer.parseInt(splitStrSlash[0]) <= 31 && Integer.parseInt(splitStrSlash[1]) <= 12
 							&& Integer.parseInt(splitStrSlash[2]) <= 2030
-							&& Integer.parseInt(splitStrSlash[2]) >= 2010) {
+							&& Integer.parseInt(splitStrSlash[2]) >= 2000) {
 						return true;
 					}
-
+					
+					if (Integer.parseInt(splitStrSlash[0]) <= 31 && Integer.parseInt(splitStrSlash[1]) <= 12
+							&& Integer.parseInt(splitStrSlash[2]) <= 30
+							&& Integer.parseInt(splitStrSlash[2]) >= 0) {
+						return true;
+					}
+						
 				}
 			} catch (IndexOutOfBoundsException e) {
 				if (isOnlyNumbers(splitStrSlash[0]) && isOnlyNumbers(splitStrSlash[1])) {
