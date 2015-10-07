@@ -71,30 +71,59 @@ public class StringParser {
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
 			
-			String[] 	  keywordsInInput	={"on","from","to","by"};
-			PARAMETER[][] paramInInput		={{PARAMETER.START_DATE},
+			String[] 	  keywordsInInputAdd	={"on","from","to","by"};
+			PARAMETER[][] paramInInputAdd		={{PARAMETER.START_DATE},
 												{PARAMETER.START_DATE, PARAMETER.START_TIME},
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
 												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}};
 			
 			if(findKeywordIndexInput(userInput,"on",0) > 0){
-				paramInInput[1] = new PARAMETER[] {PARAMETER.START_TIME};
-				paramInInput[2] = new PARAMETER[] {PARAMETER.END_TIME};
+				paramInInputAdd[1] = new PARAMETER[] {PARAMETER.START_TIME};
+				paramInInputAdd[2] = new PARAMETER[] {PARAMETER.END_TIME};
 			}
 			
-			addAttributesToHashTable(keywordsInInput, paramInInput, userInput.split(SPACE_CHARACTER));
+			addAttributesToHashTable(keywordsInInputAdd, paramInInputAdd, userInput.split(SPACE_CHARACTER));
 			
 			if(findKeywordIndexInput(userInput,"on",0) > 0){
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
 			break;
+			
+		case EDIT_TASK:
+			
+			userInput = getTaskID(userInput);
+			
+			//Take the "" keyword out first
+			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput);
+			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput);
+			
+			//Take the repeating param keywords out
+			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
+			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
+			
+			String[] 	  keywordsInInputEd	={"on","from","to","by"};
+			PARAMETER[][] paramInInputEd		={{PARAMETER.START_DATE},
+												{PARAMETER.START_DATE, PARAMETER.START_TIME},
+												{PARAMETER.END_DATE, PARAMETER.END_TIME},
+												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}};
+			
+			if(findKeywordIndexInput(userInput,"on",0) > 0){
+				paramInInputEd[1] = new PARAMETER[] {PARAMETER.START_TIME};
+				paramInInputEd[2] = new PARAMETER[] {PARAMETER.END_TIME};
+			}
+			
+			addAttributesToHashTable(keywordsInInputEd, paramInInputEd, userInput.split(SPACE_CHARACTER));
+			
+			if(findKeywordIndexInput(userInput,"on",0) > 0){
+				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
+			}
+			break;
+			
 		case GET_TASK:
 			
 		case DISPLAY:
 			
 		case SEARCH_TASK:
-			
-		case EDIT_TASK:
 						
 		default:
 			
@@ -102,6 +131,14 @@ public class StringParser {
 		removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
 		
 		return keywordHash;
+	}
+
+	private String getTaskID(String userInput) {
+		if(containsOnlyNumbers(userInput.split(SPACE_CHARACTER,2)[0])){
+			keywordHash.put(PARAMETER.TASKID, userInput.split(SPACE_CHARACTER,2)[0]);
+			return userInput.split(SPACE_CHARACTER,2)[1];
+		}
+		return userInput;
 	}
 
 	/**
@@ -147,6 +184,9 @@ public class StringParser {
 	 */
 	public String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput) {
 		int positionOfKeyword = findKeywordIndexInput(userInput, keywordString,0);
+		if(positionOfKeyword == -1){
+			return userInput;
+		}
 		int startOfQuote = userInput.indexOf(QUOTE_INTEGER, positionOfKeyword);
 		int endOfQuote = userInput.indexOf(QUOTE_INTEGER, startOfQuote + 1);
 		if(startOfQuote > 0 && endOfQuote > 0){

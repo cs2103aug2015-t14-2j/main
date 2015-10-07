@@ -21,7 +21,7 @@ public class StringParserTest {
 	}
 
 	@Test
-	public void testGetValuesFromInput() {
+	public void testAddGetValuesFromInput() {
 		//Empty Case
 		parser = new StringParser();
 		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
@@ -69,6 +69,31 @@ public class StringParserTest {
 				parser.getKeywordHash().get(PARAMETER.START_TIME));
 		assertEquals(null,
 				parser.getKeywordHash().get(PARAMETER.END_TIME));
+	}
+	
+	@Test
+	public void testEditGetValuesFromInput() {
+		//Empty Case
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.EDIT_TASK,
+				"");
+		assertEquals(0,
+				parser.getKeywordHash().size());
+		
+		//Basic case
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.EDIT_TASK,
+				"4 by 12/11 1100 at \"hong kong\" do \"to be or not\" ");
+		assertEquals("4",
+				parser.getKeywordHash().get(PARAMETER.TASKID));
+		assertEquals("to be or not",
+				parser.getKeywordHash().get(PARAMETER.DESC));
+		assertEquals("hong kong",
+				parser.getKeywordHash().get(PARAMETER.VENUE));
+		assertEquals("12/11",
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_DATE));
+		assertEquals("1100",
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_TIME));
 	}
 
 	@Test

@@ -30,7 +30,8 @@ public class TaskHandler {
 	private static final String MESSAGE_GET_TASK       = "Task returned";
 	private static final String MESSAGE_DISPLAY        = "All tasks displayed.";
 	private static final String MESSAGE_SEARCH_TASK    = "Here are tasks matching your keywords:";
-	private static final String MESSAGE_EDIT_TASK      = "Choose the task you want to edit";
+	private static final String MESSAGE_DELETE_TASK    = "Task has been deleted";
+	private static final String MESSAGE_EDIT_TASK      = "Task has been updated!";
 	private static final String MESSAGE_EXIT           = "Thanks for using TaskBuddy! Changes saved to disk.";
 	
 	// Define error messages here
@@ -38,7 +39,7 @@ public class TaskHandler {
 	private static final String ERROR_INVALID_DATETIME = "Invalid time specified. Please follow this format: 16 Aug 2015, 16:20:00";
 	private static final String ERROR_EMPTY_TASKLIST   = "You have no tasks!";
 	private static final String ERROR_NOT_FOUND_TASK   = "The task was not found!";
-	
+	private static final String ERROR_IO_TASK   	   = "The task could not be changed!";
 	
 	// Define help messages here
 	private static final String HELP_TITLE             = "********************************************Help menu for TaskBuddy!****************************************************";
@@ -157,17 +158,18 @@ public class TaskHandler {
 			case GET_TASK:
 				return MESSAGE_GET_TASK;
 			case DISPLAY:
+				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
 				if (taskList.isEmpty()) {
 					return ERROR_EMPTY_TASKLIST;
 				} else {
-					displayAllTasks();
+					parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+					displayTask(parsedParamTable.get(PARAMETER.TASKID));
+					
 					return MESSAGE_DISPLAY;					
 				}
-			case SEARCH_TASK:
-				return MESSAGE_SEARCH_TASK;
 			case EDIT_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
-				editTask(parsedParamTable.get(PARAMETER.TASKID),
+				return editTask(parsedParamTable.get(PARAMETER.TASKID),
 						parsedParamTable.get(PARAMETER.DESC),
 						parsedParamTable.get(PARAMETER.VENUE), 
 						parsedParamTable.get(PARAMETER.START_DATE),
@@ -176,11 +178,9 @@ public class TaskHandler {
 						parsedParamTable.get(PARAMETER.END_TIME),
 						parsedParamTable.get(PARAMETER.DEADLINE_DATE),
 						parsedParamTable.get(PARAMETER.DEADLINE_TIME));
-				return MESSAGE_EDIT_TASK;
 			case DELETE_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
-				
-				return MESSAGE_EDIT_TASK;
+				return removeTask(parsedParamTable.get(PARAMETER.TASKID));
 			case INVALID_COMMAND:
 				showHelpMenu();
 				return "";
@@ -193,13 +193,21 @@ public class TaskHandler {
 		
 		}
 	}
-	
+
 	/**
 	 * Adds a task to the task list
 	 * @param task The task to be added to the taskList
+	 * @return 
 	 */
-	private static void editTask(String stringID, String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
-		Task task = searchTasks(Integer.parseInt(stringID));
+	private static String editTask(String stringID, String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
+		Task task = null;
+		
+		if(stringID != null){
+			task = searchTasks(Integer.parseInt(stringID));
+		} else {
+			return ERROR_NOT_FOUND_TASK;
+		}
+		
 		
 		try {
 			Date _startDate = null;
@@ -222,11 +230,13 @@ public class TaskHandler {
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
 				task.setDeadline(_deadlineDate);
 			}
+			return MESSAGE_EDIT_TASK;
 			
 		} catch (ParseException e) {			
 			e.printStackTrace();
 			
 		}
+		return ERROR_IO_TASK;
 	}
 	
 	/**
@@ -244,9 +254,15 @@ public class TaskHandler {
 			if(startTime != null && endTime != null && startDate != null && endDate != null){
 				_startDate    = dateFormat.parse(startDate + " " + startTime);
 				_endDate      = dateFormat.parse(endDate + " " + endTime);
+				//TODO: DELETE!!
+				_startDate.setYear(115);
+				_endDate.setYear(115);
 			}
+			
 			if(deadlineDate != null && deadlineTime != null){
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
+				//TODO:DELETE!!
+				_deadlineDate.setYear(115);
 			}
 			
 			if(desc != null){
@@ -301,6 +317,18 @@ public class TaskHandler {
 		showToUser(HELP_SEARCH_TASK);
 		showToUser(HELP_EDIT_TASK);
 		showToUser(HELP_EXIT);
+	}
+	
+	/**
+	 * 
+	 * @param string
+	 */
+	private static void displayTask(String taskID) {
+		if(taskID != null){
+			showToUser(taskList.get(Integer.parseInt(taskID)).toString());
+		} else {
+			displayAllTasks();
+		}
 	}
 	
 	/**
