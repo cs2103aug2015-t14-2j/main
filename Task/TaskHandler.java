@@ -37,6 +37,7 @@ public class TaskHandler {
 	private static final String ERROR_INVALID_COMMAND  = "Invalid Command.";
 	private static final String ERROR_INVALID_DATETIME = "Invalid time specified. Please follow this format: 16 Aug 2015, 16:20:00";
 	private static final String ERROR_EMPTY_TASKLIST   = "You have no tasks!";
+	private static final String ERROR_NOT_FOUND_TASK   = "The task was not found!";
 	
 	
 	// Define help messages here
@@ -60,7 +61,7 @@ public class TaskHandler {
 	
 	private static Scanner         scanner           = new Scanner(System.in);
 	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
+	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("dd/MM HHmm");
 	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
 	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
 	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
@@ -81,7 +82,7 @@ public class TaskHandler {
 			System.out.print("> Enter command:");
 			String command = scanner.nextLine();
 			if(isValidCommand(command)) {
-				String feedback = executeCommand(command);				
+				String feedback = executeCommand(command);
 				showToUser(feedback);
 			}			
 		}
@@ -165,6 +166,20 @@ public class TaskHandler {
 			case SEARCH_TASK:
 				return MESSAGE_SEARCH_TASK;
 			case EDIT_TASK:
+				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				editTask(parsedParamTable.get(PARAMETER.TASKID),
+						parsedParamTable.get(PARAMETER.DESC),
+						parsedParamTable.get(PARAMETER.VENUE), 
+						parsedParamTable.get(PARAMETER.START_DATE),
+						parsedParamTable.get(PARAMETER.END_DATE), 
+						parsedParamTable.get(PARAMETER.START_TIME),
+						parsedParamTable.get(PARAMETER.END_TIME),
+						parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+						parsedParamTable.get(PARAMETER.DEADLINE_TIME));
+				return MESSAGE_EDIT_TASK;
+			case DELETE_TASK:
+				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				
 				return MESSAGE_EDIT_TASK;
 			case INVALID_COMMAND:
 				showHelpMenu();
@@ -183,32 +198,66 @@ public class TaskHandler {
 	 * Adds a task to the task list
 	 * @param task The task to be added to the taskList
 	 */
-	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
-		int taskId = currentTaskId + 1;
-		
+	private static void editTask(String stringID, String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
+		Task task = searchTasks(Integer.parseInt(stringID));
 		
 		try {
 			Date _startDate = null;
 			Date _endDate = null;
 			Date _deadlineDate = null;
 			
-			if(startTime != null && endTime != null){
-				_startDate    = dateFormat.parse(startTime);
-				_endDate      = dateFormat.parse(endTime);
+			if(desc != null){
+				task.setDescription(desc);
 			}
-			if(deadlineDate != null){
-				_deadlineDate = dateFormat.parse(deadlineDate);
+			if(venue != null){
+				task.setVenue(venue);
+			}
+			if(startTime != null && endTime != null && startDate != null && endDate != null){
+				_startDate    = dateFormat.parse(startDate + " " + startTime);
+				_endDate      = dateFormat.parse(endDate + " " + endTime);
+				task.setStartTime(_startDate);
+				task.setEndTime(_endDate);
+			}
+			if(deadlineDate != null && deadlineTime != null){
+				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
+				task.setDeadline(_deadlineDate);
+			}
+			
+		} catch (ParseException e) {			
+			e.printStackTrace();
+			
+		}
+	}
+	
+	/**
+	 * Adds a task to the task list
+	 * @param task The task to be added to the taskList
+	 */
+	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
+		int taskId = currentTaskId + 1;
+		
+		try {
+			Date _startDate = null;
+			Date _endDate = null;
+			Date _deadlineDate = null;
+			
+			if(startTime != null && endTime != null && startDate != null && endDate != null){
+				_startDate    = dateFormat.parse(startDate + " " + startTime);
+				_endDate      = dateFormat.parse(endDate + " " + endTime);
+			}
+			if(deadlineDate != null && deadlineTime != null){
+				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
 			}
 			
 			if(desc != null){
 				Task task = null;
 				if (venue != null)
 				if (startTime != null && endTime != null){
-					task = new Task(currentTaskId+1, desc, _startDate, _endDate, venue);
+					task = new Task(currentTaskId+1, desc, _startDate, _endDate, venue);//Event
 				} else if (deadlineDate != null){
-					task = new Task(currentTaskId+1, desc, _deadlineDate, venue);
+					task = new Task(currentTaskId+1, desc, _deadlineDate, venue);		//Deadline task
 				} else {
-					task = new Task(currentTaskId+1, desc, venue);
+					task = new Task(currentTaskId+1, desc, venue);						//Floating task
 				}
 				
 				System.out.println(task.toString());
@@ -226,46 +275,17 @@ public class TaskHandler {
 	 * Remove a specific task from the file
 	 * @param task The task to be deleted from the taskList
 	 */
-	private static void removeTask(Task task) {
-		// TODO remove the task from tasklist
-	}
-	
-	private static void addTask(String desc, String startTime, String endTime, String deadline, String venue, String priority) {
-		try {
-			
-			Date startDate = null;
-			Date endDate = null;
-			Date deadlineDate = null;
-			
-			if(startTime != null && endTime != null){
-				startDate    = dateFormat.parse(startTime);
-				endDate      = dateFormat.parse(endTime);
+	private static String removeTask(String stringID) {
+		for(Task t:taskList){
+			if(t.getTaskId() == Integer.parseInt(stringID)){
+				String removedTask = Integer.toString(t.getTaskId());
+				taskList.remove(t);
+				System.out.println("Task" + removedTask + "was erased");
 			}
-			if(deadline != null){
-				deadlineDate = dateFormat.parse(deadline);
-			}
-			
-			if(desc != null){
-				Task task = null;
-				if (venue != null)
-				if (startTime != null && endTime != null){
-					task = new Task(currentTaskId+1, desc, startDate, endDate, venue);
-				} else if (deadlineDate != null){
-					task = new Task(currentTaskId+1, desc, deadlineDate, venue);
-				} else {
-					task = new Task(currentTaskId+1, desc, venue);
-				}
-				
-				System.out.println(task.toString());
-				taskList.add(task);
-			}
-			
-			
-			
-		} catch (ParseException e) {			
-			e.printStackTrace();
 			
 		}
+		return ERROR_NOT_FOUND_TASK;
+		
 	}
 	
 	/**
@@ -336,8 +356,12 @@ public class TaskHandler {
 		return taskList;
 	}*/
 	
-	public ArrayList<Task> searchTasks(Task task){
-		//TODO:Unimplemented
+	public static Task searchTasks(int task){
+		for(int i = 0; i < taskList.size();i++){
+			if(taskList.get(i).getTaskId() == task){
+				return taskList.get(i);
+			}
+		}
 		return null;
 	}
 	
