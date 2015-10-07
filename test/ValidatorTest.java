@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import Task.COMMAND_TYPE;
 import Task.Validator;
-import Task.Validator.PARAMETER;
 import Task.*;
 
 public class ValidatorTest {
@@ -23,7 +22,6 @@ public class ValidatorTest {
 		testHashMap.put(PARAMETER.END_DATE, "22/05");
 		testHashMap.put(PARAMETER.START_TIME, "1200");
 		testHashMap.put(PARAMETER.END_TIME, "8pm");
-		testHashMap.put(PARAMETER.PRIORITY, "LOW");
 
 		
 		HashMap<PARAMETER, String> returnTest = Validator.validateUserInput(COMMAND_TYPE.ADD_TASK,testHashMap);
@@ -33,7 +31,6 @@ public class ValidatorTest {
 		assertTrue(returnTest.get(PARAMETER.END_DATE).equals("VALID"));
 		assertTrue(returnTest.get(PARAMETER.START_TIME).equals("VALID"));
 		assertTrue(returnTest.get(PARAMETER.END_TIME).equals("VALID"));
-		assertTrue(returnTest.get(PARAMETER.PRIORITY).equals("VALID"));
 	}
 
 

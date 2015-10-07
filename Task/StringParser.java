@@ -2,6 +2,8 @@ package Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 /**
  *  Represents the parser for strings
@@ -97,8 +99,34 @@ public class StringParser {
 		default:
 			
 		}
+		removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
 		
 		return keywordHash;
+	}
+
+	/**
+	 * removes invalid inputs as dictated by the validator
+	 * @param validKeywordHash 
+	 * @param keywordHash
+	 * @return 
+	 */
+	private HashMap<PARAMETER, String> removeInvalidInputs(HashMap<PARAMETER, String> validKeywordHash,
+			HashMap<PARAMETER, String> keywordHash) {
+		ArrayList<PARAMETER> toRemove = new ArrayList<PARAMETER>();
+		for(Entry<PARAMETER, String> entry : validKeywordHash.entrySet()) {
+			if(validKeywordHash.get(entry.getKey()) != "VALID"){
+				 toRemove.add(entry.getKey());
+			}
+			//TODO: should we pass to Logic?
+		    //PARAMETER key = entry.getKey();
+		    //HashMap value = entry.getValue();
+		}
+		for(int i = 0; i < toRemove.size(); i++){
+			keywordHash.remove(toRemove.get(i));
+		}
+		
+		return keywordHash;
+		
 	}
 
 	/**
@@ -252,7 +280,9 @@ public class StringParser {
 			//extracts the arguments for each keyword given they are not keywords
 			for(int j = 0; j < paramInInput[commandFromKeywordIndex].length; j++){
 				//TODO: fix for arguments that aren't given for a keyword
-				if(stringCompareToList(stringToParse[currentWord], keywordsInInput) == PARAM_NOT_FOUND && currentWord < stringToParse.length){
+				if(currentWord < stringToParse.length && 
+						stringCompareToList(stringToParse[currentWord], keywordsInInput) == PARAM_NOT_FOUND && 
+						currentWord < stringToParse.length){
 					keywordHash.put(paramInInput[commandFromKeywordIndex][j], stringToParse[currentWord]); //Ignore the quote delimeters
 					currentWord++;
 				}

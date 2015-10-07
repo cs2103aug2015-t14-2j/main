@@ -12,6 +12,8 @@ public class StringParserTest {
 
 	private StringParser parser = null;
 	
+	//TODO: add do "get dog" by 02/05/15 at "hong kong"
+	
 	@Test
 	public void testStringParser() {
 		parser = new StringParser();
@@ -44,11 +46,11 @@ public class StringParserTest {
 		//Having same day scheduling
 		parser = new StringParser();
 		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
-				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 11/15");
+				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 15/11");
 		
-		assertEquals("11/15",
+		assertEquals("15/11",
 				parser.getKeywordHash().get(PARAMETER.START_DATE));
-		assertEquals("11/15",
+		assertEquals("15/11",
 				parser.getKeywordHash().get(PARAMETER.END_DATE));
 		assertEquals("1100",
 				parser.getKeywordHash().get(PARAMETER.START_TIME));
@@ -59,13 +61,13 @@ public class StringParserTest {
 		parser = new StringParser();
 		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
 				"from 1100 at \"hong kong\" to 12/11 1500 do \"to be or not\" on 1300"); //#miley #hola remind 30 60 90
-		assertEquals("1300",
+		assertEquals(null,
 				parser.getKeywordHash().get(PARAMETER.START_DATE));
-		assertEquals("1300",
+		assertEquals(null,
 				parser.getKeywordHash().get(PARAMETER.END_DATE));
 		assertEquals("1100",
 				parser.getKeywordHash().get(PARAMETER.START_TIME));
-		assertEquals("12/11",
+		assertEquals(null,
 				parser.getKeywordHash().get(PARAMETER.END_TIME));
 	}
 

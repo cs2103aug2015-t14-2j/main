@@ -11,12 +11,7 @@
             "description": "Buy lunch",
             "isDone": false,
             "isPastDeadline": false,
-            "hasEnded": false,
-            "tags": [
-                "#GE2015",
-                "#Elections",
-                "#homework"
-            ]
+            "hasEnded": false
         },
         {
             "taskId": 2,
@@ -29,8 +24,7 @@
             "description": "Buy lunch",
             "isDone": false,
             "isPastDeadline": false,
-            "hasEnded": false,
-            "tags": []
+            "hasEnded": false
         }
     ]
 }

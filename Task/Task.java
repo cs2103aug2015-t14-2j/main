@@ -61,7 +61,6 @@ public class Task {
 	 * @param startTime
 	 * @param endTime
 	 * @param venue
-	 * @param tags
 	 */
 	public Task (int taskId, String desc, Date startTime, Date endTime, String venue) {
 		this.createdTime = new Date();
@@ -78,16 +77,37 @@ public class Task {
 	}
 	
 	/**
-	 * Constructor for tasks with only deadline.
+	 * Constructor for tasks with only venue.
+	 * Used when user adds a new task
+	 * 
+	 * @param taskId
+	 * @param desc
+	 * @param venue
+	 */
+	public Task (int taskId, String desc, String venue) {
+		this.createdTime = new Date();
+		this.lastModifiedTime = this.createdTime;
+		this.taskId = taskId;
+		
+		this.period = null;
+		this.deadline = null;
+		this.venue = venue;
+		this.description = desc;
+		this.isDone = false;
+		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
+		this.hasEnded = false;
+	}
+	
+	/**
+	 * Constructor for tasks with only deadline and venue.
 	 * Used when user adds a new task
 	 * 
 	 * @param taskId
 	 * @param desc
 	 * @param deadline
 	 * @param venue
-	 * @param tags
 	 */
-	public Task (int taskId, String desc, Date deadline, String venue, ArrayList<String> tags) {
+	public Task (int taskId, String desc, Date deadline, String venue) {
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
@@ -99,33 +119,6 @@ public class Task {
 		this.isDone = false;
 		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
 		this.hasEnded = false;
-	}
-
-	/**
-	 * Constructor for tasks with startTime, endTime and deadline.
-	 * Used when user adds a new task. 
-	 * 
-	 * @param taskId
-	 * @param desc
-	 * @param startTime
-	 * @param endTime
-	 * @param deadline
-	 * @param venue
-	 * @param tags
-	 */
-	public Task (int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, ArrayList<String> tags) {
-		this.createdTime = new Date();
-		this.lastModifiedTime = this.createdTime;
-		this.taskId = taskId;
-		
-		this.period = new Period(startTime, endTime);
-		this.deadline = deadline;
-		this.venue = venue;
-		this.description = desc;
-		this.isDone = false;
-		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
-		this.hasEnded = hasEnded(this.createdTime , endTime);
-		
 	}
 	
 	/**
@@ -143,7 +136,6 @@ public class Task {
 	 * @param isDone
 	 * @param isPastDeadline
 	 * @param hasEnded
-	 * @param tags
 	 */
 	public Task (Date createdTime, Date lastModifiedTime, int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, boolean isDone, boolean isPastDeadline, boolean hasEnded) {
 		this.createdTime = createdTime;
@@ -240,14 +232,6 @@ public class Task {
 
 	public boolean hasEnded ( Date now, Date endTime) {
 		return true;
-	}
-	
-	public void addTag(String tag) {
-		
-	}
-	
-	public void removeTag(String tag) {
-		
 	}
 	
 	public Date getCreatedTime() {

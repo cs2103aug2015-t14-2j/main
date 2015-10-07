@@ -115,7 +115,7 @@ public class TaskHandler {
 	 * @return
 	 */
 	public static boolean isValidCommand(String userInput) {
-		if(userInput.length() != 0 && userInput.split(" ").length > 1) {
+		if(userInput.length() != 0) {
 			return true;
 		} else {
 			showHelpMenu();
@@ -136,8 +136,7 @@ public class TaskHandler {
 			case ADD_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
 				//TODO: shouldn't it be if it has a description?
-				boolean enoughParameters = parsedParamTable.size() >= NUM_ARGS_ADD_TASK ? true : false;
-				if (enoughParameters) {
+				if (parsedParamTable.get(PARAMETER.DESC) != null) {
 					//boolean canAddTask = validate.isValidAddTask(validate.validateUserInput(command, parsedParamTable));
 					if (true) { //TODO: CHANGE to canAddTask!!!!!
 						addTask(parsedParamTable.get(PARAMETER.DESC),
@@ -186,15 +185,35 @@ public class TaskHandler {
 	 */
 	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
 		int taskId = currentTaskId + 1;
+		
+		
 		try {
-			Date _startDate    = dateFormat.parse(startTime);
-			Date _endDate      = dateFormat.parse(endTime);
-			Date _deadlineTime = dateFormat.parse(deadlineTime);
+			Date _startDate = null;
+			Date _endDate = null;
+			Date _deadlineDate = null;
 			
-			//TODO: Modify task to match enum of params //TODO: Change to appropriate input!!!!
-			Task task = new Task(taskId, desc, _startDate, _endDate/*, _deadlineTime*/, venue);
-			System.out.println(task.toString());
-			taskList.add(task);
+			if(startTime != null && endTime != null){
+				_startDate    = dateFormat.parse(startTime);
+				_endDate      = dateFormat.parse(endTime);
+			}
+			if(deadlineDate != null){
+				_deadlineDate = dateFormat.parse(deadlineDate);
+			}
+			
+			if(desc != null){
+				Task task = null;
+				if (venue != null)
+				if (startTime != null && endTime != null){
+					task = new Task(currentTaskId+1, desc, _startDate, _endDate, venue);
+				} else if (deadlineDate != null){
+					task = new Task(currentTaskId+1, desc, _deadlineDate, venue);
+				} else {
+					task = new Task(currentTaskId+1, desc, venue);
+				}
+				
+				System.out.println(task.toString());
+				taskList.add(task);
+			}
 			currentTaskId += 1;
 			
 		} catch (ParseException e) {			
@@ -213,13 +232,35 @@ public class TaskHandler {
 	
 	private static void addTask(String desc, String startTime, String endTime, String deadline, String venue, String priority) {
 		try {
-			Date startDate    = dateFormat.parse(startTime);
-			Date endDate      = dateFormat.parse(endTime);
-			Date deadlineDate = dateFormat.parse(deadline);
 			
-			Task task = new Task(currentTaskId+1, desc, startDate, endDate, deadlineDate, venue, new ArrayList<String>());
-			System.out.println(task.toString());
-			taskList.add(task);
+			Date startDate = null;
+			Date endDate = null;
+			Date deadlineDate = null;
+			
+			if(startTime != null && endTime != null){
+				startDate    = dateFormat.parse(startTime);
+				endDate      = dateFormat.parse(endTime);
+			}
+			if(deadline != null){
+				deadlineDate = dateFormat.parse(deadline);
+			}
+			
+			if(desc != null){
+				Task task = null;
+				if (venue != null)
+				if (startTime != null && endTime != null){
+					task = new Task(currentTaskId+1, desc, startDate, endDate, venue);
+				} else if (deadlineDate != null){
+					task = new Task(currentTaskId+1, desc, deadlineDate, venue);
+				} else {
+					task = new Task(currentTaskId+1, desc, venue);
+				}
+				
+				System.out.println(task.toString());
+				taskList.add(task);
+			}
+			
+			
 			
 		} catch (ParseException e) {			
 			e.printStackTrace();
