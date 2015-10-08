@@ -100,7 +100,7 @@ public class StringParser {
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
 			
-			String[] 	  keywordsInInputEd	={"on","from","to","by"};
+			String[] 	  keywordsInInputEd		={"on","from","to","by"};
 			PARAMETER[][] paramInInputEd		={{PARAMETER.START_DATE},
 												{PARAMETER.START_DATE, PARAMETER.START_TIME},
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
@@ -117,8 +117,6 @@ public class StringParser {
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
 			break;
-			
-		case GET_TASK:
 			
 		case DISPLAY:
 			userInput = getTaskID(userInput);
@@ -138,10 +136,28 @@ public class StringParser {
 		return keywordHash;
 	}
 
+	/**
+	 * Used to obtain the taskID from a string and return the rest of the sentence
+	 * This can be used with a single ID or a string following it
+	 * @param userInput The user input
+	 * @return The string after the ID has been taken out
+	 */
 	private String getTaskID(String userInput) {
-		if(containsOnlyNumbers(userInput.split(SPACE_CHARACTER,2)[0])){
-			keywordHash.put(PARAMETER.TASKID, userInput.split(SPACE_CHARACTER,2)[0]);
-			if(userInput.split(SPACE_CHARACTER,2).length > 1){
+		String[] inputArray = userInput.split(SPACE_CHARACTER,2);
+		if(inputArray[0].equals("") && inputArray.length > 1){			//Check for variations in the number
+			inputArray[0] = userInput.split(SPACE_CHARACTER,3)[1];
+			if(userInput.split(SPACE_CHARACTER,3).length > 2){
+				inputArray[1] = userInput.split(SPACE_CHARACTER,3)[2];
+			} else {
+				inputArray[1] = "";
+			}
+		} else if(inputArray[0].equals("") && inputArray.length == 1){
+			return "";
+		}
+		
+		if(containsOnlyNumbers(inputArray[0])){
+			keywordHash.put(PARAMETER.TASKID, inputArray[0]);
+			if(inputArray.length > 1){
 				return userInput.split(SPACE_CHARACTER,2)[1];
 			}
 			else return "";
@@ -179,8 +195,8 @@ public class StringParser {
 	 * @param numString The string to be checked for all numbers
 	 * @return A boolean representation of wheather the string provided is all numbers
 	 */
-	private boolean containsOnlyNumbers(String numString) {
-		return numString.matches("[0-9]+");
+	public boolean containsOnlyNumbers(String numString) {
+		return numString.matches("^[0-9 ]+$");
 	}
 
 	/**
@@ -327,7 +343,6 @@ public class StringParser {
 		if(commandFromKeywordIndex != PARAM_NOT_FOUND){
 			//extracts the arguments for each keyword given they are not keywords
 			for(int j = 0; j < paramInInput[commandFromKeywordIndex].length; j++){
-				//TODO: fix for arguments that aren't given for a keyword
 				if(currentWord < stringToParse.length && 
 						stringCompareToList(stringToParse[currentWord], keywordsInInput) == PARAM_NOT_FOUND && 
 						currentWord < stringToParse.length){

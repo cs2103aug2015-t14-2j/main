@@ -309,13 +309,15 @@ public class TaskHandler {
 	 * @param task The task to be deleted from the taskList
 	 */
 	private static String removeTask(String stringID) {
-		for(Task t:taskList){
-			if(t.getTaskId() == Integer.parseInt(stringID)){
-				String removedTask = Integer.toString(t.getTaskId());
-				taskList.remove(t);
-				return "Task " + removedTask + " was erased";
+		if(stringID != null){
+			for(Task t:taskList){
+				if(t.getTaskId() == Integer.parseInt(stringID)){
+					String removedTask = Integer.toString(t.getTaskId());
+					taskList.remove(t);
+					return "Task " + removedTask + " was erased";
+				}
+				
 			}
-			
 		}
 		return ERROR_NOT_FOUND_TASK;
 		

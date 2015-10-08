@@ -58,18 +58,18 @@ public class StringParserTest {
 				parser.getKeywordHash().get(PARAMETER.END_TIME));
 		
 		//Having same day scheduling
-				parser = new StringParser();
-				parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
-						"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 15/11");
-				
-				assertEquals("15/11",
-						parser.getKeywordHash().get(PARAMETER.START_DATE));
-				assertEquals("15/11",
-						parser.getKeywordHash().get(PARAMETER.END_DATE));
-				assertEquals("1100",
-						parser.getKeywordHash().get(PARAMETER.START_TIME));
-				assertEquals("1500",
-						parser.getKeywordHash().get(PARAMETER.END_TIME));
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
+				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 15/11");
+		
+		assertEquals("15/11",
+				parser.getKeywordHash().get(PARAMETER.START_DATE));
+		assertEquals("15/11",
+				parser.getKeywordHash().get(PARAMETER.END_DATE));
+		assertEquals("1100",
+				parser.getKeywordHash().get(PARAMETER.START_TIME));
+		assertEquals("1500",
+				parser.getKeywordHash().get(PARAMETER.END_TIME));
 		
 		//Incorrect Format
 		parser = new StringParser();
@@ -83,6 +83,48 @@ public class StringParserTest {
 				parser.getKeywordHash().get(PARAMETER.START_TIME));
 		assertEquals(null,
 				parser.getKeywordHash().get(PARAMETER.END_TIME));
+		
+		//No param for keyword
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
+				"by at do \"to be or not\" ");
+		
+		assertEquals("to be or not",
+				parser.getKeywordHash().get(PARAMETER.DESC));
+		assertEquals(null,
+				parser.getKeywordHash().get(PARAMETER.VENUE));
+		assertEquals(null,
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_DATE));
+		assertEquals(null,
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_TIME));
+		
+		//No param for keyword
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
+				"by \"fd\" at \"Huka\" do 43 \"sdfji\"");
+		
+		assertEquals("sdfji",
+				parser.getKeywordHash().get(PARAMETER.DESC));
+		assertEquals("Huka",
+				parser.getKeywordHash().get(PARAMETER.VENUE));
+		assertEquals(null,
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_DATE));
+		assertEquals(null,
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_TIME));
+				
+		//giberrish
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.ADD_TASK,
+				"bjsdf sdfjla \"at party\" at \"hula hula\" fds8893 93 023 d0 do fs 4");
+		
+		assertEquals(null,
+				parser.getKeywordHash().get(PARAMETER.DESC));
+		assertEquals("hula hula",
+				parser.getKeywordHash().get(PARAMETER.VENUE));
+		assertEquals(null,
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_DATE));
+		assertEquals(null,
+				parser.getKeywordHash().get(PARAMETER.DEADLINE_TIME));
 	}
 	
 	@Test
@@ -109,6 +151,47 @@ public class StringParserTest {
 		assertEquals("1100",
 				parser.getKeywordHash().get(PARAMETER.DEADLINE_TIME));
 	}
+	
+	@Test
+	public void testDisplayGetValuesFromInput() {
+		//Empty Case
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.EDIT_TASK,
+				"");
+		assertEquals(0,
+				parser.getKeywordHash().size());
+		
+		//Basic case
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.DISPLAY,
+				" 4");
+		assertEquals("4",
+				parser.getKeywordHash().get(PARAMETER.TASKID));
+	}
+	
+	@Test
+	public void testDeleteGetValuesFromInput() {
+		//Empty Case
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.DELETE_TASK,
+				"");
+		assertEquals(0,
+				parser.getKeywordHash().size());
+		
+		//Basic case
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.EDIT_TASK,
+				" 10");
+		assertEquals("10",
+				parser.getKeywordHash().get(PARAMETER.TASKID));
+		
+		//Basic case
+		parser = new StringParser();
+		parser.getValuesFromInput(COMMAND_TYPE.EDIT_TASK,
+				"10 ");
+		assertEquals("10",
+				parser.getKeywordHash().get(PARAMETER.TASKID));
+	}
 
 	@Test
 	public void testTransferQuoteToHashMap() {
@@ -123,6 +206,17 @@ public class StringParserTest {
 						parser.getKeywordHash().get(PARAMETER.DESC));
 		assertEquals("hong kong",
 						parser.getKeywordHash().get(PARAMETER.VENUE));
+	}
+	
+	@Test
+	public void testContainsOnlyNumbers(){
+		parser = new StringParser();
+		assertEquals(true,parser.containsOnlyNumbers("4"));
+		assertEquals(true,parser.containsOnlyNumbers(" 4"));
+		assertEquals(true,parser.containsOnlyNumbers("4 "));
+		assertEquals(true,parser.containsOnlyNumbers("4 9"));
+		assertEquals(false,parser.containsOnlyNumbers("4 j"));
+		assertEquals(false,parser.containsOnlyNumbers(""));
 	}
 
 	@Test
