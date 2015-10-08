@@ -2,7 +2,6 @@ package Task;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
 
 /**
@@ -20,11 +19,10 @@ public class StringParser {
 	
 	//Define int constants here
 	private static final int QUOTE_INTEGER = 34;
-	private static final int WITHIN_KEYWORD = 0;
-	private static final int SEPERATED_BY_SPACES = 1;
 	private static final int PARAM_NOT_FOUND = -1;
-
-	private static final int HASHTAG_LENGTH = 1;
+	//private static final int WITHIN_KEYWORD = 0;
+	//private static final int SEPERATED_BY_SPACES = 1;
+	//private static final int HASHTAG_LENGTH = 1;
 	
 	//The hashmap contructed
 	private HashMap<PARAMETER, String> keywordHash = null;
@@ -56,8 +54,8 @@ public class StringParser {
 	/**
 	 * Used to get a HashMap from user input and a command type
 	 * @param command The type of command used to treat the userInput differently
-	 * @param query
-	 * @return
+	 * @param userInput The string from the user
+	 * @return The hashmap with valid task inputs
 	 */
 	public HashMap<PARAMETER, String> getValuesFromInput(COMMAND_TYPE command, String userInput) {
 		
@@ -167,9 +165,9 @@ public class StringParser {
 
 	/**
 	 * removes invalid inputs as dictated by the validator
-	 * @param validKeywordHash 
-	 * @param keywordHash
-	 * @return 
+	 * @param validKeywordHash Hashmap of the valid entries in the original Hashmap
+	 * @param keywordHash The original Hashmap to be cleaned for valid entries
+	 * @return The original Hashmap minus any invalid entries as dictated by the validKeywordHash
 	 */
 	private HashMap<PARAMETER, String> removeInvalidInputs(HashMap<PARAMETER, String> validKeywordHash,
 			HashMap<PARAMETER, String> keywordHash) {
@@ -178,9 +176,6 @@ public class StringParser {
 			if(validKeywordHash.get(entry.getKey()) != "VALID"){
 				 toRemove.add(entry.getKey());
 			}
-			//TODO: should we pass to Logic?
-		    //PARAMETER key = entry.getKey();
-		    //HashMap value = entry.getValue();
 		}
 		for(int i = 0; i < toRemove.size(); i++){
 			keywordHash.remove(toRemove.get(i));

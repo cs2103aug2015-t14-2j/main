@@ -11,9 +11,7 @@ import Task.PARAMETER;
 public class StringParserTest {
 
 	private StringParser parser = null;
-	
-	//TODO: add do "get dog" by 02/05/15 at "hong kong"
-	
+
 	@Test
 	public void testStringParser() {
 		parser = new StringParser();
@@ -179,19 +177,28 @@ public class StringParserTest {
 				parser.getKeywordHash().size());
 		
 		//Basic case
+				parser = new StringParser();
+				parser.getValuesFromInput(COMMAND_TYPE.EDIT_TASK,
+						"10");
+				assertEquals("10",
+						parser.getKeywordHash().get(PARAMETER.TASKID));
+		
+		//Basic case space before
 		parser = new StringParser();
 		parser.getValuesFromInput(COMMAND_TYPE.EDIT_TASK,
 				" 10");
 		assertEquals("10",
 				parser.getKeywordHash().get(PARAMETER.TASKID));
 		
-		//Basic case
+		//Basic case space after
 		parser = new StringParser();
 		parser.getValuesFromInput(COMMAND_TYPE.EDIT_TASK,
 				"10 ");
 		assertEquals("10",
 				parser.getKeywordHash().get(PARAMETER.TASKID));
 	}
+	
+	// NORMALLY PRIVATE METHOD TESTING //
 
 	@Test
 	public void testTransferQuoteToHashMap() {
