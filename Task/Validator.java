@@ -498,10 +498,10 @@ public class Validator {
 	}
 
 	private static boolean isValidString(String string) {
-		string = string.trim();
-		if (string.equals(null)) {
+		if (string == null) {
 			return false;
 		}
+		string = string.trim();
 		return true;
 	}
 
