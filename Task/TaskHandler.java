@@ -62,7 +62,7 @@ public class TaskHandler {
 	
 	private static Scanner         scanner           = new Scanner(System.in);
 	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("d/M/Y HHmm");
+	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("dd/M/yyyy HHmm");
 	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
 	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
 	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
@@ -173,10 +173,10 @@ public class TaskHandler {
 				}
 			case EDIT_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
-				System.out.println(parsedParamTable.get(PARAMETER.START_DATE));
-				System.out.println(parsedParamTable.get(PARAMETER.END_DATE));
-				System.out.println(parsedParamTable.get(PARAMETER.START_TIME));
-				System.out.println(parsedParamTable.get(PARAMETER.END_TIME));
+//				System.out.println("START DATE : " + parsedParamTable.get(PARAMETER.START_DATE));
+//				System.out.println("END_DATE : " + parsedParamTable.get(PARAMETER.END_DATE));
+//				System.out.println("START_TIME : " + parsedParamTable.get(PARAMETER.START_TIME));
+//				System.out.println("END_TIME : " + parsedParamTable.get(PARAMETER.END_TIME));
 
 				return editTask(parsedParamTable.get(PARAMETER.TASKID),
 						parsedParamTable.get(PARAMETER.DESC),
@@ -209,10 +209,10 @@ public class TaskHandler {
 	 * @return 
 	 */
 	private static String editTask(String stringID, String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
-		System.out.println(startDate);
-		System.out.println(startTime);
-		System.out.println(endDate);
-		System.out.println(endTime);
+//		System.out.println("START +_DATE : " + startDate);
+//		System.out.println("START_TIME : " + startTime);
+//		System.out.println("END_DATE : " + endDate);
+//		System.out.println("END_TIME : " + endTime);
 
 		Task task = null;
 		
