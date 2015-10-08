@@ -1,6 +1,5 @@
 package Task;
 
-import java.io.*;
 import Task.FileIO;
 import Task.COMMAND_TYPE;
 import Task.StringParser;
@@ -11,7 +10,6 @@ import java.text.ParseException;
 import java.util.Scanner;
 import java.util.Calendar;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -36,7 +34,6 @@ public class TaskHandler {
 	
 	// Define error messages here
 	private static final String ERROR_INVALID_COMMAND  = "Invalid Command.";
-	private static final String ERROR_INVALID_DATETIME = "Invalid time specified. Please follow this format: 16 Aug 2015, 16:20:00";
 	private static final String ERROR_EMPTY_TASKLIST   = "You have no tasks!";
 	private static final String ERROR_NOT_FOUND_TASK   = "The task was not found!";
 	private static final String ERROR_IO_TASK   	   = "The task could not be changed!";
@@ -45,7 +42,7 @@ public class TaskHandler {
 	private static final String HELP_TITLE             = "********************************************Help menu for TaskBuddy!****************************************************";
 	private static final String HELP_SUBTITLE          = "[COMMAND]     [FORMAT]                                                                             [DESCRIPTION]";
 	private static final String HELP_ADD_TASK          = "  1.ADD       : add    [description], [starttime], [endtime], [deadline], [venue], [priority]      |";
-	private static final String HELP_GET_TASK          = "  2.GET       : get    [task-id]                                                                   |";
+	private static final String HELP_DELETE_TASK       = "  2.DELETE    : get    [task-id]                                                                   |";
 	private static final String HELP_DISPLAY           = "  3.DISPLAY   : display                                                                            |";
 	private static final String HELP_SEARCH_TASK       = "  4.SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |";
 	private static final String HELP_EDIT_TASK         = "  5.EDIT      : edit   [task-id], [value1=keyword1]                                                |";
@@ -138,22 +135,15 @@ public class TaskHandler {
 			case ADD_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
 				//TODO: shouldn't it be if it has a description?
-				System.out.println(parsedParamTable.get(PARAMETER.START_DATE));
-				System.out.println(parsedParamTable.get(PARAMETER.END_DATE));
-				System.out.println(parsedParamTable.get(PARAMETER.START_TIME));
-				System.out.println(parsedParamTable.get(PARAMETER.END_TIME));
 				if (parsedParamTable.get(PARAMETER.DESC) != null) {
-					//boolean canAddTask = validate.isValidAddTask(validate.validateUserInput(command, parsedParamTable));
-					if (true) { //TODO: CHANGE to canAddTask!!!!!
-						addTask(parsedParamTable.get(PARAMETER.DESC),
-								parsedParamTable.get(PARAMETER.VENUE), 
-								parsedParamTable.get(PARAMETER.START_DATE),
-								parsedParamTable.get(PARAMETER.END_DATE), 
-								parsedParamTable.get(PARAMETER.START_TIME),
-								parsedParamTable.get(PARAMETER.END_TIME),
-								parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-								parsedParamTable.get(PARAMETER.DEADLINE_TIME));
-					}					
+					addTask(parsedParamTable.get(PARAMETER.DESC),
+							parsedParamTable.get(PARAMETER.VENUE), 
+							parsedParamTable.get(PARAMETER.START_DATE),
+							parsedParamTable.get(PARAMETER.END_DATE), 
+							parsedParamTable.get(PARAMETER.START_TIME),
+							parsedParamTable.get(PARAMETER.END_TIME),
+							parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+							parsedParamTable.get(PARAMETER.DEADLINE_TIME));
 				} else {
 					showHelpMenu();
 					return ""; 
@@ -173,10 +163,6 @@ public class TaskHandler {
 				}
 			case EDIT_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
-//				System.out.println("START DATE : " + parsedParamTable.get(PARAMETER.START_DATE));
-//				System.out.println("END_DATE : " + parsedParamTable.get(PARAMETER.END_DATE));
-//				System.out.println("START_TIME : " + parsedParamTable.get(PARAMETER.START_TIME));
-//				System.out.println("END_TIME : " + parsedParamTable.get(PARAMETER.END_TIME));
 
 				return editTask(parsedParamTable.get(PARAMETER.TASKID),
 						parsedParamTable.get(PARAMETER.DESC),
@@ -209,10 +195,6 @@ public class TaskHandler {
 	 * @return 
 	 */
 	private static String editTask(String stringID, String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
-//		System.out.println("START +_DATE : " + startDate);
-//		System.out.println("START_TIME : " + startTime);
-//		System.out.println("END_DATE : " + endDate);
-//		System.out.println("END_TIME : " + endTime);
 
 		Task task = null;
 		
@@ -262,7 +244,6 @@ public class TaskHandler {
 	 * @param task The task to be added to the taskList
 	 */
 	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
-		int taskId = currentTaskId + 1;
 		
 		try {
 			Date _startDate = null;
@@ -272,15 +253,10 @@ public class TaskHandler {
 			if(startTime != null && endTime != null && startDate != null && endDate != null){
 				_startDate    = dateFormat.parse(startDate + " " + startTime);
 				_endDate      = dateFormat.parse(endDate + " " + endTime);
-//				//TODO: DELETE!!
-//				_startDate.setYear(115);
-//				_endDate.setYear(115);
 			}
 			
 			if(deadlineDate != null && deadlineTime != null){
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
-				//TODO:DELETE!!
-//				_deadlineDate.setYear(115);
 			}
 			
 			if(desc != null){
@@ -331,7 +307,7 @@ public class TaskHandler {
 		showToUser(HELP_TITLE);
 		showToUser(HELP_SUBTITLE);
 		showToUser(HELP_ADD_TASK);
-		showToUser(HELP_GET_TASK);
+		showToUser(HELP_DELETE_TASK);
 		showToUser(HELP_DISPLAY);
 		showToUser(HELP_SEARCH_TASK);
 		showToUser(HELP_EDIT_TASK);
