@@ -21,11 +21,6 @@ public class Validator {
 	private static final String NO_INPUT = "VALID";
 	/* ...ADD IN MORE HERE */
 
-//	 This is optional, you can implement using other ways you like
-	 public enum PARAMETER {
-	 	DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE, PRIORITY, REMIND_TIME, STARTENDTIME
-	 };
-
 	// Constructor
 	public Validator() {
 
@@ -53,6 +48,9 @@ public class Validator {
 
 		HashMap<PARAMETER, String> errorHashMap = new HashMap<PARAMETER, String>();
 
+		if(parsedUserInput.size() == 0){
+			return parsedUserInput;
+		}
 		if (!isValidDesc(parsedUserInput.get(PARAMETER.DESC))) {
 			errorHashMap.put(PARAMETER.DESC, ERROR_INVALID_DESC);
 		} else {
@@ -94,12 +92,12 @@ public class Validator {
 					&& isValidEndDate(parsedUserInput.get(PARAMETER.END_DATE))) {
 				if (!isValidDatePeriod(parsedUserInput.get(PARAMETER.START_DATE),
 						parsedUserInput.get(PARAMETER.END_DATE))) {
-					errorHashMap.put(PARAMETER.STARTENDTIME, ERROR_START_AFTER_END);
+					errorHashMap.put(PARAMETER.END_TIME, ERROR_START_AFTER_END);
 				} else if (!isValidTimePeriod(parsedUserInput.get(PARAMETER.START_TIME),
 						parsedUserInput.get(PARAMETER.END_TIME))) {
-					errorHashMap.put(PARAMETER.STARTENDTIME, ERROR_START_AFTER_END);
+					errorHashMap.put(PARAMETER.END_TIME, ERROR_START_AFTER_END);
 				} else {
-					errorHashMap.put(PARAMETER.STARTENDTIME, VALID_INPUT);
+					errorHashMap.put(PARAMETER.END_TIME, VALID_INPUT);
 				}
 			}
 		} catch (NullPointerException e) {
@@ -107,13 +105,13 @@ public class Validator {
 		}
 
 		try {
-			if (!isValidDeadline(parsedUserInput.get(PARAMETER.DEADLINE))) {
-				errorHashMap.put(PARAMETER.DEADLINE, ERROR_INVALID_DATE_FORMAT);
+			if (!isValidDeadline(parsedUserInput.get(PARAMETER.DEADLINE_DATE))) {
+				errorHashMap.put(PARAMETER.DEADLINE_DATE, ERROR_INVALID_DATE_FORMAT);
 			} else {
-				errorHashMap.put(PARAMETER.DEADLINE, VALID_INPUT);
+				errorHashMap.put(PARAMETER.DEADLINE_DATE, VALID_INPUT);
 			}
 		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.DEADLINE, NO_INPUT);
+			errorHashMap.put(PARAMETER.DEADLINE_DATE, NO_INPUT);
 		}
 
 		try {
@@ -135,7 +133,7 @@ public class Validator {
 		} catch (NullPointerException e) {
 			errorHashMap.put(PARAMETER.END_TIME, NO_INPUT);
 		}
-
+		/*
 		try {
 			if (!isValidRemindTime(parsedUserInput.get(PARAMETER.REMIND_TIME))) {
 				errorHashMap.put(PARAMETER.REMIND_TIME, ERROR_INVALID_TIME_FORMAT);
@@ -154,7 +152,7 @@ public class Validator {
 			}
 		} catch (NullPointerException e) {
 			errorHashMap.put(PARAMETER.PRIORITY, NO_INPUT);
-		}
+		} */
 
 		return errorHashMap;
 
@@ -298,7 +296,9 @@ public class Validator {
 				startDay = Integer.parseInt(splitStrSlash[0]);
 				startMonth = Integer.parseInt(splitStrSlash[1]);
 				startYear = Integer.parseInt(splitStrSlash[2]);
-
+				if (startYear < 100){
+					startYear = startYear + 2000;
+				}
 			} catch (IndexOutOfBoundsException e) {
 				startDay = Integer.parseInt(splitStrSlash[0]);
 				startMonth = Integer.parseInt(splitStrSlash[1]);
@@ -364,6 +364,9 @@ public class Validator {
 				endDay = Integer.parseInt(splitStrSlash[0]);
 				endMonth = Integer.parseInt(splitStrSlash[1]);
 				endYear = Integer.parseInt(splitStrSlash[2]);
+				if (endYear < 100){
+					endYear = endYear + 2000;
+				}
 
 			} catch (IndexOutOfBoundsException e) {
 				endDay = Integer.parseInt(splitStrSlash[0]);
@@ -495,10 +498,10 @@ public class Validator {
 	}
 
 	private static boolean isValidString(String string) {
-		string = string.trim();
-		if (string.equals(null)) {
+		if (string == null) {
 			return false;
 		}
+		string = string.trim();
 		return true;
 	}
 
@@ -532,10 +535,16 @@ public class Validator {
 
 					if (Integer.parseInt(splitStrSlash[0]) <= 31 && Integer.parseInt(splitStrSlash[1]) <= 12
 							&& Integer.parseInt(splitStrSlash[2]) <= 2030
-							&& Integer.parseInt(splitStrSlash[2]) >= 2010) {
+							&& Integer.parseInt(splitStrSlash[2]) >= 2000) {
 						return true;
 					}
-
+					
+					if (Integer.parseInt(splitStrSlash[0]) <= 31 && Integer.parseInt(splitStrSlash[1]) <= 12
+							&& Integer.parseInt(splitStrSlash[2]) <= 30
+							&& Integer.parseInt(splitStrSlash[2]) >= 0) {
+						return true;
+					}
+						
 				}
 			} catch (IndexOutOfBoundsException e) {
 				if (isOnlyNumbers(splitStrSlash[0]) && isOnlyNumbers(splitStrSlash[1])) {
