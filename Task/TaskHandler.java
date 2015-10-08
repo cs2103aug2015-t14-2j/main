@@ -285,6 +285,7 @@ public class TaskHandler {
 			
 			if(desc != null){
 				Task task = null;
+				if (venue != null)
 				if (startTime != null && endTime != null){
 					task = new Task(currentTaskId+1, desc, _startDate, _endDate, venue);//Event
 				} else if (deadlineDate != null){
