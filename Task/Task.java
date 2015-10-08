@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 
 public class Task {
 	// Helpers
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
+	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yy HHmm");
 	
 	// A task has these meta data
 	private Date createdTime;
@@ -263,7 +263,13 @@ public class Task {
 	}
 
 	public void setStartTime(Date startTime) {
-		this.period.setStartTime(startTime);
+		if (this.period == null) {
+			// Assume default endTime one hour from startTime
+			Date endTime = new Date(startTime.getTime() + (60L * 60L * 1000L));
+			this.period = new Period(startTime, endTime);
+		} else {			
+			this.period.setStartTime(startTime);
+		}
 	}
 
 	public Date getEndTime() {
@@ -275,7 +281,13 @@ public class Task {
 	}
 
 	public void setEndTime(Date endTime) {
-		this.period.setEndTime(endTime);
+		if (this.period == null) {
+			// Assume default startTime one hour before startTime
+			Date startTime = new Date(endTime.getTime() - (60L * 60L * 1000L));
+			this.period = new Period(startTime, endTime);
+		} else {
+			this.period.setEndTime(endTime);			
+		}
 	}
 
 	public Date getDeadline() {

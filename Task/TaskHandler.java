@@ -62,7 +62,7 @@ public class TaskHandler {
 	
 	private static Scanner         scanner           = new Scanner(System.in);
 	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("dd/MM HHmm");
+	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("d/M/Y HHmm");
 	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
 	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
 	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
@@ -138,6 +138,10 @@ public class TaskHandler {
 			case ADD_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
 				//TODO: shouldn't it be if it has a description?
+				System.out.println(parsedParamTable.get(PARAMETER.START_DATE));
+				System.out.println(parsedParamTable.get(PARAMETER.END_DATE));
+				System.out.println(parsedParamTable.get(PARAMETER.START_TIME));
+				System.out.println(parsedParamTable.get(PARAMETER.END_TIME));
 				if (parsedParamTable.get(PARAMETER.DESC) != null) {
 					//boolean canAddTask = validate.isValidAddTask(validate.validateUserInput(command, parsedParamTable));
 					if (true) { //TODO: CHANGE to canAddTask!!!!!
@@ -169,6 +173,11 @@ public class TaskHandler {
 				}
 			case EDIT_TASK:
 				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				System.out.println(parsedParamTable.get(PARAMETER.START_DATE));
+				System.out.println(parsedParamTable.get(PARAMETER.END_DATE));
+				System.out.println(parsedParamTable.get(PARAMETER.START_TIME));
+				System.out.println(parsedParamTable.get(PARAMETER.END_TIME));
+
 				return editTask(parsedParamTable.get(PARAMETER.TASKID),
 						parsedParamTable.get(PARAMETER.DESC),
 						parsedParamTable.get(PARAMETER.VENUE), 
@@ -200,14 +209,21 @@ public class TaskHandler {
 	 * @return 
 	 */
 	private static String editTask(String stringID, String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
+		System.out.println(startDate);
+		System.out.println(startTime);
+		System.out.println(endDate);
+		System.out.println(endTime);
+
 		Task task = null;
 		
-		if(stringID != null){
+		if (stringID != null){
 			task = searchTasks(Integer.parseInt(stringID));
+			if (task == null) {
+				return ERROR_NOT_FOUND_TASK;
+			}
 		} else {
 			return ERROR_NOT_FOUND_TASK;
 		}
-		
 		
 		try {
 			Date _startDate = null;
@@ -230,6 +246,8 @@ public class TaskHandler {
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
 				task.setDeadline(_deadlineDate);
 			}
+
+			System.out.println(task.toString());
 			return MESSAGE_EDIT_TASK;
 			
 		} catch (ParseException e) {			
@@ -254,15 +272,15 @@ public class TaskHandler {
 			if(startTime != null && endTime != null && startDate != null && endDate != null){
 				_startDate    = dateFormat.parse(startDate + " " + startTime);
 				_endDate      = dateFormat.parse(endDate + " " + endTime);
-				//TODO: DELETE!!
-				_startDate.setYear(115);
-				_endDate.setYear(115);
+//				//TODO: DELETE!!
+//				_startDate.setYear(115);
+//				_endDate.setYear(115);
 			}
 			
 			if(deadlineDate != null && deadlineTime != null){
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
 				//TODO:DELETE!!
-				_deadlineDate.setYear(115);
+//				_deadlineDate.setYear(115);
 			}
 			
 			if(desc != null){
@@ -276,8 +294,8 @@ public class TaskHandler {
 					task = new Task(currentTaskId+1, desc, venue);						//Floating task
 				}
 				
-				System.out.println(task.toString());
 				taskList.add(task);
+				System.out.println(task.toString());
 			}
 			currentTaskId += 1;
 			
@@ -296,7 +314,7 @@ public class TaskHandler {
 			if(t.getTaskId() == Integer.parseInt(stringID)){
 				String removedTask = Integer.toString(t.getTaskId());
 				taskList.remove(t);
-				return "Task" + removedTask + "was erased";
+				return "Task " + removedTask + " was erased";
 			}
 			
 		}
@@ -388,7 +406,7 @@ public class TaskHandler {
 	}*/
 	
 	public static Task searchTasks(int task){
-		for(int i = 0; i < taskList.size();i++){
+		for(int i = 0; i < taskList.size(); i++){
 			if(taskList.get(i).getTaskId() == task){
 				return taskList.get(i);
 			}
