@@ -59,7 +59,9 @@ public class StringParser {
 	 * @param query
 	 * @return
 	 */
-	public HashMap<PARAMETER, String> getValuesFromInput(COMMAND_TYPE command, String userInput) {
+	public HashMap<PARAMETER, Object> getValuesFromInput(COMMAND_TYPE command, String userInput) {
+		
+		HashMap<PARAMETER, Object> keywordHashReturn;
 		
 		switch (command) {
 		case ADD_TASK:
@@ -133,9 +135,7 @@ public class StringParser {
 		default:
 			
 		}
-		removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
-		
-		return keywordHash;
+		return Validator.validateUserInput(command, keywordHash);
 	}
 
 	private String getTaskID(String userInput) {

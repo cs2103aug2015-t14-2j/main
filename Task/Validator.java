@@ -43,7 +43,7 @@ public class Validator {
 	// fails, set the error message
 	// for that particular validation function.
 	// Returns a HashMap of PARAMETER => error_message_string
-	public static HashMap<PARAMETER, String> validateUserInput(COMMAND_TYPE command,
+	public static HashMap<PARAMETER, Object> validateUserInput(COMMAND_TYPE command,
 			HashMap<PARAMETER, String> parsedUserInput) {
 
 		HashMap<PARAMETER, String> errorHashMap = new HashMap<PARAMETER, String>();
