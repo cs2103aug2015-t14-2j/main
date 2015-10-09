@@ -129,11 +129,10 @@ public class TaskHandler {
 	 */
 	public static String executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
-		StringParser parser = new StringParser();
 		HashMap<PARAMETER, String> parsedParamTable;
 		switch (command) {
 			case ADD_TASK:
-				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				//TODO: shouldn't it be if it has a description?
 				if (parsedParamTable.get(PARAMETER.DESC) != null) {
 					addTask(parsedParamTable.get(PARAMETER.DESC),
@@ -152,17 +151,17 @@ public class TaskHandler {
 			case GET_TASK:
 				return MESSAGE_GET_TASK;
 			case DISPLAY:
-				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				if (taskList.isEmpty()) {
 					return ERROR_EMPTY_TASKLIST;
 				} else {
-					parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 					displayTask(parsedParamTable.get(PARAMETER.TASKID));
 					
 					return MESSAGE_DISPLAY;					
 				}
 			case EDIT_TASK:
-				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 
 				return editTask(parsedParamTable.get(PARAMETER.TASKID),
 						parsedParamTable.get(PARAMETER.DESC),
@@ -174,7 +173,7 @@ public class TaskHandler {
 						parsedParamTable.get(PARAMETER.DEADLINE_DATE),
 						parsedParamTable.get(PARAMETER.DEADLINE_TIME));
 			case DELETE_TASK:
-				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				return removeTask(parsedParamTable.get(PARAMETER.TASKID));
 			case INVALID_COMMAND:
 				showHelpMenu();
