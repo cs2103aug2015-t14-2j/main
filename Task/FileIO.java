@@ -101,7 +101,7 @@ public class FileIO {
 			JsonWriter jsonWriter = new JsonWriter(writer);
 			jsonWriter.setIndent("    ");
 
-			jsonWriteer.beginObject();
+			jsonWriter.beginObject();
 			jsonWriter.name("Tasks");
 				jsonWriter.beginArray();
 				jsonWriter.endArray();

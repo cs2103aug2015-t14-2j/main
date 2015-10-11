@@ -20,23 +20,10 @@
             "startTime": "Sat, 12 Oct, 0015 1200",
             "endTime": "Sat, 12 Oct, 0015 2000",
             "deadline": "Sat, 12 Oct, 0015 1200",
-            "venue": "NUS",
+            "venue": "Blk71",
             "description": "Buy lunch",
             "isDone": false,
             "isPastDeadline": false,
-            "hasEnded": false
-        },
-        {
-            "taskId": 17,
-            "createdTime": "Sun, 11 Oct, 2015 0412",
-            "lastModifiedTime": "Sun, 11 Oct, 2015 0412",
-            "startTime": null,
-            "endTime": null,
-            "deadline": null,
-            "venue": null,
-            "description": "sth",
-            "isDone": false,
-            "isPastDeadline": true,
             "hasEnded": false
         }
     ]
