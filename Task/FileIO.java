@@ -60,6 +60,8 @@ public class FileIO {
 			reader.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+			// Create an empty file if file is not found
+			createNewFile();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -91,6 +93,26 @@ public class FileIO {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void createNewFile() {
+		try {
+			FileWriter writer = new FileWriter(this.path);
+			JsonWriter jsonWriter = new JsonWriter(writer);
+			jsonWriter.setIndent("    ");
+
+			jsonWriteer.beginObject();
+			jsonWriter.name("Tasks");
+				jsonWriter.beginArray();
+				jsonWriter.endArray();
+			jsonWriter.endObject();
+			jsonWriter.close();
+
+			readFromFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 	public int getCurrentTaskId() {
