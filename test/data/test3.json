@@ -1,0 +1,30 @@
+{
+    "Tasks": [
+        {
+            "taskId": 1,
+            "createdTime": "Thu, 10 Sep, 2015 1356",
+            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
+            "startTime": "Thu, 10 Sep, 2015 1200",
+            "endTime": "Fri, 11 Sep, 2015 1400",
+            "deadline": "Sat, 12 Sep, 2015 1200",
+            "venue": "NUS",
+            "description": "Buy lunch",
+            "isDone": false,
+            "isPastDeadline": false,
+            "hasEnded": false
+        },
+        {
+            "taskId": 2,
+            "createdTime": "Thu, 10 Sep, 2015 1356",
+            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
+            "startTime": "Mon, 14 Sep, 2015 1800",
+            "endTime": "Mon, 14 Sep, 2015 2000",
+            "deadline": null,
+            "venue": "Jurong West St.71 #07-10",
+            "description": "haircut",
+            "isDone": true,
+            "isPastDeadline": false,
+            "hasEnded": false
+        }
+    ]
+}
