@@ -68,8 +68,11 @@ public class TaskHandlerTest {
 		
 		// Test for add floating task
 		userInput = "add do \"sth1\"";
-		expected  = MESSAGE_ADD_TASK;
+		Task task = new Task(1, "sth1");
+		System.out.println(task.toString());
+		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
+		System.out.println(actual);
 		assertEquals(expected, actual);
 		
 		// Test for add event task

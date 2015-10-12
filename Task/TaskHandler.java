@@ -379,7 +379,7 @@ public class TaskHandler {
 	 * Adds a task to the task list
 	 * @param task The task to be added to the taskList
 	 */
-	private static String addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
+	private static String addTask(String desc, String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
 		Date _startDate = null;
 		Date _endDate = null;
 		Date _deadlineDate = null;
@@ -409,9 +409,14 @@ public class TaskHandler {
 				_endDate      = dateFormat.parse(endDate + " " + endTime);
 			} 
 
-			// E.g. add do "sth" on 
+			// E.g. add do "sth" by 23/10/12 1200
 			if(deadlineDate != null && deadlineTime != null){
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
+			}
+
+			// E.g. add do "sth" by 23/10/12, infer deadlineTime to be 1200
+			if(deadlineDate != null && deadlineTime == null){
+				_deadlineDate = dateFormat.parse(deadlineDate + " " + "1200");
 			}
 			
 			if(desc != null){
