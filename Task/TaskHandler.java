@@ -28,7 +28,7 @@ public class TaskHandler {
 	private static final String MESSAGE_GET_TASK       = "Task returned";
 	private static final String MESSAGE_DISPLAY        = "All tasks displayed.";
 	private static final String MESSAGE_SEARCH_TASK    = "Here are tasks matching your keywords:";
-	private static final String MESSAGE_DELETE_TASK    = "Task has been deleted";
+	private static final String MESSAGE_DELETE_TASK    = " ID task has been deleted";
 	private static final String MESSAGE_EDIT_TASK      = "Task has been updated!";
 	private static final String MESSAGE_EXIT           = "Thanks for using TaskBuddy! Changes saved to disk.";
 	
@@ -37,6 +37,7 @@ public class TaskHandler {
 	private static final String ERROR_EMPTY_TASKLIST   = "You have no tasks!";
 	private static final String ERROR_NOT_FOUND_TASK   = "The task was not found!";
 	private static final String ERROR_IO_TASK   	   = "The task could not be changed!";
+	private static final String ERROR_NO_DESC   	   = "You must have a description for your task!";
 	private static final String ERROR_DATEFORMAT       = "The date and/or time you have entered is invalid. Date format is 'dd/M/yyyy' while time is 24 hrs 'HHmm e.g. 2359";
 	
 	// Define help messages here
@@ -167,14 +168,13 @@ public class TaskHandler {
 					return ERROR_INVALID_COMMAND + "\n" + HELP_ADD_TASK; 
 				}
 			case DISPLAY:
-				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				if (taskList.isEmpty()) {
 					return ERROR_EMPTY_TASKLIST;
-				} else {
+				} else if(removeFirstWord(userInput).length() != 0){
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
-					displayTask(parsedParamTable.get(PARAMETER.TASKID));
-					
-					return MESSAGE_DISPLAY;					
+					return displayTask(parsedParamTable.get(PARAMETER.TASKID));					
+				} else {
+					return displayAllTasks();
 				}
 			case EDIT_TASK:
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
@@ -200,8 +200,8 @@ public class TaskHandler {
 				showHelpMenu();
 				return "";
 			case EXIT:
-				showToUser(MESSAGE_EXIT);
 				fileIO.writeToFile(taskList);
+				showToUser(MESSAGE_EXIT);
 				System.exit(0);
 			default:
 				return "There is an error in your code.";
@@ -363,8 +363,7 @@ public class TaskHandler {
 			}
 
 			if(isUpdated) {
-				System.out.println(task.toString());
-				return MESSAGE_EDIT_TASK;
+				return task.toString() + MESSAGE_EDIT_TASK;
 			} else {
 				return ERROR_INVALID_COMMAND + "\n" + HELP_EDIT_TASK;
 			}
@@ -426,16 +425,17 @@ public class TaskHandler {
 				}
 				
 				taskList.add(task);
-				System.out.println(task.toString());
+				currentTaskId += 1;
+				return task.toString() + "\n" + MESSAGE_ADD_TASK;
 			}
-			currentTaskId += 1;
-			return MESSAGE_ADD_TASK;
 			
 		} catch (ParseException e) {			
 			e.printStackTrace();
 			return ERROR_DATEFORMAT;
 			
 		}
+		
+		return ERROR_NO_DESC;
 	}
 	
 	/**
@@ -448,8 +448,7 @@ public class TaskHandler {
 				if(t.getTaskId() == Integer.parseInt(stringID)){
 					String removedTask = Integer.toString(t.getTaskId());
 					taskList.remove(t);
-					System.out.println(t);
-					return MESSAGE_DELETE_TASK;
+					return removedTask + MESSAGE_DELETE_TASK;
 				}
 				
 			}
@@ -477,25 +476,29 @@ public class TaskHandler {
 	/**
 	 * 
 	 * @param string
+	 * @return 
 	 */
-	private static void displayTask(String taskID) {
-		if(taskID != null){
-			if(taskList.size() >= Integer.parseInt(taskID) && Integer.parseInt(taskID) > 0){
-				showToUser(taskList.get(Integer.parseInt(taskID) - 1).toString());
+	private static String displayTask(String stringID) {
+		if(stringID != null){
+			for(Task t:taskList){
+				if(t.getTaskId() == Integer.parseInt(stringID)){
+					return t.toString();
+				}
 			}
-			//TODO: what if its out of bounds?
-		} else {
-			displayAllTasks();
 		}
+		return ERROR_NOT_FOUND_TASK;
 	}
 	
 	/**
 	 * Displays all the current tasks in the taskList
+	 * @return 
 	 */
-	private static void displayAllTasks() {
+	private static String displayAllTasks() {
+		StringBuilder taskListString = new StringBuilder();
 		for (int i = 0; i < taskList.size() ; i++) {
-			showToUser(taskList.get(i).toString());
+			taskListString.append(taskList.get(i).toString());
 		}
+		return taskListString.toString() + "\n" + MESSAGE_DISPLAY;
 	}
 	
 	/**

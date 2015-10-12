@@ -14,16 +14,42 @@
             "hasEnded": false
         },
         {
-            "taskId": 2,
-            "createdTime": "Thu, 10 Sep, 2015 1356",
-            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
-            "startTime": "Sat, 12 Oct, 0015 1200",
-            "endTime": "Sat, 12 Oct, 0015 2000",
-            "deadline": "Sat, 12 Oct, 0015 1200",
-            "venue": "Blk71",
-            "description": "Buy lunch",
+            "taskId": 3,
+            "createdTime": "Mon, 12 Oct, 2015 1641",
+            "lastModifiedTime": "Mon, 12 Oct, 2015 1641",
+            "startTime": null,
+            "endTime": null,
+            "deadline": null,
+            "venue": null,
+            "description": "buy lunch",
+            "isDone": false,
+            "isPastDeadline": true,
+            "hasEnded": false
+        },
+        {
+            "taskId": 4,
+            "createdTime": "Mon, 12 Oct, 2015 1643",
+            "lastModifiedTime": "Mon, 12 Oct, 2015 1643",
+            "startTime": "Mon, 12 Oct, 2015 1200",
+            "endTime": "Mon, 12 Oct, 2015 1300",
+            "deadline": null,
+            "venue": "NUS",
+            "description": "buy lunch",
             "isDone": false,
             "isPastDeadline": false,
+            "hasEnded": true
+        },
+        {
+            "taskId": 5,
+            "createdTime": "Mon, 12 Oct, 2015 1644",
+            "lastModifiedTime": "Mon, 12 Oct, 2015 1644",
+            "startTime": null,
+            "endTime": null,
+            "deadline": "Mon, 12 Oct, 2015 1200",
+            "venue": "NUS",
+            "description": "buy dinner",
+            "isDone": false,
+            "isPastDeadline": true,
             "hasEnded": false
         }
     ]
