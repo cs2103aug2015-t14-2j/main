@@ -38,14 +38,14 @@ public class Task {
 	 * @param taskId
 	 * @param desc
 	 */
-	public Task (int taskId, String desc) {
+	public Task (int taskId, String desc, String venue) {
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
 		
 		this.period = null;
 		this.deadline = null;
-		this.venue = null;
+		this.venue = venue;
 		this.description = desc;
 		this.isDone = false;
 		this.isPastDeadline = false;
@@ -80,31 +80,9 @@ public class Task {
 		this.isPastDeadline = false;
 		this.hasEnded = hasEnded(this.createdTime , endTime);
 	}
-	
-	/**
-	 * Constructor for tasks with only venue.
-	 * Used when user adds a new task
-	 * 
-	 * @param taskId
-	 * @param desc
-	 * @param venue
-	 */
-	public Task (int taskId, String desc, String venue) {
-		this.createdTime = new Date();
-		this.lastModifiedTime = this.createdTime;
-		this.taskId = taskId;
 		
-		this.period = null;
-		this.deadline = null;
-		this.venue = venue;
-		this.description = desc;
-		this.isDone = false;
-		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
-		this.hasEnded = false;
-	}
-	
 	/**
-	 * Constructor for tasks with only deadline and venue.
+	 * Constructor for tasks with only deadline and desc.
 	 * Used when user adds a new task
 	 * 
 	 * @param taskId

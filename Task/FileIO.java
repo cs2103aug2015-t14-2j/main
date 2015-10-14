@@ -153,7 +153,7 @@ public class FileIO {
 	 * @return 	Task 	   if parsing error occurs, returns a null task. Informs user of problem.
 	 */
 	private Task getJSONTaskFromFile(JsonReader jsonReader) throws MalformedJsonException , ParseException, IllegalStateException, IOException {
-		Task task = new Task(0, "Error while parsing file. Your file might be corrupted.");
+		Task task = new Task(0, "Error while parsing file. Your file might be corrupted.", null);
 		int taskId              = 1;
 		String createdTime      = "";
 		String lastModifiedTime = "";

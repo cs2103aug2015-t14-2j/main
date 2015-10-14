@@ -10,6 +10,10 @@ import Task.*;
 import java.util.ArrayList;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
 
 public class TaskHandlerTest {
 	// Define success messages here
@@ -40,6 +44,7 @@ public class TaskHandlerTest {
 	private static final String HELP_EXIT              = "  EXIT      : exit                                                                                                                                      | Terminate program                      ";
 
 	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
+	private static SimpleDateFormat df               = new SimpleDateFormat("dd/M/yyyy HHmm"); 
 	
 	@BeforeClass
 	public static void setUp() {
@@ -50,9 +55,14 @@ public class TaskHandlerTest {
 	
 	@Test
 	public void testExecuteCommand() {
-		String userInput;
-		String expected;
-		String actual;
+		String userInput = null;
+		String expected  = null;
+		String actual    = null;
+		Task   task      = null;
+		Task   task5     = null;
+		Date   startTime = null;
+		Date   endTime   = null;
+		Date   deadline  = null;
 		
 		// Test display
 		userInput = "display";
@@ -68,7 +78,7 @@ public class TaskHandlerTest {
 		
 		// Test for add floating task
 		userInput = "add do \"sth1\"";
-		Task task = new Task(1, "sth1");
+		task      = new Task(1, "sth1", null);
 		System.out.println(task.toString());
 		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
@@ -77,42 +87,84 @@ public class TaskHandlerTest {
 		
 		// Test for add event task
 		userInput = "add on 12/10/15 from 1200 to 1240 do \"sth2\"";
-		expected  = MESSAGE_ADD_TASK;
+		try {
+			startTime = df.parse("12/10/15 1200");
+			endTime   = df.parse("12/10/15 1240");
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		task      = new Task(2, "sth2", startTime, endTime, null);
+		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
 		assertEquals(expected, actual);
 		
 		// Test for add event task with different start and end dates
 		userInput = "add do \"sth3\" from 12/10/15 1200 to 14/10/15 1340";
-		expected  = MESSAGE_ADD_TASK;
+		try {
+			startTime = df.parse("12/10/15 1200");
+			endTime   = df.parse("14/10/15 1340");
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		task      = new Task(3, "sth3", startTime, endTime, null);
+		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
 		assertEquals(expected, actual);
 		
 		// Test for add event task with unspecified end time
 		userInput = "add do \"sth4\" on 12/10/15 from 1200";
-		expected  = MESSAGE_ADD_TASK;
+		try {
+			startTime = df.parse("12/10/15 1200");
+			endTime   = df.parse("12/10/15 1300");
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		task      = new Task(4, "sth4", startTime, endTime, null);
+		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
 		assertEquals(expected, actual);
 		
 		// Test for add event task with unspecified start time
 		userInput = "add do \"sth5\" on 12/10/15 to 1240";
-		expected  = MESSAGE_ADD_TASK;
+		try {
+			startTime = df.parse("12/10/15 1100");
+			endTime   = df.parse("12/10/15 1240");
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		task5      = new Task(5, "sth5", startTime, endTime, null);
+		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
 		assertEquals(expected, actual);
 		
 		// Test for add deadline task
 		userInput = "add do \"sth6\" by 12/10/15 2359";
-		expected  = MESSAGE_ADD_TASK;
+		try {
+			deadline = df.parse("12/10/15 2359");
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		task      = new Task(6, "sth6", deadline, null);
+		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
 		assertEquals(expected, actual);
 		
 		// Test for edit desc only
 		userInput = "edit 1 do \"nothing-5\"";
-		expected  = MESSAGE_EDIT_TASK;
+		expected  = task5.toString() + MESSAGE_ADD_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
 		assertEquals(expected, actual);
 		
 		// Test for edit floating to event (set startDate, startTime, endDate and endTime
 		userInput = "edit 1 on 12/10/15 from 1200 to 1400";
+
+		task      = new Task(3, "sth4", startTime, endTime, null);
+		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		expected  = MESSAGE_EDIT_TASK;
 		actual    = TaskHandler.executeCommand(userInput);
 		assertEquals(expected, actual);
