@@ -38,14 +38,14 @@ public class Task {
 	 * @param taskId
 	 * @param desc
 	 */
-	public Task (int taskId, String desc) {
+	public Task (int taskId, String desc, String venue) {
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
 		
 		this.period = null;
 		this.deadline = null;
-		this.venue = null;
+		this.venue = venue;
 		this.description = desc;
 		this.isDone = false;
 		this.isPastDeadline = false;
@@ -67,7 +67,12 @@ public class Task {
 		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
 		
-		this.period = new Period(startTime, endTime);
+		try {
+			this.period = new Period(startTime, endTime);
+		} catch (IllegalArgumentException e) {
+			this.period = null;
+			System.out.println("Invalid start and end time. Please specify a start time that is before end time.");
+		}
 		this.deadline = null;
 		this.venue = venue;
 		this.description = desc;
@@ -75,31 +80,9 @@ public class Task {
 		this.isPastDeadline = false;
 		this.hasEnded = hasEnded(this.createdTime , endTime);
 	}
-	
-	/**
-	 * Constructor for tasks with only venue.
-	 * Used when user adds a new task
-	 * 
-	 * @param taskId
-	 * @param desc
-	 * @param venue
-	 */
-	public Task (int taskId, String desc, String venue) {
-		this.createdTime = new Date();
-		this.lastModifiedTime = this.createdTime;
-		this.taskId = taskId;
 		
-		this.period = null;
-		this.deadline = null;
-		this.venue = venue;
-		this.description = desc;
-		this.isDone = false;
-		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
-		this.hasEnded = false;
-	}
-	
 	/**
-	 * Constructor for tasks with only deadline and venue.
+	 * Constructor for tasks with only deadline and desc.
 	 * Used when user adds a new task
 	 * 
 	 * @param taskId
@@ -145,7 +128,12 @@ public class Task {
 		if (startTime == null && endTime == null) {
 			this.period = null;
 		} else {
-			this.period = new Period(startTime, endTime);			
+			try {
+				this.period = new Period(startTime, endTime);			
+			} catch (IllegalArgumentException e) {
+				this.period = null;
+				System.out.println("Invalid start and end time. Please specify a start time that is before end time.");
+			}
 		}
 		this.deadline = deadline;
 		this.venue = venue;
@@ -176,15 +164,15 @@ public class Task {
 		
 		String result = "";
 		result += "Task :\n";
-		result += "   Task ID        : " + this.taskId + "\n";
-		result += "   Description    : " + this.description + "\n";
-		result += "   Start Time     : " + startTime + "\n";
-		result += "   End Time       : " + endTime + "\n";
-		result += "   Deadline       : " + deadline + "\n";
-		result += "   Venue          : " + this.venue + "\n";
-		result += "   isDone         : " + this.isDone + "\n";
-		result += "   isPastDeadline : " + this.isPastDeadline + "\n";
-		result += "   hasEnded       : " + this.isPastDeadline + "\n";
+		result += "   Task ID           : " + this.taskId + "\n";
+		result += "   Description       : " + this.description + "\n";
+		result += "   Start Time        : " + startTime + "\n";
+		result += "   End Time          : " + endTime + "\n";
+		result += "   Deadline          : " + deadline + "\n";
+		result += "   Venue             : " + this.venue + "\n";
+		result += "   Completed?        : " + this.isDone + "\n";
+		result += "   Is Past Deadline? : " + this.isPastDeadline + "\n";
+		result += "   Has Ended?        : " + this.isPastDeadline + "\n";
 		
 		return result;
 	}
