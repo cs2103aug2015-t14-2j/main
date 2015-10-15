@@ -1,20 +1,6 @@
 # TaskBuddy
 ## Scheduler/Tasking app for email power users! ##
 
-### Launching of application ###
-
-1. From the command line, navigate to the project root, and type in the following:
-
-For linux filesystems:
-
-java -cp '.:./lib/*' Task.TaskHandler
-
-For Windows filesystems:
-
-java -cp ".;./lib/*" Task.TaskHandler
-
-2. Support for launch through keyboard shortcut will be released in v0.3.
-
 ### Git workflow and standards ###
 >Reference : http://nvie.com/posts/a-successful-git-branching-model/
 
