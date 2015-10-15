@@ -1,43 +1,30 @@
 {
-    "Tasks": [
+    "Tasks" : [
         {
-            "taskId": 1,
-            "createdTime": "Thu, 10 Sep, 2015 1356",
-            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
-            "startTime": "Thu, 10 Sep, 2015 1200",
-            "endTime": "Fri, 11 Sep, 2015 1400",
-            "deadline": "Sat, 12 Sep, 2015 1200",
-            "venue": "NUS",
-            "description": "Buy lunch",
-            "isDone": false,
-            "isPastDeadline": false,
-            "hasEnded": false
+            "taskId" : 1,
+            "createdTime" : "Thu, 10 Sep, 2015 1356",
+            "lastModifiedTime" : "Thu, 10 Sep, 2015 1356",
+            "startTime"   : "Thu, 10 Sep, 2015 1200",
+            "endTime" : "Fri, 11 Sep, 2015 1400",
+            "deadline" : "Sat, 12 Sep, 2015 1200",
+            "venue" : "NUS",
+            "description" : "Buy lunch",
+            "isDone" : false,
+            "isPastDeadline" : false,
+            "hasEnded" : false
         },
         {
-            "taskId": 2,
-            "createdTime": "Thu, 10 Sep, 2015 1356",
-            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
-            "startTime": "Fri, 11 Sep, 2015 1200",
-            "endTime": "Fri, 11 Sep, 2015 1400",
-            "deadline": "Sat, 12 Sep, 2015 1200",
-            "venue": "NUS",
-            "description": "Buy lunch",
-            "isDone": false,
-            "isPastDeadline": false,
-            "hasEnded": false
-        },
-        {
-            "taskId": 3,
-            "createdTime": "Tue, 13 Oct, 2015 0154",
-            "lastModifiedTime": "Tue, 13 Oct, 2015 0154",
-            "startTime": "Sat, 12 Oct, 0015 1200",
-            "endTime": "Sat, 12 Oct, 0015 1400",
-            "deadline": null,
-            "venue": null,
-            "description": "sth",
-            "isDone": false,
-            "isPastDeadline": true,
-            "hasEnded": false
+            "taskId" : 2,
+            "createdTime" : "Thu, 10 Sep, 2015 1356",
+            "lastModifiedTime" : "Thu, 10 Sep, 2015 1356",
+            "startTime"   : "Fri, 11 Sep, 2015 1200",
+            "endTime" : "Fri, 11 Sep, 2015 1400",
+            "deadline" : "Sat, 12 Sep, 2015 1200",
+            "venue" : "NUS",
+            "description" : "Buy lunch",
+            "isDone" : false,
+            "isPastDeadline" : false,
+            "hasEnded" : false
         }
     ]
 }
