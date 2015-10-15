@@ -34,6 +34,33 @@ public class Validator {
 	 * @return
 	 */
 	public boolean isValidAddTask(HashMap<PARAMETER, String> errorHashMap) {
+		if(errorHashMap.get(PARAMETER.DESC)== ""){
+			return false;
+		}
+		if(errorHashMap.get(PARAMETER.VENUE)== ""){
+			return false;
+		}
+		if(errorHashMap.get(PARAMETER.START_DATE)== ""){
+			return false;
+		}
+		if(errorHashMap.get(PARAMETER.END_DATE)== ""){
+			return false;
+		}
+		if(errorHashMap.get(PARAMETER.START_TIME)== ""){
+			return false;
+		}
+		if(errorHashMap.get(PARAMETER.END_TIME)== ""){
+			return false;
+		}
+		if(errorHashMap.get(PARAMETER.DEADLINE_DATE)== ""){
+			return false;
+		}
+		if(errorHashMap.get(PARAMETER.DEADLINE_TIME)== ""){
+			return false;
+		}
+		if(errorHashMap.get(PARAMETER.REMIND_TIMES)== ""){
+			return false;
+		}
 		return true;
 	}
 

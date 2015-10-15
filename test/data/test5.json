@@ -11,8 +11,7 @@
             "description": "Buy lunch",
             "isDone": false,
             "isPastDeadline": false,
-            "hasEnded": false,
-            "tags": []
+            "hasEnded": false
         },
         {
             "taskId": 2,
@@ -25,10 +24,7 @@
             "description": "haircut",
             "isDone": true,
             "isPastDeadline": false,
-            "hasEnded": false,
-            "tags": [
-                "#GE2015"
-            ]
+            "hasEnded": false
         },
         {
             "taskId": 3,
@@ -41,11 +37,7 @@
             "description": "Shop for groceries!",
             "isDone": false,
             "isPastDeadline": true,
-            "hasEnded": false,
-            "tags": [
-                "#GE2015",
-                "#Elections"
-            ]
+            "hasEnded": false
         },
         {
             "taskId": 4,
@@ -58,12 +50,7 @@
             "description": "CS2103 mid-terms",
             "isDone": false,
             "isPastDeadline": false,
-            "hasEnded": false,
-            "tags": [
-                "#GE2015",
-                "#Elections",
-                "#homework"
-            ]
+            "hasEnded": false
         }
     ]
 }

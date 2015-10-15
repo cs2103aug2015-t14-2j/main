@@ -29,7 +29,6 @@ public class TestFileIO {
 	
 	private static ArrayList<Task> expectedTaskList = new ArrayList<Task>();
 	private static ArrayList<Task> actualTaskList = new ArrayList<Task>();
-	private static ArrayList<String> tags = new ArrayList<String>();
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -58,14 +57,13 @@ public class TestFileIO {
 			e1.printStackTrace();
 		}
 		
-		// Task2 - no deadline, empty tags array 
+		// Task2 - no deadline
 		taskId = 2;
 		venue = "Jurong West St.71 #07-10";
 		description = "haircut";
 		isDone = true;
 		isPastDeadline = false;
 		hasEnded = false;
-		tags.add("#GE2015");
 		
 		try {
 			createdTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
@@ -78,14 +76,13 @@ public class TestFileIO {
 			e2.printStackTrace();
 		}
 		
-		// Task3 - has deadline, no startTime and endTime, empty tags array, null venue
+		// Task3 - has deadline, no startTime and endTime, null venue
 		taskId = 3;
 		venue = null;
 		description = "Shop for groceries!";
 		isDone = false;
 		isPastDeadline = true;
 		hasEnded = false;
-		tags.add("#Elections");
 		
 		try {
 			createdTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
@@ -98,14 +95,13 @@ public class TestFileIO {
 			e3.printStackTrace();
 		}
 		
-		// Task4 - no deadline, no startTime and endTime, empty tags array, null venue
+		// Task4 - no deadline, no startTime and endTime, null venue
 		taskId = 4;
 		venue = null;
 		description = "CS2103 mid-terms";
 		isDone = false;
 		isPastDeadline = false;
 		hasEnded = false;
-		tags.add("#homework");
 		
 		try {
 			createdTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
@@ -229,7 +225,6 @@ public class TestFileIO {
 		// Clear data
 		expectedTaskList.clear();
 		actualTaskList.clear();
-		tags.clear();
 	}
 	
 	@AfterClass
