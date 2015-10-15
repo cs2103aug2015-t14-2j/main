@@ -1,5 +1,6 @@
 package Task;
 
+import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
@@ -33,7 +34,12 @@ public class TaskEdit extends CompoundEdit implements UndoableEdit {
 	}
 	
 	@Override
-	public boolean isSignificant() {
-		return true;
+	public UndoableEdit lastEdit() {
+		return super.lastEdit();
 	}
+	
+//	@Override
+//	public boolean isSignificant() {
+//		return true;
+//	}
 }

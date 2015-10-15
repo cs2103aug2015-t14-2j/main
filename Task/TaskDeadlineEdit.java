@@ -5,7 +5,7 @@ import javax.swing.undo.UndoableEdit;
 import java.util.Date;
 
 
-public class TaskDeadlineEdit extends AbstractUndoableEdit implements UndoableEdit {
+public class TaskDeadlineEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
 	protected Date oldValue;
 	protected Date newValue;
@@ -36,10 +36,5 @@ public class TaskDeadlineEdit extends AbstractUndoableEdit implements UndoableEd
 	@Override
 	public void redo() {
 		task.setDeadline(newValue);
-	}
-	
-	@Override
-	public boolean isSignificant() {
-		return false;
 	}
 }

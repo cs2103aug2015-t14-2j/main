@@ -4,7 +4,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 import Task.Period;
 
-public class TaskPeriodEdit extends AbstractUndoableEdit implements UndoableEdit {
+public class TaskPeriodEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
 	protected Period oldValue;
 	protected Period newValue;
@@ -37,10 +37,5 @@ public class TaskPeriodEdit extends AbstractUndoableEdit implements UndoableEdit
 	public void redo() {
 		super.redo();
 		task.setPeriod(newValue);
-	}
-	
-	@Override
-	public boolean isSignificant() {
-		return false;
 	}
 }

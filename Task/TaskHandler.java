@@ -4,7 +4,7 @@ import Task.FileIO;
 import Task.COMMAND_TYPE;
 import Task.StringParser;
 import Task.Validator;
-//import Task.TaskVenueEdit;
+import Task.TaskVenueEdit;
 //import Task.TaskDescEdit;
 //import Task.TaskPeriodEdit;
 //import Task.TaskDeadlineEdit;
@@ -25,6 +25,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CompoundEdit;
+import javax.swing.undo.UndoableEdit;
 
 /**
  *  Represents the handler for tasks
@@ -273,8 +274,7 @@ public class TaskHandler {
 		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
 		SimpleDateFormat localDateFormat = new SimpleDateFormat("dd/M/yyyy");
 
-		AbstractUndoableEdit edit = new AbstractUndoableEdit();
-		CompoundEdit compoundEdit = new CompoundEdit();
+		UndoableSignificantEdit edit = new UndoableSignificantEdit();
 		
 		Task task          = null;
 		Date _startDate    = null;
@@ -301,12 +301,13 @@ public class TaskHandler {
 			return ERROR_NOT_FOUND_TASK;
 		}
 		
+		TaskEdit compoundEdit = new TaskEdit(task);
 		// Set description
 		if (desc != null){
 			String oldDesc = task.getDescription();
 			edit = new TaskDescEdit(task, oldDesc, desc);
 			task.setDescription(desc);
-			undoManager.addEdit(edit);
+			compoundEdit.addEdit(edit);
 			isUpdated = true;
 		}
 		
@@ -315,7 +316,7 @@ public class TaskHandler {
 			String oldVenue = task.getVenue();
 			task.setVenue(venue);
 			edit = new TaskVenueEdit(task, oldVenue, venue);
-			undoManager.addEdit(edit);
+			compoundEdit.addEdit(edit);
 			isUpdated = true;
 		}
 
@@ -337,7 +338,7 @@ public class TaskHandler {
 				task.setEndTime(_endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated  = true;
 			}
 
@@ -360,7 +361,7 @@ public class TaskHandler {
 				task.setStartTime(_startDate);
 				task.setEndTime(_endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated     = true;
 			}
 			
@@ -377,7 +378,7 @@ public class TaskHandler {
 				
 				task.setStartTime(_startDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated  = true;
 			}
 
@@ -394,7 +395,7 @@ public class TaskHandler {
 
 				task.setStartTime(_startDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated  = true;
 			}
 			
@@ -413,7 +414,7 @@ public class TaskHandler {
 
 				task.setStartTime(_startDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated     = true;
 			}
 			
@@ -430,7 +431,7 @@ public class TaskHandler {
 
 				task.setEndTime(_endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated = true;
 			}
 			
@@ -447,7 +448,7 @@ public class TaskHandler {
 
 				task.setEndTime(_endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated = true;
 			}	
 
@@ -467,7 +468,7 @@ public class TaskHandler {
 				
 				task.setEndTime(_endDate);	
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated   = true;			
 			}
 
@@ -478,7 +479,7 @@ public class TaskHandler {
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
 				task.setDeadline(_deadlineDate);
 				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated     = true;
 			}
 			
@@ -490,14 +491,17 @@ public class TaskHandler {
 				_deadlineDate    = dateFormat.parse(deadlineDate + " " + prevDeadlineTime);
 				task.setDeadline(_deadlineDate);
 				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
-				undoManager.addEdit(edit);
+				compoundEdit.addEdit(edit);
 				isUpdated        = true;
 			}
 
 			if(isUpdated) {
 				// Set one significant edit
-				edit = new TaskEdit(task);
-				undoManager.addEdit(edit);
+				UndoableEdit lastEdit = compoundEdit.lastEdit();
+				UndoableSignificantEdit edit1 = (UndoableSignificantEdit) lastEdit;
+				compoundEdit.end();
+				edit1.setSignificant();
+				undoManager.addEdit(compoundEdit);
 				return task.toString() + MESSAGE_EDIT_TASK;
 			} else {
 				return ERROR_INVALID_COMMAND + "\n" + HELP_EDIT_TASK;

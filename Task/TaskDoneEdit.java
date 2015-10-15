@@ -3,7 +3,7 @@ package Task;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 
-public class TaskDoneEdit extends AbstractUndoableEdit implements UndoableEdit {
+public class TaskDoneEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
 	protected boolean oldValue;
 	protected boolean newValue;
@@ -36,10 +36,5 @@ public class TaskDoneEdit extends AbstractUndoableEdit implements UndoableEdit {
 	public void redo() {
 		super.redo();
 		task.setDone(newValue);
-	}
-	
-	@Override
-	public boolean isSignificant() {
-		return true;
 	}
 }

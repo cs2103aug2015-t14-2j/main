@@ -3,11 +3,11 @@ package Task;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 
-public class TaskVenueEdit extends AbstractUndoableEdit implements UndoableEdit {
+public class TaskVenueEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
 	protected String oldValue;
 	protected String newValue;
-	protected boolean isLastUpdatedField;
+	protected boolean isSignificant = false;
 	
 	TaskVenueEdit(Task _task, String _oldValue, String _newValue) {
 		task = _task;
@@ -38,10 +38,4 @@ public class TaskVenueEdit extends AbstractUndoableEdit implements UndoableEdit 
 		super.redo();
 		task.setVenue(newValue);
 	}
-	
-	@Override
-	public boolean isSignificant() {
-		return true;
-	}
-	
 }
