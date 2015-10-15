@@ -23,13 +23,13 @@ public class Task {
 	private int  taskId;
 	
 	// A task has these properties
-	private Period period = null;
-	private Date deadline = null;
-	private String venue = null;
-	private String description = null;
-	private boolean isDone = false;
+	private Period period          = null;
+	private Date deadline          = null;
+	private String venue           = null;
+	private String description     = null;
+	private boolean isDone         = false;
 	private boolean isPastDeadline = false;
-	private boolean hasEnded = false;
+	private boolean hasEnded       = false;
 	
 	/**
 	 * Constructor for tasks without startTime, endTime and deadline. 
@@ -276,6 +276,10 @@ public class Task {
 		} else {
 			this.period.setEndTime(endTime);			
 		}
+	}
+	
+	public void setPeriod(Period _period) {
+		this.period = _period;
 	}
 
 	public Date getDeadline() {
