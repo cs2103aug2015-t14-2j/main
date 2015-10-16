@@ -89,7 +89,7 @@ public class TaskHandler {
 	private static int 				currentTaskId;          
 	private static FileIO           fileIO;
 	private static Validator        validate         = new Validator();
-	private static UndoManager      undoManager;
+	private static TaskUndoManager      undoManager;
 	
 	/**
 	 * Starts the program
@@ -128,7 +128,7 @@ public class TaskHandler {
 	 */
 	private static void init(String localFilePath) {
 		LOGGER.setLevel(Level.INFO);
-		undoManager = new UndoManager();
+		undoManager = new TaskUndoManager();
 		dateFormat.setCalendar(calendar);
 		fileIO = new FileIO(localFilePath);
 		taskList = fileIO.readFromFile();
@@ -240,8 +240,10 @@ public class TaskHandler {
 	private static String undoSingleCommand() {
 		try {
 			if (undoManager.canUndo()) {
-//				UndoableEdit = undoManager.editToBeUndone();
+				UndoableEdit nextEdit = undoManager.editToBeUndone();
+				TaskEdit taskEdit = (TaskEdit) nextEdit;
 				undoManager.undo();
+				System.out.println(taskEdit.getTask().toString());
 				return MESSAGE_UNDO_TASK;
 			} else {
 				return ERROR_CANNOT_UNDO;
@@ -254,12 +256,15 @@ public class TaskHandler {
 	private static String redoSingleCommand() {
 		try {
 			if (undoManager.canRedo()) {
+				UndoableEdit nextEdit = undoManager.editToBeRedone();
+				TaskEdit taskEdit = (TaskEdit) nextEdit;
 				undoManager.redo();
+				System.out.println(taskEdit.getTask().toString());
 				return MESSAGE_REDO_TASK;
 			} else {
 				return ERROR_CANNOT_REDO;
 			}
-		} catch (CannotUndoException e) {
+		} catch (CannotRedoException e) {
 			return ERROR_CANNOT_REDO;
 		}
 	}

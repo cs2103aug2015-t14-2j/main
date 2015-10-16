@@ -38,6 +38,10 @@ public class TaskEdit extends CompoundEdit implements UndoableEdit {
 		return super.lastEdit();
 	}
 	
+	public Task getTask() {
+		return this.task;
+	}
+	
 //	@Override
 //	public boolean isSignificant() {
 //		return true;
