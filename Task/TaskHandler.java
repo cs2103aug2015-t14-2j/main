@@ -4,6 +4,13 @@ import Task.FileIO;
 import Task.COMMAND_TYPE;
 import Task.StringParser;
 import Task.Validator;
+import Task.TaskVenueEdit;
+//import Task.TaskDescEdit;
+//import Task.TaskPeriodEdit;
+//import Task.TaskDeadlineEdit;
+//import Task.TaskDoneEdit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -13,6 +20,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CompoundEdit;
+import javax.swing.undo.UndoableEdit;
 
 /**
  *  Represents the handler for tasks
@@ -28,8 +41,10 @@ public class TaskHandler {
 	private static final String MESSAGE_GET_TASK       = "Task returned";
 	private static final String MESSAGE_DISPLAY        = "All tasks displayed.";
 	private static final String MESSAGE_SEARCH_TASK    = "Here are tasks matching your keywords:";
-	private static final String MESSAGE_DELETE_TASK    = "Task has been deleted";
+	private static final String MESSAGE_DELETE_TASK    = " ID task has been deleted";
 	private static final String MESSAGE_EDIT_TASK      = "Task has been updated!";
+	private static final String MESSAGE_UNDO_TASK      = "Successfully rolled back 1 change.";
+	private static final String MESSAGE_REDO_TASK      = "Successfully redoed 1 change.";
 	private static final String MESSAGE_EXIT           = "Thanks for using TaskBuddy! Changes saved to disk.";
 	
 	// Define error messages here
@@ -37,17 +52,24 @@ public class TaskHandler {
 	private static final String ERROR_EMPTY_TASKLIST   = "You have no tasks!";
 	private static final String ERROR_NOT_FOUND_TASK   = "The task was not found!";
 	private static final String ERROR_IO_TASK   	   = "The task could not be changed!";
+	private static final String ERROR_NO_DESC   	   = "You must have a description for your task!";
+	private static final String ERROR_CANNOT_UNDO      = "No more changes to undo.";
+	private static final String ERROR_CANNOT_REDO      = "No more changes to redo.";
+	private static final String ERROR_DATEFORMAT       = "The date and/or time you have entered is invalid. Date format is 'dd/M/yyyy' while time is 24 hrs 'HHmm e.g. 2359";
 	
 	// Define help messages here
-	private static final String HELP_TITLE             = "********************************************Help menu for TaskBuddy!****************************************************";
-	private static final String HELP_SUBTITLE          = "[COMMAND]     [FORMAT]                                                                             [DESCRIPTION]";
-	private static final String HELP_ADD_TASK          = "  1.ADD       : add    [description], [starttime], [endtime], [deadline], [venue], [priority]      |";
-	private static final String HELP_DELETE_TASK       = "  2.DELETE    : get    [task-id]                                                                   |";
-	private static final String HELP_DISPLAY           = "  3.DISPLAY   : display                                                                            |";
-	private static final String HELP_SEARCH_TASK       = "  4.SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |";
-	private static final String HELP_EDIT_TASK         = "  5.EDIT      : edit   [task-id], [value1=keyword1]                                                |";
-	private static final String HELP_EXIT              = "  6.EXIT      : exit   []                                                                          |Terminate program";
+	private static final String HELP_TITLE             = "****************************************************************************Help menu for TaskBuddy!*********************************************************************************************";
+	private static final String HELP_SUBTITLE          = "[COMMAND]   [FORMAT]                                                                                                                                    [DESCRIPTION]                            ";
+	private static final String HELP_ADD_TASK          = "  ADD       : add    do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"              | Adds a floating task, event or deadline";
+	private static final String HELP_DISPLAY           = "  DISPLAY   : display                                                                                                                                   | Displays all tasks                     ";
+	// private static final String HELP_SEARCH_TASK       = "  SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |";
+	private static final String HELP_EDIT_TASK         = "  EDIT      : edit [task-id] do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"      | Edits an existing task                 ";
+	private static final String HELP_UNDO              = "  UNDO      : undo                                                                                                                                      | Undo the last action                   ";
+	private static final String HELP_REDO              = "  REDO      : redo                                                                                                                                      | Redo the last undoed action            ";
+	private static final String HELP_DELETE_TASK       = "  DELETE    : delete [task-id]                                                                                                                          | Removes a task                         ";
+	private static final String HELP_EXIT              = "  EXIT      : exit                                                                                                                                      | Terminate program                      ";
 	
+	private static final Logger LOGGER = Logger.getLogger(TaskHandler.class.getName());
 	
 	// Define minimum argument numbers here
 	//TODO: Do these make sense to have now?
@@ -67,14 +89,15 @@ public class TaskHandler {
 	private static int 				currentTaskId;          
 	private static FileIO           fileIO;
 	private static Validator        validate         = new Validator();
+	private static TaskUndoManager      undoManager;
 	
 	/**
-	 * Starts the 
+	 * Starts the program
 	 * @param args The file path to load the file in
 	 */
 	public static void main(String[] args) {
-		// TODO @Audrey use args to load the file
-		init();
+		String localFilePath = determineFilePath(args);
+		init(localFilePath);
 		showToUser(MESSAGE_WELCOME);
 		while(true) {
 			System.out.print("> Enter command:");
@@ -86,12 +109,28 @@ public class TaskHandler {
 		}
 	}
 	
+	public static void setFilePath(String localFilePath) {
+		fileIO = new FileIO(localFilePath);
+	}
+
+	private static String determineFilePath(String[] args) {
+		String localFilePath;
+		if (args.length == 1) {
+			localFilePath = args[0];
+		} else {
+			localFilePath = TaskHandler.filePath;
+		}
+		return localFilePath;
+	}
+
 	/**
 	 * Initialize settings, search for application files etc.
 	 */
-	private static void init() {
+	private static void init(String localFilePath) {
+		LOGGER.setLevel(Level.INFO);
+		undoManager = new TaskUndoManager();
 		dateFormat.setCalendar(calendar);
-		fileIO = new FileIO(TaskHandler.filePath);
+		fileIO = new FileIO(localFilePath);
 		taskList = fileIO.readFromFile();
 		currentTaskId = fileIO.getCurrentTaskId();
 	}
@@ -129,14 +168,14 @@ public class TaskHandler {
 	 */
 	public static String executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
-		StringParser parser = new StringParser();
 		HashMap<PARAMETER, String> parsedParamTable;
+		String message;
 		switch (command) {
 			case ADD_TASK:
-				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				//TODO: shouldn't it be if it has a description?
 				if (parsedParamTable.get(PARAMETER.DESC) != null) {
-					addTask(parsedParamTable.get(PARAMETER.DESC),
+					message = addTask(parsedParamTable.get(PARAMETER.DESC),
 							parsedParamTable.get(PARAMETER.VENUE), 
 							parsedParamTable.get(PARAMETER.START_DATE),
 							parsedParamTable.get(PARAMETER.END_DATE), 
@@ -144,27 +183,25 @@ public class TaskHandler {
 							parsedParamTable.get(PARAMETER.END_TIME),
 							parsedParamTable.get(PARAMETER.DEADLINE_DATE),
 							parsedParamTable.get(PARAMETER.DEADLINE_TIME));
+					
+					fileIO.writeToFile(taskList);
+					return message;
 				} else {
-					showHelpMenu();
-					return ""; 
+					return ERROR_INVALID_COMMAND + "\n" + HELP_ADD_TASK; 
 				}
-				return MESSAGE_ADD_TASK;
-			case GET_TASK:
-				return MESSAGE_GET_TASK;
 			case DISPLAY:
-				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
 				if (taskList.isEmpty()) {
 					return ERROR_EMPTY_TASKLIST;
+				} else if(removeFirstWord(userInput).length() != 0){
+					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
+					return displayTask(parsedParamTable.get(PARAMETER.TASKID));					
 				} else {
-					parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
-					displayTask(parsedParamTable.get(PARAMETER.TASKID));
-					
-					return MESSAGE_DISPLAY;					
+					return displayAllTasks();
 				}
 			case EDIT_TASK:
-				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 
-				return editTask(parsedParamTable.get(PARAMETER.TASKID),
+				message = editTask(parsedParamTable.get(PARAMETER.TASKID),
 						parsedParamTable.get(PARAMETER.DESC),
 						parsedParamTable.get(PARAMETER.VENUE), 
 						parsedParamTable.get(PARAMETER.START_DATE),
@@ -173,15 +210,26 @@ public class TaskHandler {
 						parsedParamTable.get(PARAMETER.END_TIME),
 						parsedParamTable.get(PARAMETER.DEADLINE_DATE),
 						parsedParamTable.get(PARAMETER.DEADLINE_TIME));
+				
+				fileIO.writeToFile(taskList);
+				return message;
 			case DELETE_TASK:
-				parsedParamTable = parser.getValuesFromInput(command, removeFirstWord(userInput));
-				return removeTask(parsedParamTable.get(PARAMETER.TASKID));
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
+				message = removeTask(parsedParamTable.get(PARAMETER.TASKID));
+				fileIO.writeToFile(taskList);
+				return message;
+			case UNDO:
+				message = undoSingleCommand();
+				return message;
+			case REDO:
+				message = redoSingleCommand();
+				return message;
 			case INVALID_COMMAND:
 				showHelpMenu();
 				return "";
 			case EXIT:
-				showToUser(MESSAGE_EXIT);
 				fileIO.writeToFile(taskList);
+				showToUser(MESSAGE_EXIT);
 				System.exit(0);
 			default:
 				return "There is an error in your code.";
@@ -189,14 +237,65 @@ public class TaskHandler {
 		}
 	}
 
+	private static String undoSingleCommand() {
+		try {
+			if (undoManager.canUndo()) {
+				UndoableEdit nextEdit = undoManager.editToBeUndone();
+				TaskEdit taskEdit = (TaskEdit) nextEdit;
+				undoManager.undo();
+				System.out.println(taskEdit.getTask().toString());
+				return MESSAGE_UNDO_TASK;
+			} else {
+				return ERROR_CANNOT_UNDO;
+			}
+		} catch (CannotUndoException e) {
+			return ERROR_CANNOT_UNDO;
+		}
+	}
+
+	private static String redoSingleCommand() {
+		try {
+			if (undoManager.canRedo()) {
+				UndoableEdit nextEdit = undoManager.editToBeRedone();
+				TaskEdit taskEdit = (TaskEdit) nextEdit;
+				undoManager.redo();
+				System.out.println(taskEdit.getTask().toString());
+				return MESSAGE_REDO_TASK;
+			} else {
+				return ERROR_CANNOT_REDO;
+			}
+		} catch (CannotRedoException e) {
+			return ERROR_CANNOT_REDO;
+		}
+	}
+
 	/**
-	 * Adds a task to the task list
+	 * Edits a task in the task list
 	 * @param task The task to be added to the taskList
 	 * @return 
 	 */
 	private static String editTask(String stringID, String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
+		// Declare local variables
+		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
+		SimpleDateFormat localDateFormat = new SimpleDateFormat("dd/M/yyyy");
 
-		Task task = null;
+		UndoableSignificantEdit edit = new UndoableSignificantEdit();
+		
+		Task task          = null;
+		Date _startDate    = null;
+		Date _endDate      = null;
+		Date _deadlineDate = null;
+		Date prevStartDate;
+		Date prevEndDate;
+		Date prevDeadlineDate;
+		Period oldPeriod;
+		Period newPeriod;
+		
+		String prevStartTime;
+		String prevEndTime;
+		String prevDeadlineTime;
+
+		boolean isUpdated = false;
 		
 		if (stringID != null){
 			task = searchTasks(Integer.parseInt(stringID));
@@ -207,77 +306,287 @@ public class TaskHandler {
 			return ERROR_NOT_FOUND_TASK;
 		}
 		
+		TaskEdit compoundEdit = new TaskEdit(task);
+		// Set description
+		if (desc != null){
+			String oldDesc = task.getDescription();
+			edit = new TaskDescEdit(task, oldDesc, desc);
+			task.setDescription(desc);
+			compoundEdit.addEdit(edit);
+			isUpdated = true;
+		}
+		
+		// Set venue
+		if (venue != null){
+			String oldVenue = task.getVenue();
+			task.setVenue(venue);
+			edit = new TaskVenueEdit(task, oldVenue, venue);
+			compoundEdit.addEdit(edit);
+			isUpdated = true;
+		}
+
 		try {
-			Date _startDate = null;
-			Date _endDate = null;
-			Date _deadlineDate = null;
-			
-			if(desc != null){
-				task.setDescription(desc);
-			}
-			if(venue != null){
-				task.setVenue(venue);
-			}
-			if(startTime != null && endTime != null && startDate != null && endDate != null){
-				_startDate    = dateFormat.parse(startDate + " " + startTime);
-				_endDate      = dateFormat.parse(endDate + " " + endTime);
+			// Set startDate, startTime, endDate and endTime
+			// E.g. edit 2 from 12/10/15 1200 to 13/10/15 1400
+			// E.g. edit 2 on 12/10/15 from 1200 to 1400
+			if (startDate != null && startTime != null && endDate != null && endTime != null){
+				_startDate = dateFormat.parse(startDate + " " + startTime);
+				_endDate   = dateFormat.parse(endDate + " " + endTime);
+				
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();
+				
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, _endDate);
+				
 				task.setStartTime(_startDate);
 				task.setEndTime(_endDate);
-			}
-			if(deadlineDate != null && deadlineTime != null){
-				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
-				task.setDeadline(_deadlineDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				
+				compoundEdit.addEdit(edit);
+				isUpdated  = true;
 			}
 
-			System.out.println(task.toString());
-			return MESSAGE_EDIT_TASK;
+			// Set startDate and endDate, without changing startTime and endTime
+			// E.g. edit 2 on 12/10/15
+			if (startDate != null && startTime == null && endDate != null && endTime == null) {
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();
+				// Get the original time of the day for start and end of the event
+				prevStartTime = timeFormat.format(prevStartDate);
+				prevEndTime   = timeFormat.format(prevEndDate);
+
+				_startDate    = dateFormat.parse(startDate + " " + prevStartTime);
+				_endDate      = dateFormat.parse(endDate + " " + prevEndTime);
+				
+				
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, _endDate);
+				
+				task.setStartTime(_startDate);
+				task.setEndTime(_endDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated     = true;
+			}
+			
+			// Set startDate, startTime
+			// E.g. edit 2 from 12/10/15 1200
+			if (startDate != null && startTime != null && endDate == null && endTime == null) {
+				_startDate = dateFormat.parse(startDate + " " + startTime);
+				
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();	
+
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, prevEndDate);
+				
+				task.setStartTime(_startDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated  = true;
+			}
+
+			// Set startDate, startTime according to user; endDate, endTime remains unchanged
+			// E.g. edit 2 on 12/10/15 from 1400
+			if (startDate != null && startTime != null && endDate != null && endTime == null) {
+				_startDate = dateFormat.parse(startDate + " " + startTime);
+
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();	
+
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, prevEndDate);
+
+				task.setStartTime(_startDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated  = true;
+			}
+			
+			// Set startDate only
+			// E.g. edit 2 from 12/10/15
+			if (startDate != null && startTime == null && endDate == null && endTime == null) {
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();
+				// Get the original time of the day for start of the event
+				prevStartTime = timeFormat.format(prevStartDate);
+
+				_startDate    = dateFormat.parse(startDate + " " + prevStartTime);
+								
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, prevEndDate);
+
+				task.setStartTime(_startDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated     = true;
+			}
+			
+			// Set endDate, endTime
+			// E.g. edit 2 to 12/10/15 1400
+			if (startDate == null && startTime == null && endDate != null && endTime != null) {
+				prevEndDate   = task.getEndTime();
+				prevStartDate = task.getStartTime();
+				
+				_endDate  = dateFormat.parse(endDate + " " + endTime);
+
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, prevEndDate);
+
+				task.setEndTime(_endDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated = true;
+			}
+			
+			// Set endDate, endTime according to user; endDate, endTime remains unchanged
+			// E.g. edit 2 on 12/10/15 to 1600
+			if (startDate != null && startTime == null && endDate != null && endTime != null) {
+				_endDate  = dateFormat.parse(endDate + " " + endTime);
+
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();
+
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(prevStartDate, prevEndDate);
+
+				task.setEndTime(_endDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated = true;
+			}	
+
+			// Set endDate only
+			// E.g. edit 2 to 12/10/15
+			if (startDate == null && startTime == null && endDate != null && endTime == null) {
+				prevStartDate = task.getStartTime();
+				prevEndDate = task.getEndTime();
+
+				// Get the original time of the day for end of the event
+				prevEndTime = timeFormat.format(prevEndDate);
+				
+				_endDate    = dateFormat.parse(endDate + " " + prevEndTime);
+				
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(prevStartDate, _endDate);
+				
+				task.setEndTime(_endDate);	
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated   = true;			
+			}
+
+			// Set deadlineDate and deadlineTime
+			if (deadlineDate != null && deadlineTime != null){
+				prevDeadlineDate = task.getDeadline();
+
+				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
+				task.setDeadline(_deadlineDate);
+				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
+				compoundEdit.addEdit(edit);
+				isUpdated     = true;
+			}
+			
+			// Set deadlineDate and deadlineTime
+			if (deadlineDate != null && deadlineTime == null){
+				prevDeadlineDate = task.getDeadline();
+				prevDeadlineTime = timeFormat.format(prevDeadlineDate);
+				
+				_deadlineDate    = dateFormat.parse(deadlineDate + " " + prevDeadlineTime);
+				task.setDeadline(_deadlineDate);
+				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
+				compoundEdit.addEdit(edit);
+				isUpdated        = true;
+			}
+
+			if(isUpdated) {
+				// Set one significant edit
+				UndoableEdit lastEdit = compoundEdit.lastEdit();
+				UndoableSignificantEdit edit1 = (UndoableSignificantEdit) lastEdit;
+				compoundEdit.end();
+				edit1.setSignificant();
+				undoManager.addEdit(compoundEdit);
+				return task.toString() + MESSAGE_EDIT_TASK;
+			} else {
+				return ERROR_INVALID_COMMAND + "\n" + HELP_EDIT_TASK;
+			}
 			
 		} catch (ParseException e) {			
 			e.printStackTrace();
+			return ERROR_DATEFORMAT;
 			
 		}
-		return ERROR_IO_TASK;
 	}
 	
 	/**
 	 * Adds a task to the task list
 	 * @param task The task to be added to the taskList
 	 */
-	private static void addTask(String desc,String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
+	private static String addTask(String desc, String venue, String startDate, String endDate, String startTime, String endTime, String deadlineDate, String deadlineTime) {
+		Date _startDate = null;
+		Date _endDate = null;
+		Date _deadlineDate = null;
 		
 		try {
-			Date _startDate = null;
-			Date _endDate = null;
-			Date _deadlineDate = null;
 			
-			if(startTime != null && endTime != null && startDate != null && endDate != null){
+			// E.g. add do "sth" on 12/10/15 from 1200 to 1400
+			// E.g. add do "sth" from 12/10/15 1200 to 12/10/15 1400
+			if (startTime != null && startDate != null && endTime != null && endDate != null){
 				_startDate    = dateFormat.parse(startDate + " " + startTime);
 				_endDate      = dateFormat.parse(endDate + " " + endTime);
-			}
-			
+			} else if (startTime != null && startDate != null && endTime == null && endDate != null){
+				// add do "sth" on 12/10/15 from 1200
+				endTime       = String.valueOf(Integer.parseInt(startTime) + 100);
+				_startDate    = dateFormat.parse(startDate + " " + startTime);
+				_endDate      = dateFormat.parse(endDate + " " + endTime);
+			} else if (startTime == null && startDate != null && endTime != null && endDate != null){
+				// add do "sth" on 12/10/15 to 1200
+				startTime     = String.valueOf(Integer.parseInt(endTime) - 100);
+				_startDate    = dateFormat.parse(startDate + " " + startTime);
+				_endDate      = dateFormat.parse(endDate + " " + endTime);
+			} else if (startTime == null && startDate != null && endTime == null && endDate != null){
+				// add do "sth" on 12/10/15
+				startTime     = "1200";		// Default 12pm - 1pm
+				endTime       = "1300";
+				_startDate    = dateFormat.parse(startDate + " " + startTime);
+				_endDate      = dateFormat.parse(endDate + " " + endTime);
+			} 
+
+			// E.g. add do "sth" by 23/10/12 1200
 			if(deadlineDate != null && deadlineTime != null){
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
+			}
+
+			// E.g. add do "sth" by 23/10/12, infer deadlineTime to be 1200
+			if(deadlineDate != null && deadlineTime == null){
+				_deadlineDate = dateFormat.parse(deadlineDate + " " + "1200");
 			}
 			
 			if(desc != null){
 				Task task = null;
 				if (startTime != null && endTime != null){
-					task = new Task(currentTaskId+1, desc, _startDate, _endDate, venue);//Event
+					task = new Task(currentTaskId+1, desc, _startDate, _endDate, venue);// Event
 				} else if (deadlineDate != null){
-					task = new Task(currentTaskId+1, desc, _deadlineDate, venue);		//Deadline task
+					task = new Task(currentTaskId+1, desc, _deadlineDate, venue);		// Deadline task
 				} else {
-					task = new Task(currentTaskId+1, desc, venue);						//Floating task
+					task = new Task(currentTaskId+1, desc, venue);						// Floating task
 				}
-				
+				// Make sure that we are not adding a null Task
+				assert(task!=null);
+
 				taskList.add(task);
-				System.out.println(task.toString());
+				currentTaskId += 1;
+				return task.toString() + "\n" + MESSAGE_ADD_TASK;
 			}
-			currentTaskId += 1;
 			
 		} catch (ParseException e) {			
 			e.printStackTrace();
+			return ERROR_DATEFORMAT;
 			
 		}
+		
+		return ERROR_NO_DESC;
 	}
 	
 	/**
@@ -290,7 +599,7 @@ public class TaskHandler {
 				if(t.getTaskId() == Integer.parseInt(stringID)){
 					String removedTask = Integer.toString(t.getTaskId());
 					taskList.remove(t);
-					return "Task " + removedTask + " was erased";
+					return removedTask + MESSAGE_DELETE_TASK;
 				}
 				
 			}
@@ -303,13 +612,14 @@ public class TaskHandler {
 	 * Shows the Help menu to the user
 	 */
 	private static void showHelpMenu() {
-		showToUser(ERROR_INVALID_COMMAND + "\n");
+		showToUser(ERROR_INVALID_COMMAND);
+		showToUser("");
 		showToUser(HELP_TITLE);
 		showToUser(HELP_SUBTITLE);
 		showToUser(HELP_ADD_TASK);
 		showToUser(HELP_DELETE_TASK);
 		showToUser(HELP_DISPLAY);
-		showToUser(HELP_SEARCH_TASK);
+		// showToUser(HELP_SEARCH_TASK);
 		showToUser(HELP_EDIT_TASK);
 		showToUser(HELP_EXIT);
 	}
@@ -317,35 +627,29 @@ public class TaskHandler {
 	/**
 	 * 
 	 * @param string
+	 * @return 
 	 */
-	private static void displayTask(String taskID) {
-		if(taskID != null){
-			if(taskList.size() >= Integer.parseInt(taskID) && Integer.parseInt(taskID) > 0){
-				showToUser(taskList.get(Integer.parseInt(taskID) - 1).toString());
+	private static String displayTask(String stringID) {
+		if(stringID != null){
+			for(Task t:taskList){
+				if(t.getTaskId() == Integer.parseInt(stringID)){
+					return t.toString();
+				}
 			}
-			//TODO: what if its out of bounds?
-		} else {
-			displayAllTasks();
 		}
+		return ERROR_NOT_FOUND_TASK;
 	}
 	
 	/**
 	 * Displays all the current tasks in the taskList
+	 * @return 
 	 */
-	private static void displayAllTasks() {
+	private static String displayAllTasks() {
+		StringBuilder taskListString = new StringBuilder();
 		for (int i = 0; i < taskList.size() ; i++) {
-			showToUser(taskList.get(i).toString());
+			taskListString.append(taskList.get(i).toString());
 		}
-	}
-	
-	/**
-	 * Takes a command and returns the correct number of arguments expected
-	 * @param command The command to be evaluated for number of arguments
-	 * @return The number of arguments for that command
-	 */
-	public static int determineNumberOfArgs(COMMAND_TYPE command) {
-		//TODO: unimplemented
-		return 0;
+		return taskListString.toString() + "\n" + MESSAGE_DISPLAY;
 	}
 	
 	/**
@@ -413,6 +717,10 @@ public class TaskHandler {
 			return COMMAND_TYPE.EDIT_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("delete")) {
 			return COMMAND_TYPE.DELETE_TASK;
+		} else if (commandTypeString.equalsIgnoreCase("undo")) {
+			return COMMAND_TYPE.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase("redo")) {
+			return COMMAND_TYPE.REDO;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 			return COMMAND_TYPE.EXIT;
 		} else {

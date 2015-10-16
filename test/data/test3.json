@@ -11,8 +11,7 @@
             "description": "Buy lunch",
             "isDone": false,
             "isPastDeadline": false,
-            "hasEnded": false,
-            "tags": []
+            "hasEnded": false
         },
         {
             "taskId": 2,
@@ -25,10 +24,7 @@
             "description": "haircut",
             "isDone": true,
             "isPastDeadline": false,
-            "hasEnded": false,
-            "tags": [
-                "#GE2015"
-            ]
+            "hasEnded": false
         }
     ]
 }
