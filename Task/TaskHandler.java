@@ -4,6 +4,13 @@ import Task.FileIO;
 import Task.COMMAND_TYPE;
 import Task.StringParser;
 import Task.Validator;
+import Task.TaskVenueEdit;
+//import Task.TaskDescEdit;
+//import Task.TaskPeriodEdit;
+//import Task.TaskDeadlineEdit;
+//import Task.TaskDoneEdit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
@@ -13,6 +20,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.AbstractUndoableEdit;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CompoundEdit;
+import javax.swing.undo.UndoableEdit;
 
 /**
  *  Represents the handler for tasks
@@ -30,6 +43,8 @@ public class TaskHandler {
 	private static final String MESSAGE_SEARCH_TASK    = "Here are tasks matching your keywords:";
 	private static final String MESSAGE_DELETE_TASK    = " ID task has been deleted";
 	private static final String MESSAGE_EDIT_TASK      = "Task has been updated!";
+	private static final String MESSAGE_UNDO_TASK      = "Successfully rolled back 1 change.";
+	private static final String MESSAGE_REDO_TASK      = "Successfully redoed 1 change.";
 	private static final String MESSAGE_EXIT           = "Thanks for using TaskBuddy! Changes saved to disk.";
 	
 	// Define error messages here
@@ -38,6 +53,8 @@ public class TaskHandler {
 	private static final String ERROR_NOT_FOUND_TASK   = "The task was not found!";
 	private static final String ERROR_IO_TASK   	   = "The task could not be changed!";
 	private static final String ERROR_NO_DESC   	   = "You must have a description for your task!";
+	private static final String ERROR_CANNOT_UNDO      = "No more changes to undo.";
+	private static final String ERROR_CANNOT_REDO      = "No more changes to redo.";
 	private static final String ERROR_DATEFORMAT       = "The date and/or time you have entered is invalid. Date format is 'dd/M/yyyy' while time is 24 hrs 'HHmm e.g. 2359";
 	
 	// Define help messages here
@@ -47,9 +64,12 @@ public class TaskHandler {
 	private static final String HELP_DISPLAY           = "  DISPLAY   : display                                                                                                                                   | Displays all tasks                     ";
 	// private static final String HELP_SEARCH_TASK       = "  SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |";
 	private static final String HELP_EDIT_TASK         = "  EDIT      : edit [task-id] do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"      | Edits an existing task                 ";
+	private static final String HELP_UNDO              = "  UNDO      : undo                                                                                                                                      | Undo the last action                   ";
+	private static final String HELP_REDO              = "  REDO      : redo                                                                                                                                      | Redo the last undoed action            ";
 	private static final String HELP_DELETE_TASK       = "  DELETE    : delete [task-id]                                                                                                                          | Removes a task                         ";
 	private static final String HELP_EXIT              = "  EXIT      : exit                                                                                                                                      | Terminate program                      ";
 	
+	private static final Logger LOGGER = Logger.getLogger(TaskHandler.class.getName());
 	
 	// Define minimum argument numbers here
 	//TODO: Do these make sense to have now?
@@ -69,13 +89,13 @@ public class TaskHandler {
 	private static int 				currentTaskId;          
 	private static FileIO           fileIO;
 	private static Validator        validate         = new Validator();
+	private static TaskUndoManager      undoManager;
 	
 	/**
 	 * Starts the program
 	 * @param args The file path to load the file in
 	 */
 	public static void main(String[] args) {
-		// TODO @Audrey use args to load the file
 		String localFilePath = determineFilePath(args);
 		init(localFilePath);
 		showToUser(MESSAGE_WELCOME);
@@ -107,6 +127,8 @@ public class TaskHandler {
 	 * Initialize settings, search for application files etc.
 	 */
 	private static void init(String localFilePath) {
+		LOGGER.setLevel(Level.INFO);
+		undoManager = new TaskUndoManager();
 		dateFormat.setCalendar(calendar);
 		fileIO = new FileIO(localFilePath);
 		taskList = fileIO.readFromFile();
@@ -196,6 +218,12 @@ public class TaskHandler {
 				message = removeTask(parsedParamTable.get(PARAMETER.TASKID));
 				fileIO.writeToFile(taskList);
 				return message;
+			case UNDO:
+				message = undoSingleCommand();
+				return message;
+			case REDO:
+				message = redoSingleCommand();
+				return message;
 			case INVALID_COMMAND:
 				showHelpMenu();
 				return "";
@@ -209,8 +237,40 @@ public class TaskHandler {
 		}
 	}
 
+	private static String undoSingleCommand() {
+		try {
+			if (undoManager.canUndo()) {
+				UndoableEdit nextEdit = undoManager.editToBeUndone();
+				TaskEdit taskEdit = (TaskEdit) nextEdit;
+				undoManager.undo();
+				System.out.println(taskEdit.getTask().toString());
+				return MESSAGE_UNDO_TASK;
+			} else {
+				return ERROR_CANNOT_UNDO;
+			}
+		} catch (CannotUndoException e) {
+			return ERROR_CANNOT_UNDO;
+		}
+	}
+
+	private static String redoSingleCommand() {
+		try {
+			if (undoManager.canRedo()) {
+				UndoableEdit nextEdit = undoManager.editToBeRedone();
+				TaskEdit taskEdit = (TaskEdit) nextEdit;
+				undoManager.redo();
+				System.out.println(taskEdit.getTask().toString());
+				return MESSAGE_REDO_TASK;
+			} else {
+				return ERROR_CANNOT_REDO;
+			}
+		} catch (CannotRedoException e) {
+			return ERROR_CANNOT_REDO;
+		}
+	}
+
 	/**
-	 * Adds a task to the task list
+	 * Edits a task in the task list
 	 * @param task The task to be added to the taskList
 	 * @return 
 	 */
@@ -219,6 +279,8 @@ public class TaskHandler {
 		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
 		SimpleDateFormat localDateFormat = new SimpleDateFormat("dd/M/yyyy");
 
+		UndoableSignificantEdit edit = new UndoableSignificantEdit();
+		
 		Task task          = null;
 		Date _startDate    = null;
 		Date _endDate      = null;
@@ -226,6 +288,8 @@ public class TaskHandler {
 		Date prevStartDate;
 		Date prevEndDate;
 		Date prevDeadlineDate;
+		Period oldPeriod;
+		Period newPeriod;
 		
 		String prevStartTime;
 		String prevEndTime;
@@ -242,15 +306,22 @@ public class TaskHandler {
 			return ERROR_NOT_FOUND_TASK;
 		}
 		
+		TaskEdit compoundEdit = new TaskEdit(task);
 		// Set description
 		if (desc != null){
+			String oldDesc = task.getDescription();
+			edit = new TaskDescEdit(task, oldDesc, desc);
 			task.setDescription(desc);
+			compoundEdit.addEdit(edit);
 			isUpdated = true;
 		}
 		
 		// Set venue
 		if (venue != null){
+			String oldVenue = task.getVenue();
 			task.setVenue(venue);
+			edit = new TaskVenueEdit(task, oldVenue, venue);
+			compoundEdit.addEdit(edit);
 			isUpdated = true;
 		}
 
@@ -261,8 +332,18 @@ public class TaskHandler {
 			if (startDate != null && startTime != null && endDate != null && endTime != null){
 				_startDate = dateFormat.parse(startDate + " " + startTime);
 				_endDate   = dateFormat.parse(endDate + " " + endTime);
+				
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();
+				
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, _endDate);
+				
 				task.setStartTime(_startDate);
 				task.setEndTime(_endDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				
+				compoundEdit.addEdit(edit);
 				isUpdated  = true;
 			}
 
@@ -274,12 +355,18 @@ public class TaskHandler {
 				// Get the original time of the day for start and end of the event
 				prevStartTime = timeFormat.format(prevStartDate);
 				prevEndTime   = timeFormat.format(prevEndDate);
-				
+
 				_startDate    = dateFormat.parse(startDate + " " + prevStartTime);
 				_endDate      = dateFormat.parse(endDate + " " + prevEndTime);
 				
+				
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, _endDate);
+				
 				task.setStartTime(_startDate);
 				task.setEndTime(_endDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
 				isUpdated     = true;
 			}
 			
@@ -288,7 +375,15 @@ public class TaskHandler {
 			if (startDate != null && startTime != null && endDate == null && endTime == null) {
 				_startDate = dateFormat.parse(startDate + " " + startTime);
 				
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();	
+
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, prevEndDate);
+				
 				task.setStartTime(_startDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
 				isUpdated  = true;
 			}
 
@@ -296,8 +391,16 @@ public class TaskHandler {
 			// E.g. edit 2 on 12/10/15 from 1400
 			if (startDate != null && startTime != null && endDate != null && endTime == null) {
 				_startDate = dateFormat.parse(startDate + " " + startTime);
-				
+
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();	
+
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, prevEndDate);
+
 				task.setStartTime(_startDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
 				isUpdated  = true;
 			}
 			
@@ -305,21 +408,35 @@ public class TaskHandler {
 			// E.g. edit 2 from 12/10/15
 			if (startDate != null && startTime == null && endDate == null && endTime == null) {
 				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();
 				// Get the original time of the day for start of the event
 				prevStartTime = timeFormat.format(prevStartDate);
-				
+
 				_startDate    = dateFormat.parse(startDate + " " + prevStartTime);
-				
+								
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, prevEndDate);
+
 				task.setStartTime(_startDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
 				isUpdated     = true;
 			}
 			
 			// Set endDate, endTime
 			// E.g. edit 2 to 12/10/15 1400
 			if (startDate == null && startTime == null && endDate != null && endTime != null) {
-				_endDate  = dateFormat.parse(endDate + " " + endTime);
+				prevEndDate   = task.getEndTime();
+				prevStartDate = task.getStartTime();
 				
+				_endDate  = dateFormat.parse(endDate + " " + endTime);
+
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(_startDate, prevEndDate);
+
 				task.setEndTime(_endDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
 				isUpdated = true;
 			}
 			
@@ -327,28 +444,47 @@ public class TaskHandler {
 			// E.g. edit 2 on 12/10/15 to 1600
 			if (startDate != null && startTime == null && endDate != null && endTime != null) {
 				_endDate  = dateFormat.parse(endDate + " " + endTime);
-				
+
+				prevStartDate = task.getStartTime();
+				prevEndDate   = task.getEndTime();
+
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(prevStartDate, prevEndDate);
+
 				task.setEndTime(_endDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
 				isUpdated = true;
 			}	
 
 			// Set endDate only
 			// E.g. edit 2 to 12/10/15
 			if (startDate == null && startTime == null && endDate != null && endTime == null) {
+				prevStartDate = task.getStartTime();
 				prevEndDate = task.getEndTime();
+
 				// Get the original time of the day for end of the event
 				prevEndTime = timeFormat.format(prevEndDate);
 				
 				_endDate    = dateFormat.parse(endDate + " " + prevEndTime);
 				
+				oldPeriod = new Period(prevStartDate, prevEndDate);
+				newPeriod = new Period(prevStartDate, _endDate);
+				
 				task.setEndTime(_endDate);	
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
 				isUpdated   = true;			
 			}
 
 			// Set deadlineDate and deadlineTime
 			if (deadlineDate != null && deadlineTime != null){
+				prevDeadlineDate = task.getDeadline();
+
 				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
 				task.setDeadline(_deadlineDate);
+				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
+				compoundEdit.addEdit(edit);
 				isUpdated     = true;
 			}
 			
@@ -359,10 +495,18 @@ public class TaskHandler {
 				
 				_deadlineDate    = dateFormat.parse(deadlineDate + " " + prevDeadlineTime);
 				task.setDeadline(_deadlineDate);
+				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
+				compoundEdit.addEdit(edit);
 				isUpdated        = true;
 			}
 
 			if(isUpdated) {
+				// Set one significant edit
+				UndoableEdit lastEdit = compoundEdit.lastEdit();
+				UndoableSignificantEdit edit1 = (UndoableSignificantEdit) lastEdit;
+				compoundEdit.end();
+				edit1.setSignificant();
+				undoManager.addEdit(compoundEdit);
 				return task.toString() + MESSAGE_EDIT_TASK;
 			} else {
 				return ERROR_INVALID_COMMAND + "\n" + HELP_EDIT_TASK;
@@ -428,7 +572,9 @@ public class TaskHandler {
 				} else {
 					task = new Task(currentTaskId+1, desc, venue);						// Floating task
 				}
-				
+				// Make sure that we are not adding a null Task
+				assert(task!=null);
+
 				taskList.add(task);
 				currentTaskId += 1;
 				return task.toString() + "\n" + MESSAGE_ADD_TASK;
@@ -507,16 +653,6 @@ public class TaskHandler {
 	}
 	
 	/**
-	 * Takes a command and returns the correct number of arguments expected
-	 * @param command The command to be evaluated for number of arguments
-	 * @return The number of arguments for that command
-	 */
-	public static int determineNumberOfArgs(COMMAND_TYPE command) {
-		//TODO: unimplemented
-		return 0;
-	}
-	
-	/**
 	 * Figure out free time slots
 	 * @param timetable The timetable to get free time slots for
 	 * @return An array of possible time slots
@@ -581,6 +717,10 @@ public class TaskHandler {
 			return COMMAND_TYPE.EDIT_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("delete")) {
 			return COMMAND_TYPE.DELETE_TASK;
+		} else if (commandTypeString.equalsIgnoreCase("undo")) {
+			return COMMAND_TYPE.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase("redo")) {
+			return COMMAND_TYPE.REDO;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 			return COMMAND_TYPE.EXIT;
 		} else {
