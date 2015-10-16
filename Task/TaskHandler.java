@@ -95,12 +95,12 @@ public class TaskHandler {
 	 * Starts the program
 	 * @param args The file path to load the file in
 	 */
-	public static void main(String[] args) {
+	public static void startTasks(String[] args) {
 		String localFilePath = determineFilePath(args);
 		init(localFilePath);
 		showToUser(MESSAGE_WELCOME);
 		while(true) {
-			System.out.print("> Enter command:");
+			showToUser("> Enter command:");
 			String command = scanner.nextLine();
 			if(isValidCommand(command)) {
 				String feedback = executeCommand(command);
@@ -144,7 +144,7 @@ public class TaskHandler {
 			return;
 		}
 		
-		System.out.println(text);
+		Controller.getInstance().printToScreen(text);
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class TaskHandler {
 				UndoableEdit nextEdit = undoManager.editToBeUndone();
 				TaskEdit taskEdit = (TaskEdit) nextEdit;
 				undoManager.undo();
-				System.out.println(taskEdit.getTask().toString());
+				showToUser(taskEdit.getTask().toString());
 				return MESSAGE_UNDO_TASK;
 			} else {
 				return ERROR_CANNOT_UNDO;
@@ -259,7 +259,7 @@ public class TaskHandler {
 				UndoableEdit nextEdit = undoManager.editToBeRedone();
 				TaskEdit taskEdit = (TaskEdit) nextEdit;
 				undoManager.redo();
-				System.out.println(taskEdit.getTask().toString());
+				showToUser(taskEdit.getTask().toString());
 				return MESSAGE_REDO_TASK;
 			} else {
 				return ERROR_CANNOT_REDO;

@@ -12,6 +12,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
 
 /**
  *  Represents the control module that is in charge of initialization and GUI
+ *  Singleton structure
  * 
  *  @author A0097689 Tan Si Kai
  *  @author A0009586 Jean Pierre Castillo
@@ -19,6 +20,8 @@ import org.jnativehook.keyboard.NativeKeyListener;
  */
 
 public class Controller implements NativeKeyListener {
+	
+	static Controller instance = null;
 	
 	private static int[] myArray = new int[]{NativeKeyEvent.VC_SHIFT_L,			//Left shift
 											 	NativeKeyEvent.VC_SHIFT_R		//Right shift
@@ -28,6 +31,21 @@ public class Controller implements NativeKeyListener {
 	private boolean isShortCutPressed = false;
 	
 	private final static Logger LOGGER = Logger.getLogger(StringParser.class.getName());
+	
+	protected Controller() {
+      // Exists only to defeat instantiation.
+	}
+	
+	public static Controller getInstance() {
+      if(instance == null) {
+         instance = new Controller();
+      }
+      return instance;
+	}
+	
+	public void printToScreen(String print){
+		System.out.println(print);
+	}
 	
     public void nativeKeyPressed(NativeKeyEvent e) {
 
@@ -82,6 +100,8 @@ public class Controller implements NativeKeyListener {
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.SEVERE);
+		TaskHandler.startTasks(args);
+		
         try {
                 Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
                 logger.setLevel(Level.OFF);
@@ -94,6 +114,6 @@ public class Controller implements NativeKeyListener {
         }
 
         //Construct the example object and initialze native hook.
-        GlobalScreen.addNativeKeyListener(new Controller());
+        GlobalScreen.addNativeKeyListener(Controller.getInstance());
     }
 }
