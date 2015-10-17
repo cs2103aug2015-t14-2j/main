@@ -7,45 +7,37 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
 /**
  * 
  * @author Audrey
  * 
- * This class takes the user input in parts(through a hashmap) and converts them
- * to their respective objects. It also throws exceptions if there are any invalid 
- * inputs. 
- * Exceptions are as follows:
+ *         This class takes the user input in parts(through a hashmap) and
+ *         converts them to their respective objects. It also throws exceptions
+ *         if there are any invalid inputs. Exceptions are as follows:
  * 
- * ParseException : Invalid formats. E.g. User types in a date or time format that is not supported.
- * IllegalArgumentException: Dates are invalid. E.g. End date is before start date
- * IllegalStateException: String invalid. E.g. No input in venue or desc
+ *         ParseException : Invalid formats. E.g. User types in a date or time
+ *         format that is not supported. IllegalArgumentException: Dates are
+ *         invalid. E.g. End date is before start date IllegalStateException:
+ *         String invalid. E.g. No input in venue or desc
  * 
- * Date Formats currently recognised:
- * 21/05/2015
- * 21/05
- * 21-05-2015
- * 21-05
+ *         Date Formats currently recognised: 21/05/2015 21/05 21-05-2015 21-05
  * 
- * Todo: Today, tday, tomorrow, tmr, mon tues etc,
+ *         Todo: Today, tday, tomorrow, tmr, mon tues etc,
  * 
- * Time Formats currently recognised:
- * 8pm
- * 0800pm
- * 1230
- * 2130
- * Todo: 8:30, 8:30pm
+ *         Time Formats currently recognised: 8pm 0800pm 1230 2130 Todo: 8:30,
+ *         8:30pm
  * 
  */
 
 public class Validator {
 	public Validator() {
-		
+
 	}
 
-	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap) throws ParseException {
+	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap)
+			throws ParseException {
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
-		
+
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
 			objectHashMap.put(PARAMETER.DESC, hashmap.get(PARAMETER.DESC));
 		} else {
@@ -79,11 +71,10 @@ public class Validator {
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			} else {
-				throw new ParseException("PARAMETER.END_DATE", 0);// No such
+				throw new ParseException("PARAMETER.START_DATE", 0);// No such
 																	// format
 			}
 		}
-
 		// end date
 		if (endDate != null) {
 			end_Date = validDateFormat(endDate);
@@ -164,7 +155,7 @@ public class Validator {
 
 				Calendar timePortion = Calendar.getInstance();
 				timePortion.setTime(timeOfDeadline);
-				
+
 				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
 
@@ -226,116 +217,90 @@ public class Validator {
 	// Number date format for eg. 21/04 or 21/04/2015 ie DD/MM or DD/MM/YYYY
 	public static Date numberDateFormat(String string) {
 		Date date;
-		SimpleDateFormat dateFormat;
+		SimpleDateFormat dateFormat = null;
 		string = string.trim();
+
 		if (string.contains("/")) {
 			dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 			dateFormat.setLenient(false);
-			if (string.length() > 5) {
-				try {
-					date = dateFormat.parse(string);
-					return date;
-				} catch (ParseException e) {
-					return null;
-				} catch (IllegalArgumentException e) {
-					return null;
-				}
-			} else {
-				try {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "/" + year;
-					date = dateFormat.parse(string);
-					return date;
-				} catch (ParseException e) {
-					return null;
-				} catch (IllegalArgumentException e) {
-					return null;
-				}
+			if (string.length() <= 5) {
+				int year = Calendar.getInstance().get(Calendar.YEAR);
+				string = string + "/" + year;
 			}
 		} else if (string.contains("-")) {
 			dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 			dateFormat.setLenient(false);
-			if (string.length() > 5) {
-				try {
-					date = dateFormat.parse(string);
-					return date;
-				} catch (ParseException e) {
-					return null;
-				} catch (IllegalArgumentException e) {
-					return null;
-				}
-			} else {
-				try {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "-" + year;
-					date = dateFormat.parse(string);
-					return date;
-				} catch (ParseException e) {
-					return null;
-				} catch (IllegalArgumentException e) {
-					return null;
-				}
+			if (string.length() <= 5) {
+				int year = Calendar.getInstance().get(Calendar.YEAR);
+				string = string + "-" + year;
+			}
+		} else if (string.contains(" ")) {
+			dateFormat = new SimpleDateFormat("dd MM yyyy");
+			dateFormat.setLenient(false);
+			if (string.length() <= 5) {
+				int year = Calendar.getInstance().get(Calendar.YEAR);
+				string = string + " " + year;
+			}
+		} else if (string.contains(",")) {
+			dateFormat = new SimpleDateFormat("dd,MM,yyyy");
+			dateFormat.setLenient(false);
+			if (string.length() <= 5) {
+				int year = Calendar.getInstance().get(Calendar.YEAR);
+				string = string + "," + year;
 			}
 		}
-		return null;
+
+		try {
+			date = dateFormat.parse(string);
+			return date;
+		} catch (ParseException e) {
+			return null;
+		}
 	}
 
 	// Word Month date format. e.g. 21/Apr or 21/Apr/2015
 	public static Date wordMonthFormat(String string) {
 		Date date;
 		string = string.trim();
-		SimpleDateFormat dateFormat;
-		// year inclusive
+		SimpleDateFormat dateFormat = null;
+
 		if (string.contains("/")) {
 			dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
 			dateFormat.setLenient(false);
-			if (string.length() > 6) {
-				try {
-					date = dateFormat.parse(string);
-					return date;
-				} catch (ParseException e) {
-					return null;
-				} catch (IllegalArgumentException e) {
-					return null;
-				}
-			} else {
-				try {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "/" + year;
-					date = dateFormat.parse(string);
-					return date;
-				} catch (ParseException e) {
-					return null;
-				} catch (IllegalArgumentException e) {
-					return null;
-				}
+			if (string.length() <= 6) {
+				int year = Calendar.getInstance().get(Calendar.YEAR);
+				string = string + "/" + year;
 			}
 		} else if (string.contains("-")) {
 			dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
 			dateFormat.setLenient(false);
-			if (string.length() > 6) {
-				try {
-					date = dateFormat.parse(string);
-					return date;
-				} catch (ParseException e) {
-					return null;
-				} catch (IllegalArgumentException e) {
-					return null;
-				}
-			} else {
-				try {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "-" + year;
-					date = dateFormat.parse(string);
-					return date;
-				} catch (ParseException e) {
-					return null;
-				} catch (IllegalArgumentException e) {
-					return null;
-				}
+			if (string.length() <= 6) {
+				int year = Calendar.getInstance().get(Calendar.YEAR);
+				string = string + "-" + year;
+			}
+		} else if (string.contains(" ")) {
+			dateFormat = new SimpleDateFormat("dd MMM yyyy");
+			dateFormat.setLenient(false);
+			if (string.length() <= 6) {
+				int year = Calendar.getInstance().get(Calendar.YEAR);
+				string = string + " " + year;
+			}
+		} else if (string.contains(",")) {
+			dateFormat = new SimpleDateFormat("dd,MMM,yyyy");
+			dateFormat.setLenient(false);
+			if (string.length() <= 6) {
+				int year = Calendar.getInstance().get(Calendar.YEAR);
+				string = string + "," + year;
 			}
 		}
-		return null;
+
+		try {
+			date = dateFormat.parse(string);
+			return date;
+		} catch (ParseException e) {
+			return null;
+		}
+
 	}
 
 	/*********************************************************************

@@ -20,8 +20,8 @@ public class ValidatorTest {
 		// DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE,REMIND_TIME 
 		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
 		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.START_DATE, "21/05");
-		testHashMap.put(PARAMETER.END_DATE, "22-05");
+		testHashMap.put(PARAMETER.START_DATE, "21,maY");
+		testHashMap.put(PARAMETER.END_DATE, "22 May");
 		testHashMap.put(PARAMETER.START_TIME, "1200");
 		testHashMap.put(PARAMETER.END_TIME, "8pm");
 		
@@ -41,7 +41,33 @@ public class ValidatorTest {
 	}
 	
 	@Test
+	//This is to test getObjectHashMap() and see whether it returns the correct stuff. 
 	public void testgetObjectHashMap1() throws ParseException {
+		// DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE,REMIND_TIME 
+		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
+		testHashMap.put(PARAMETER.DESC, "Eat Apple");
+		testHashMap.put(PARAMETER.START_DATE, "21,05");
+		testHashMap.put(PARAMETER.END_DATE, "22 05");
+		testHashMap.put(PARAMETER.START_TIME, "1200");
+		testHashMap.put(PARAMETER.END_TIME, "8pm");
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
+		
+		HashMap<PARAMETER,Object> returnedHashMap = new HashMap<PARAMETER,Object>();
+		returnedHashMap = Validator.getObjectHashMap(testHashMap);
+		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
+		String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.START_DATE));
+		assertEquals(returnedStartDate, "21-05-2015 0000");
+		String returnedEndDate = dateFormat.format(returnedHashMap.get(PARAMETER.END_DATE));
+		assertEquals(returnedEndDate, "22-05-2015 0000");
+		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
+		assertEquals(returnedStartTime, "21-05-2015 1200");
+		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
+		assertEquals(returnedEndTime, "22-05-2015 2000");
+	}
+	
+	@Test
+	public void testgetObjectHashMap2() throws ParseException {
 		// DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE,
 		// PRIORITY, REMIND_TIME ,STARTENDTIME
 		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
