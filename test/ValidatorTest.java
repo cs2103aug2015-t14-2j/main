@@ -20,8 +20,8 @@ public class ValidatorTest {
 		// DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE,REMIND_TIME 
 		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
 		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.START_DATE, "21,maY");
-		testHashMap.put(PARAMETER.END_DATE, "22 May");
+		testHashMap.put(PARAMETER.START_DATE, "9-oCtObeR");
+		testHashMap.put(PARAMETER.END_DATE, "22/auG/16");
 		testHashMap.put(PARAMETER.START_TIME, "1200");
 		testHashMap.put(PARAMETER.END_TIME, "8pm");
 		
@@ -31,13 +31,13 @@ public class ValidatorTest {
 		returnedHashMap = Validator.getObjectHashMap(testHashMap);
 		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
 		String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.START_DATE));
-		assertEquals(returnedStartDate, "21-05-2015 0000");
+		assertEquals(returnedStartDate, "09-10-2015 0000");
 		String returnedEndDate = dateFormat.format(returnedHashMap.get(PARAMETER.END_DATE));
-		assertEquals(returnedEndDate, "22-05-2015 0000");
+		assertEquals(returnedEndDate, "22-08-2016 0000");
 		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "21-05-2015 1200");
+		assertEquals(returnedStartTime, "09-10-2015 1200");
 		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "22-05-2015 2000");
+		assertEquals(returnedEndTime, "22-08-2016 2000");
 	}
 	
 	@Test
@@ -120,9 +120,26 @@ public class ValidatorTest {
 	}
 	
 	@Test
+	public void testWordMonthFormat4() {
+		String date = "Apr/21";
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		Date dateTest = Validator.wordMonthFormat(date);
+		String output = dateFormat.format(dateTest);
+		assertEquals(output, "21-04-2015");
+	}
+	
+	@Test
 	// Test Correct dates in this format: DD/MMM(WORD)
 	public void numberDateFormat() {
 		String date = "21-05";
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+		Date dateTest = Validator.numberDateFormat(date);
+		String output = dateFormat.format(dateTest);
+		assertEquals(output, "21-05-2015");
+	}
+	
+	public void numberDateFormat1() {
+		String date = "2015-21-05";
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
 		Date dateTest = Validator.numberDateFormat(date);
 		String output = dateFormat.format(dateTest);
