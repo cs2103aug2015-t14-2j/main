@@ -1,683 +1,559 @@
 package Task;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
-//import Task.PARAMETER;
+import java.util.Locale;
 
-// This class deals with validation of all user input.
-// It specifies which validation functions are required for which parameters.
-// It runs through every validation function and sets the respective error message.
-// Error messages should specify which parameter failed and why it failed.
+/**
+ * 
+ * @author Audrey
+ * 
+ *         This class takes the user input in parts(through a hashmap) and
+ *         converts them to their respective objects. It also throws exceptions
+ *         if there are any invalid inputs. Exceptions are as follows:
+ * 
+ *         1) ParseException : Invalid formats. E.g. User types in a date or
+ *         time format that is not supported. 2) IllegalArgumentException: Dates
+ *         are invalid. E.g. End date is before start date 3)
+ *         IllegalStateException: String invalid. E.g. No input in venue or desc
+ * 
+ *         Date Formats currently recognised:
+ * 
+ *         1) All numbers. etc 21,05,2015 dd/MM/yy , dd/MM/yyyy , dd/MM (for
+ *         comma, space and hyphens too)
+ * 
+ *         2) Also done yyyy/MM/dd
+ * 
+ *         3) Word Month Format 3 Letter Months accepted Jan, Feb etc. Fully
+ *         spelt months accepted. Format same as above.
+ * 
+ *         4) Word Month Format with Month first accepted. Etc: August 8
+ * 
+ * 
+ * 
+ *         Todo: Today, tday, tomorrow, tmr, mon tues etc,
+ * 
+ *         Time Formats currently recognised: 8pm 0800pm 1230 2130 Todo: 8:30,
+ *         8:30pm
+ * 
+ */
+
 public class Validator {
-	// private and static variables here
-	private static final String VALID_INPUT = "VALID";
-	private static final String ERROR_INVALID_DESC = "";
-	private static final String ERROR_INVALID_VENUE = "";
-	private static final String ERROR_INVALID_DATE_FORMAT = "";
-	private static final String ERROR_INVALID_TIME_FORMAT = "";
-	private static final String ERROR_INSUFFICIENT_ARGUMENT = "";
-	private static final String ERROR_START_AFTER_END = "";
-	private static final String ERROR_INVALID_PRIORITY_FORMAT = "";
-	private static final String NO_INPUT = "VALID";
-	/* ...ADD IN MORE HERE */
-
-	// Constructor
 	public Validator() {
 
 	}
-	
-	/**
-	 * Takes the output hashMap from validateUserInput and returns a boolean indicating whether it is
-	 * safe to add a task using those parameters
-	 * 
-	 * @param errorHashMap
-	 * @return
-	 */
-	public boolean isValidAddTask(HashMap<PARAMETER, String> errorHashMap) {
-		if(errorHashMap.get(PARAMETER.DESC)== ""){
-			return false;
-		}
-		if(errorHashMap.get(PARAMETER.VENUE)== ""){
-			return false;
-		}
-		if(errorHashMap.get(PARAMETER.START_DATE)== ""){
-			return false;
-		}
-		if(errorHashMap.get(PARAMETER.END_DATE)== ""){
-			return false;
-		}
-		if(errorHashMap.get(PARAMETER.START_TIME)== ""){
-			return false;
-		}
-		if(errorHashMap.get(PARAMETER.END_TIME)== ""){
-			return false;
-		}
-		if(errorHashMap.get(PARAMETER.DEADLINE_DATE)== ""){
-			return false;
-		}
-		if(errorHashMap.get(PARAMETER.DEADLINE_TIME)== ""){
-			return false;
-		}
-		if(errorHashMap.get(PARAMETER.REMIND_TIMES)== ""){
-			return false;
-		}
-		return true;
-	}
 
-	// Takes a HashMap returned from the Parser class and runs through each of
-	// the key => value pairs
-	// For each value, run through each of the relevant validation functions. If
-	// fails, set the error message
-	// for that particular validation function.
-	// Returns a HashMap of PARAMETER => error_message_string
-	public static HashMap<PARAMETER, String> validateUserInput(COMMAND_TYPE command,
-			HashMap<PARAMETER, String> parsedUserInput) {
+	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap)
+			throws ParseException {
+		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
-		HashMap<PARAMETER, String> errorHashMap = new HashMap<PARAMETER, String>();
-
-		if(parsedUserInput.size() == 0){
-			return parsedUserInput;
-		}
-		if (!isValidDesc(parsedUserInput.get(PARAMETER.DESC))) {
-			errorHashMap.put(PARAMETER.DESC, ERROR_INVALID_DESC);
+		if (isValidString(hashmap.get(PARAMETER.DESC))) {
+			objectHashMap.put(PARAMETER.DESC, hashmap.get(PARAMETER.DESC));
 		} else {
-			errorHashMap.put(PARAMETER.DESC, VALID_INPUT);
+			throw new IllegalStateException("PARAMETER.DESC");
 		}
 
-		try {
-			if (!isValidVenue(parsedUserInput.get(PARAMETER.VENUE))) {
-				errorHashMap.put(PARAMETER.VENUE, ERROR_INVALID_VENUE);
+		if (hashmap.get(PARAMETER.VENUE) != null) {
+			if (isValidString(hashmap.get(PARAMETER.VENUE))) {
+				objectHashMap.put(PARAMETER.VENUE, hashmap.get(PARAMETER.VENUE));
 			} else {
-				errorHashMap.put(PARAMETER.VENUE, VALID_INPUT);
+				throw new IllegalStateException("PARAMETER.VENUE");
 			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.VENUE, NO_INPUT);
 		}
+		// DO DATE
+		// START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE_DATE,
+		// DEADLINE_TIME, REMIND_TIMES
+		String startDate = hashmap.get(PARAMETER.START_DATE);
+		Date start_Date = null;
+		String endDate = hashmap.get(PARAMETER.END_DATE);
+		Date end_Date = null;
+		String startTime = hashmap.get(PARAMETER.START_TIME);
+		String endTime = hashmap.get(PARAMETER.END_TIME);
+		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
+		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
+		String remindTimes = hashmap.get(PARAMETER.REMIND_TIMES);
 
-		try {
-			if (!isValidStartDate(parsedUserInput.get(PARAMETER.START_DATE))) {
-				errorHashMap.put(PARAMETER.START_DATE, ERROR_INVALID_DATE_FORMAT);
+		// Validate START_DATE, if valid, convert to DateTime and store in
+		// hashMap
+		if (startDate != null) {
+			start_Date = validDateFormat(startDate);
+			if (start_Date != null) {
+				objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			} else {
-				errorHashMap.put(PARAMETER.START_DATE, VALID_INPUT);
+				throw new ParseException("PARAMETER.START_DATE", 0);// No such
+																	// format
 			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.START_DATE, NO_INPUT);
 		}
+		// end date
 
-		try {
-			if (!isValidEndDate(parsedUserInput.get(PARAMETER.END_DATE))) {
-				errorHashMap.put(PARAMETER.END_DATE, ERROR_INVALID_DATE_FORMAT);
-			} else {
-				errorHashMap.put(PARAMETER.END_DATE, VALID_INPUT);
-			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.END_DATE, NO_INPUT);
-		}
-
-		try {
-			if (isValidStartDate(parsedUserInput.get(PARAMETER.START_DATE))
-					&& isValidEndDate(parsedUserInput.get(PARAMETER.END_DATE))) {
-				if (!isValidDatePeriod(parsedUserInput.get(PARAMETER.START_DATE),
-						parsedUserInput.get(PARAMETER.END_DATE))) {
-					errorHashMap.put(PARAMETER.END_TIME, ERROR_START_AFTER_END);
-				} else if (!isValidTimePeriod(parsedUserInput.get(PARAMETER.START_TIME),
-						parsedUserInput.get(PARAMETER.END_TIME))) {
-					errorHashMap.put(PARAMETER.END_TIME, ERROR_START_AFTER_END);
+		if (endDate != null) {
+			end_Date = validDateFormat(endDate);
+			if (end_Date != null) {
+				if (end_Date.before(start_Date)) {
+					throw new IllegalArgumentException("END_DATE before START_DATE");
 				} else {
-					errorHashMap.put(PARAMETER.END_TIME, VALID_INPUT);
+					objectHashMap.put(PARAMETER.END_DATE, end_Date);
 				}
-			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.START_DATE, NO_INPUT);
-		}
-
-		try {
-			if (!isValidDeadline(parsedUserInput.get(PARAMETER.DEADLINE_DATE))) {
-				errorHashMap.put(PARAMETER.DEADLINE_DATE, ERROR_INVALID_DATE_FORMAT);
 			} else {
-				errorHashMap.put(PARAMETER.DEADLINE_DATE, VALID_INPUT);
+				throw new ParseException("PARAMETER.END_DATE", 0);// No such
+																	// format
 			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.DEADLINE_DATE, NO_INPUT);
 		}
+		// start TIME
+		// time handling either (24hr(1235) or 12hr (845pm) format.
+		if (startTime != null) {
+			Date time = validTimeFormat(startTime);
+			if (time != null) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(start_Date);
+				Calendar timePortion = Calendar.getInstance();
+				timePortion.setTime(time);
 
-		try {
-			if (!isValidStartTime(parsedUserInput.get(PARAMETER.START_TIME))) {
-				errorHashMap.put(PARAMETER.START_TIME, ERROR_INVALID_TIME_FORMAT);
+				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
+
+				start_Date = cal.getTime();
+				objectHashMap.put(PARAMETER.START_TIME, start_Date);
 			} else {
-				errorHashMap.put(PARAMETER.START_TIME, VALID_INPUT);
-			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.START_TIME, NO_INPUT);
-		}
-
-		try {
-			if (!isValidEndTime(parsedUserInput.get(PARAMETER.END_TIME))) {
-				errorHashMap.put(PARAMETER.END_TIME, ERROR_INVALID_TIME_FORMAT);
-			} else {
-				errorHashMap.put(PARAMETER.END_TIME, VALID_INPUT);
-			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.END_TIME, NO_INPUT);
-		}
-		/*
-		try {
-			if (!isValidRemindTime(parsedUserInput.get(PARAMETER.REMIND_TIME))) {
-				errorHashMap.put(PARAMETER.REMIND_TIME, ERROR_INVALID_TIME_FORMAT);
-			} else {
-				errorHashMap.put(PARAMETER.REMIND_TIME, VALID_INPUT);
-			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.REMIND_TIME, NO_INPUT);
-		}
-
-		try {
-			if (!isValidPriority(parsedUserInput.get(PARAMETER.PRIORITY))) {
-				errorHashMap.put(PARAMETER.PRIORITY, ERROR_INVALID_PRIORITY_FORMAT);
-			} else {
-				errorHashMap.put(PARAMETER.PRIORITY, VALID_INPUT);
-			}
-		} catch (NullPointerException e) {
-			errorHashMap.put(PARAMETER.PRIORITY, NO_INPUT);
-		} */
-
-		return errorHashMap;
-
-	}
-
-	// Takes command and hashmap of user input and runs through to see if all
-	// the required parameters are present
-	private boolean isValidMinimumArgumentForCommand(COMMAND_TYPE command, HashMap<PARAMETER, String> parsedUserInput) {
-		switch (command) {
-		case ADD_TASK: // Minimum input is description.
-			if (!isValidDesc(parsedUserInput.get(PARAMETER.DESC))) {
-				return false;
-			} else {
-				return true;
-			}
-		case GET_TASK:
-			break;
-		case DISPLAY:
-			break;
-		case EDIT_TASK:
-			break;
-		case INVALID_COMMAND:
-			break;
-		case EXIT:
-			break;
-		default:
-			break;
-		}
-
-		return true;
-	}
-
-	/*
-	 * Validate individual parameter values here
-	 *
-	 * TODO: when is a description invalid? Empty? Too many characters?
-	 */
-	private static boolean isValidDesc(String value) {
-
-		// just spaces? " "
-		if (isValidString(value)) {
-			return true;
-		}
-		return false;
-	}
-
-	/* TODO: When is venue invalid? */
-	private static boolean isValidVenue(String value) {
-
-		value = value.trim();
-		if (value.equals(null)) {
-			return false;
-		}
-		return true;
-	}
-
-	/*
-	 * Currently only: (21/05/2016 , 21/05, 21 May 2016, 21 May ) formats are
-	 * accepted. TODO: Invalid dates like 66/38/2894? DONE
-	 */
-	private static boolean isValidStartDate(String value) {
-		if (isValidDateFormat(value)) {
-			return true;
-		}
-		return false;
-	}
-
-	/*
-	 * Currently only validating formats. as above. TODO: EndDate < StartDate
-	 * DONE error, EndDate < today's date error. DONE
-	 */
-	private static boolean isValidEndDate(String value) {
-		if (isValidDateFormat(value)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/*
-	 * Similar to end date DONE
-	 */
-	private static boolean isValidDeadline(String value) {
-		if (isValidDateFormat(value)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/*
-	 * Invalid time like 25pm, 5050 dealt with yet. DONE
-	 */
-	private static boolean isValidStartTime(String value) {
-		if (isValidTimeFormat(value)) {
-			return true;
-		}
-		return false;
-	}
-
-	private static boolean isValidEndTime(String value) {
-		if (isValidTimeFormat(value)) {
-			return true;
-		}
-		return false;
-	}
-
-	private static boolean isValidRemindTime(String value) {
-		if (isValidTimeFormat(value)) {
-			return true;
-		}
-		return false;
-	}
-
-	private static boolean isValidPriority(String value) {
-		value = value.trim(); // in case of front and back white spaces
-		value = value.toLowerCase();
-		if (value.equals("low") || value.equals("medium") || value.equals("high")) {
-			return true;
-		}
-		return false;
-	}
-
-	/*
-	 * Lowest level functions here. Validate string, integer, Date fields here.
-	 * Do not feel constrained by the function definitions. You can change them
-	 * or add in more parameters, change types, or add new functions as you deem
-	 * fit.
-	 */
-
-	private static boolean isValidDatePeriod(String startDate, String endDate) {
-		int startYear = 0; // initialise year to this year
-		int startMonth = 0, startDay = 0; // in case no specification of year
-		int endYear = 0;
-		int endMonth = 0, endDay = 0;
-
-		if (isNumberDateFormat(startDate)) { // either 21/05 or 21/05/2015
-
-			String splitStrSlash[] = startDate.split("\\/");
-			try {
-				startDay = Integer.parseInt(splitStrSlash[0]);
-				startMonth = Integer.parseInt(splitStrSlash[1]);
-				startYear = Integer.parseInt(splitStrSlash[2]);
-				if (startYear < 100){
-					startYear = startYear + 2000;
-				}
-			} catch (IndexOutOfBoundsException e) {
-				startDay = Integer.parseInt(splitStrSlash[0]);
-				startMonth = Integer.parseInt(splitStrSlash[1]);
-				startYear = Calendar.getInstance().get(Calendar.YEAR);
+				throw new ParseException("PARAMETER.START_TIME", 0);
 			}
 		}
+		// End time
+		if (endTime != null) {
+			Date time = validTimeFormat(endTime);
+			if (time != null) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(end_Date);
+				Calendar timePortion = Calendar.getInstance();
+				timePortion.setTime(time);
 
-		// is always Day Month year or day Month
-		if (isWordMonthFormat(startDate)) {
-			String splitStrSpace[] = startDate.split("\\s");
-			startDay = Integer.parseInt(splitStrSpace[0]);
-			switch (splitStrSpace[1].toLowerCase()) {
+				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
 
-			case "jan":
-				startMonth = 1;
-				break;
-			case "feb":
-				startMonth = 2;
-				break;
-			case "march":
-				startMonth = 3;
-				break;
-			case "apr":
-				startMonth = 4;
-				break;
-			case "may":
-				startMonth = 5;
-				break;
-			case "jun":
-				startMonth = 6;
-				break;
-			case "jul":
-				startMonth = 7;
-				break;
-			case "aug":
-				startMonth = 8;
-				break;
-			case "sep":
-				startMonth = 9;
-				break;
-			case "oct":
-				startMonth = 10;
-				break;
-			case "nov":
-				startMonth = 11;
-				break;
-			case "dec":
-				startMonth = 12;
-				break;
-			default:
-				break;
-			}
-			if (splitStrSpace.length == 3) {
-				startYear = Integer.parseInt(splitStrSpace[2]);
-			} else {
-				startYear = Calendar.getInstance().get(Calendar.YEAR);
-			}
-		}
-
-		if (isNumberDateFormat(endDate)) {
-			String splitStrSlash[] = endDate.split("\\/");
-			try {
-				endDay = Integer.parseInt(splitStrSlash[0]);
-				endMonth = Integer.parseInt(splitStrSlash[1]);
-				endYear = Integer.parseInt(splitStrSlash[2]);
-				if (endYear < 100){
-					endYear = endYear + 2000;
-				}
-
-			} catch (IndexOutOfBoundsException e) {
-				endDay = Integer.parseInt(splitStrSlash[0]);
-				endMonth = Integer.parseInt(splitStrSlash[1]);
-				endYear = Calendar.getInstance().get(Calendar.YEAR);
-			}
-		}
-
-		if (isWordMonthFormat(endDate)) {
-			String splitStrSpace[] = endDate.split("\\s");
-			endDay = Integer.parseInt(splitStrSpace[0]);
-			switch (splitStrSpace[1].toLowerCase()) {
-
-			case "jan":
-				endMonth = 1;
-				break;
-			case "feb":
-				endMonth = 2;
-				break;
-			case "march":
-				endMonth = 3;
-				break;
-			case "apr":
-				endMonth = 4;
-				break;
-			case "may":
-				endMonth = 5;
-				break;
-			case "jun":
-				endMonth = 6;
-				break;
-			case "jul":
-				endMonth = 7;
-				break;
-			case "aug":
-				endMonth = 8;
-				break;
-			case "sep":
-				endMonth = 9;
-				break;
-			case "oct":
-				endMonth = 10;
-				break;
-			case "nov":
-				endMonth = 11;
-				break;
-			case "dec":
-				endMonth = 12;
-				break;
-			default:
-				break;
-			}
-			if (splitStrSpace.length == 3) {
-				endYear = Integer.parseInt(splitStrSpace[2]);
-			} else {
-				endYear = Calendar.getInstance().get(Calendar.YEAR);
-			}
-		}
-
-		if (endYear < startYear) {
-			return false;
-		} else if (startYear == endYear && startMonth < endMonth) {
-			return false;
-		} else if (startYear == endYear && startMonth == endMonth && startDay < endDay) {
-			return false;
-		}
-		return true;
-	}
-
-	// Should have a better way. This is purely String-parse-integer way. Maybe
-	// java time conversion way? ONLY DEALS WITH TIME.
-	private static boolean isValidTimePeriod(String startTime, String endTime) {
-		int startHrs = 0;
-		int startMins = 0;
-		int endHrs = 0;
-		int endMins = 0;
-
-		if (is12hrTimeFormat(startTime)) {
-			if (startTime.length() == 3) { // e.g. 5pm
-				startHrs = Character.getNumericValue(startTime.charAt(0));
-				startMins = 0;
-			}
-			if (startTime.length() == 5) { // e.g. 530pm
-				if (startTime.substring(startTime.length() - 2, startTime.length()).equals("pm")) {
-					startHrs = Character.getNumericValue(startTime.charAt(0)) + 12;
+				if (cal.getTime().before(start_Date)) {
+					throw new IllegalArgumentException("END_DATE before START_DATE");
 				} else {
-					startHrs = Character.getNumericValue(startTime.charAt(0));
+					end_Date = cal.getTime();
+					objectHashMap.put(PARAMETER.END_TIME, end_Date);
 				}
-				startMins = Integer.parseInt(startTime.substring(1, 3));
+			} else {
+				throw new ParseException("PARAMETER.END_TIME", 0);
 			}
 		}
-
-		if (is24hrTimeFormat(startTime)) { // e.g. 0024
-			startHrs = Integer.parseInt(startTime.substring(2));
-			startMins = Integer.parseInt(startTime.substring(2, startTime.length()));
-		}
-
-		if (is12hrTimeFormat(endTime)) {
-			if (endTime.length() == 3) {
-				endHrs = Character.getNumericValue(endTime.charAt(0));
-				endMins = 0;
-			}
-			if (endTime.length() == 5) { // e.g. 530pm
-				if (endTime.substring(endTime.length() - 2, endTime.length()).equals("pm")) {
-					endHrs = Character.getNumericValue(endTime.charAt(0)) + 12;
+		// DEADLINE DATE
+		Date dateOfDeadline = null;
+		if (deadlineDate != null) {
+			dateOfDeadline = validDateFormat(deadlineDate);
+			if (dateOfDeadline != null) {
+				Calendar cal = Calendar.getInstance();
+				if (dateOfDeadline.before(cal.getTime())) {
+					throw new IllegalArgumentException("DEADLINE_DATE before CURRENTDATE");
 				} else {
-					endHrs = Character.getNumericValue(endTime.charAt(0));
+					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 				}
-				endMins = Integer.parseInt(endTime.substring(1, 3));
+			} else {
+				throw new ParseException("PARAMETER.DEADLINE_DATE", 0);
 			}
 		}
 
-		if (is24hrTimeFormat(endTime)) {
-			endHrs = Integer.parseInt(endTime.substring(2));
-			endMins = Integer.parseInt(endTime.substring(2, endTime.length()));
-		}
+		// Deadline time
+		if (deadlineTime != null) {
+			Date timeOfDeadline = validTimeFormat(deadlineTime);
+			if (timeOfDeadline != null) {
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(dateOfDeadline);
 
-		// Converted all to 24HRS.
-		if (endHrs < startHrs) {
-			return false;
-		}
-		if (endHrs == startHrs) {
-			if (endMins < startMins) {
-				return false;
+				Calendar timePortion = Calendar.getInstance();
+				timePortion.setTime(timeOfDeadline);
+
+				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
+
+				Calendar current = Calendar.getInstance();
+				dateOfDeadline = cal.getTime();
+				if (cal.getTime().before(current.getTime())) {
+					throw new IllegalArgumentException("DEADLINE_TIME before CURRENT");
+				} else {
+					objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
+				}
+			} else {
+				throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
 		}
+		// REMIND TIMES????
 
-		return true;
+		return objectHashMap;
 	}
+
+	/*
+	 * private static boolean isValidPriority(String value) { value =
+	 * value.trim(); // in case of front and back white spaces value =
+	 * value.toLowerCase(); if (value.equals("low") || value.equals("medium") ||
+	 * value.equals("high")) { return true; } return false; }
+	 */
 
 	private static boolean isValidString(String string) {
-		if (string == null) {
+		string = string.trim();
+		if (string == null || string.equals("")) {
 			return false;
 		}
-		string = string.trim();
 		return true;
 	}
 
-	private static boolean isValidDateFormat(String string) {
-		string = string.trim();
-		if (isNumberDateFormat(string) || isWordMonthFormat(string)) {
-			return true;
+	private static Date validDateFormat(String string) {
+		if (numberDateFormat(string) != null) {
+			return numberDateFormat(string);
 		}
-		return false;
+		if (wordMonthFormat(string) != null) {
+			return wordMonthFormat(string);
+		}
+		return null;
 	}
 
-	private static boolean isValidTimeFormat(String string) {
-		string = string.trim();
-		if (is12hrTimeFormat(string) || is24hrTimeFormat(string)) {
-			return true;
+	private static Date validTimeFormat(String string) {
+		if (is12hrTimeFormat(string) != null) {
+			return is12hrTimeFormat(string);
 		}
-		return false;
+		if (is24hrTimeFormat(string) != null) {
+			return is24hrTimeFormat(string);
+		}
+		return null;
 	}
 
 	/*********************************************************************
 	 * DATE HANDLING * *
 	 *********************************************************************/
 
-	// Number date format for eg. 21/04 or 21/04/2015 ie DD/MM or DD/MM/YYYY
-	public static Boolean isNumberDateFormat(String string) {
+	public static Date numberDateFormat(String string) {
+		Date date;
+		SimpleDateFormat dateFormat = null;
+		string = string.trim();
+
+		// dd/MM and dd/MM/yyyy
+		if (!Character.isDigit(string.charAt(2))) {
+			if (string.contains("/")) {
+				dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+				dateFormat.setLenient(false);
+				if (string.length() <= 5) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "/" + year;
+				}
+			} else if (string.contains("-")) {
+				dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+				dateFormat.setLenient(false);
+				if (string.length() <= 5) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "-" + year;
+				}
+			} else if (string.contains(" ")) {
+				dateFormat = new SimpleDateFormat("dd MM yyyy");
+				dateFormat.setLenient(false);
+				if (string.length() <= 5) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + " " + year;
+				}
+			} else if (string.contains(",")) {
+				dateFormat = new SimpleDateFormat("dd,MM,yyyy");
+				dateFormat.setLenient(false);
+				if (string.length() <= 5) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "," + year;
+				}
+			}
+		}
+		// yyyy mm dd
+		else if (Character.isDigit(string.charAt(2))) {
+			if (string.contains("/")) {
+				dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+				dateFormat.setLenient(false);
+			} else if (string.contains("-")) {
+				dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				dateFormat.setLenient(false);
+			} else if (string.contains(" ")) {
+				dateFormat = new SimpleDateFormat("yyyy MM dd");
+				dateFormat.setLenient(false);
+			} else if (string.contains(",")) {
+				dateFormat = new SimpleDateFormat("yyyy,MM,dd");
+				dateFormat.setLenient(false);
+			}
+		}
+		try {
+			date = dateFormat.parse(string);
+			return date;
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+
+	// Word Month date format. e.g. 21/Apr or 21/Apr/2015
+	public static Date wordMonthFormat(String string) {
+		Date date;
+		string = string.trim();
+		SimpleDateFormat dateFormat = null;
+		// deals with single digit dates 9-august
+		if (!Character.isDigit(string.charAt(1)) && Character.isDigit(string.charAt(0))) {
+			string = "0" + string;
+		}
+		
+		// dd/MMM---------------------------------------------------------------
+		if (!Character.isLetter(string.charAt(2))){
 		if (string.contains("/")) {
-			String splitStrSlash[] = string.split("\\/");
-			try {
-				if (isOnlyNumbers(splitStrSlash[0]) && isOnlyNumbers(splitStrSlash[1])
-						&& isOnlyNumbers(splitStrSlash[2])) {
-
-					if (Integer.parseInt(splitStrSlash[0]) <= 31 && Integer.parseInt(splitStrSlash[1]) <= 12
-							&& Integer.parseInt(splitStrSlash[2]) <= 2030
-							&& Integer.parseInt(splitStrSlash[2]) >= 2000) {
-						return true;
-					}
-					
-					if (Integer.parseInt(splitStrSlash[0]) <= 31 && Integer.parseInt(splitStrSlash[1]) <= 12
-							&& Integer.parseInt(splitStrSlash[2]) <= 30
-							&& Integer.parseInt(splitStrSlash[2]) >= 0) {
-						return true;
-					}
-						
+			// Deals with Fully typed months
+			if (containMonthWord(string)) {
+				if (countOccurence(string, '/') == 1) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "/" + year;
 				}
-			} catch (IndexOutOfBoundsException e) {
-				if (isOnlyNumbers(splitStrSlash[0]) && isOnlyNumbers(splitStrSlash[1])) {
-					if (Integer.parseInt(splitStrSlash[0]) <= 31 && Integer.parseInt(splitStrSlash[1]) <= 12) {
-						return true;
-					}
+				dateFormat = new SimpleDateFormat("dd/MMMM/yyyy", Locale.ENGLISH);
+			}
+			// Deals with 3 letters word month
+			else {
+				if (string.length() == 9) {
+					dateFormat = new SimpleDateFormat("dd/MMM/yy");
+				} else {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "/" + year;
+					dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
+				}
+			}
+
+		} else if (string.contains("-")) {
+
+			// Deals with Fully typed months
+			if (containMonthWord(string)) {
+				if (countOccurence(string, '-') == 1) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "-" + year;
+				}
+				dateFormat = new SimpleDateFormat("dd-MMMM-yyyy", Locale.ENGLISH);
+			}
+			// Deals with 3 letters word month
+			else {
+				if (string.length() == 9) {
+					dateFormat = new SimpleDateFormat("dd-MMM-yy");
+				} else {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "-" + year;
+					dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+				}
+			}
+		} else if (string.contains(" ")) {
+
+			// Deals with Fully typed months
+			if (containMonthWord(string)) {
+				if (countOccurence(string, ' ') == 1) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + " " + year;
+				}
+				dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
+			}
+			// Deals with 3 letters word month
+			else {
+				if (string.length() == 9) {
+					dateFormat = new SimpleDateFormat("dd MMM yy");
+				} else {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + " " + year;
+					dateFormat = new SimpleDateFormat("dd MMM yyyy");
+				}
+			}
+		} else if (string.contains(",")) {
+
+			// Deals with Fully typed months
+			if (containMonthWord(string)) {
+				if (countOccurence(string, ',') == 1) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "," + year;
+				}
+				dateFormat = new SimpleDateFormat("dd,MMMM,yyyy", Locale.ENGLISH);
+			}
+			// Deals with 3 letters word month
+			else {
+				if (string.length() == 9) {
+					dateFormat = new SimpleDateFormat("dd,MMM,yy");
+				} else {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + " " + year;
+					dateFormat = new SimpleDateFormat("dd,MMM,yyyy");
 				}
 			}
 		}
-		return false;
-	}
-
-	// Word Month date format. e.g. 21 Apr or 21 Apr 2015
-	public static Boolean isWordMonthFormat(String string) {
-		if (string.contains(" ")) {
-			String splitStrSpace[] = string.split("\\s");
-			if (splitStrSpace.length == 2) {
-				if (isOnlyNumbers(splitStrSpace[0]) && isWordMonth(splitStrSpace[1])) {
-					if (Integer.parseInt(splitStrSpace[0]) <= 12) {
-						return true;
-					}
+		}
+		// MMM dd ------------------------------------------------------------------------------------
+		else if(Character.isLetter(string.charAt(2))){
+			if (string.contains("/")){
+			if (containMonthWord(string)) {
+				if (countOccurence(string, '/') == 1) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "/" + year;
 				}
-			} else if (splitStrSpace.length == 3) {
-				if (isOnlyNumbers(splitStrSpace[0]) && isWordMonth(splitStrSpace[1])
-						&& isOnlyNumbers(splitStrSpace[2])) {
-					if (Integer.parseInt(splitStrSpace[0]) <= 12 && Integer.parseInt(splitStrSpace[2]) <= 2030
-							&& Integer.parseInt(splitStrSpace[2]) >= 2010) {
-						return true;
-					}
+				dateFormat = new SimpleDateFormat("MMMM/dd/yyyy", Locale.ENGLISH);
+			}
+			// Deals with 3 letters word month
+			else {
+				if (string.length() == 9) {
+					dateFormat = new SimpleDateFormat("MMM/dd/yy");
+				} else {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "/" + year;
+					dateFormat = new SimpleDateFormat("MMM/dd/yyyy");
+				}
+			}
+			
+		} else if (string.contains("-")) {
+
+			// Deals with Fully typed months
+			if (containMonthWord(string)) {
+				if (countOccurence(string, '-') == 1) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "-" + year;
+				}
+				dateFormat = new SimpleDateFormat("MMMM-dd-yyyy", Locale.ENGLISH);
+			}
+			// Deals with 3 letters word month
+			else {
+				if (string.length() == 9) {
+					dateFormat = new SimpleDateFormat("MMM-dd-yy");
+				} else {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "-" + year;
+					dateFormat = new SimpleDateFormat("MMM-dd-yyyy");
+				}
+			}
+		} else if (string.contains(" ")) {
+			
+			// Deals with Fully typed months
+			if (containMonthWord(string)) {
+				if (countOccurence(string, ' ') == 1) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + " " + year;
+				}
+				System.out.println(string);
+				dateFormat = new SimpleDateFormat("MMMM dd yyyy", Locale.ENGLISH);
+			}
+			// Deals with 3 letters word month
+			else {
+				if (string.length() == 9) {
+					dateFormat = new SimpleDateFormat("MMM dd yy");
+				} else {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + " " + year;
+					dateFormat = new SimpleDateFormat("MMM dd yyyy");
+				}
+			}
+		} else if (string.contains(",")) {
+
+			// Deals with Fully typed months
+			if (containMonthWord(string)) {
+				if (countOccurence(string, ',') == 1) {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + "," + year;
+				}
+				dateFormat = new SimpleDateFormat("MMMM,dd,yyyy", Locale.ENGLISH);
+			}
+			// Deals with 3 letters word month
+			else {
+				if (string.length() == 9) {
+					dateFormat = new SimpleDateFormat("MMM,dd,yy");
+				} else {
+					int year = Calendar.getInstance().get(Calendar.YEAR);
+					string = string + " " + year;
+					dateFormat = new SimpleDateFormat("MMM,dd,yyyy");
 				}
 			}
 		}
-		return false;
+		}
+		try {
+			dateFormat.setLenient(false);
+			date = dateFormat.parse(string);
+			return date;
+		} catch (ParseException e) {
+			return null;
+		}
+		
+
 	}
 
-	// Checks if there is a month word in the string. Right now there is only
-	// short forms etc. jan, feb
-	// can add in more. e.g. january, febuary, etc.
-	public static Boolean isWordMonth(String string) {
-		if (string.equalsIgnoreCase("jan") || string.equalsIgnoreCase("feb") || string.equalsIgnoreCase("mar")
-				|| string.equalsIgnoreCase("apr") || string.equalsIgnoreCase("may") || string.equalsIgnoreCase("jun")
-				|| string.equalsIgnoreCase("jul") || string.equalsIgnoreCase("aug") || string.equalsIgnoreCase("sep")
-				|| string.equalsIgnoreCase("oct") || string.equalsIgnoreCase("nov") || string.equals("dec")) {
-			return true;
+	private static int countOccurence(String string, char character) {
+		int counter = 0;
+		for (int i = 0; i < string.length(); i++) {
+			if (string.charAt(i) == character) {
+				counter++;
+			}
 		}
+		return counter;
+	}
+
+	private static boolean containMonthWord(String string) {
+		// TODO Auto-generated method stub
+		String months[] = { "january", "february", "march", "april", "may", "june", "july", "august", "september",
+				"october", "november", "december" };
+		for (int i = 0; i < 12; i++) {
+			if (string.contains(months[i])) {
+				return true;
+			}
+		}
+
 		return false;
 	}
 
 	/*********************************************************************
-	 * TIME HANDLING * *
+	 * TIME HANDLING *
+	 * 
+	 * @throws ParseException
+	 *             *
 	 *********************************************************************/
 
-	// Deals with 12hr time formats. e.g 8pm, 5am.
-	public static Boolean is12hrTimeFormat(String string) {
-		string = string.trim();
-		int length = string.length();
-		String numString = string.substring(0, length - 2);
-		String ampmstring = string.substring(length - 2, length);
-		if (ampmstring.equals("am") || ampmstring.equals("pm")) {
-			if (numString.length() <= 1 && Integer.parseInt(numString) <= 12) { // DEALS
-																				// WITH
-																				// 8PM
-																				// 9PM
-				return true; //
+	// Deals with 12hr time formats. e.g 8pm, 5am, 1230am, 1230pm
+	public static Date is12hrTimeFormat(String string) {
+		SimpleDateFormat timeFormat;
+		Date time;
+		try {
+			if (string.length() == 3) {
+				timeFormat = new SimpleDateFormat("haa");
+				timeFormat.setLenient(false);
+				time = timeFormat.parse(string);
+				return time;
+			} else if (string.length() == 4) {
+				timeFormat = new SimpleDateFormat("hhaa");
+				timeFormat.setLenient(false);
+				time = timeFormat.parse(string);
+				return time;
+			} else if (string.length() == 5) {
+				timeFormat = new SimpleDateFormat("hmmaa");
+				timeFormat.setLenient(false);
+				time = timeFormat.parse(string);
+				return time;
+			} else {
+				timeFormat = new SimpleDateFormat("hhmmaa");
+				timeFormat.setLenient(false);
+				time = timeFormat.parse(string);
+				return time;
 			}
-			if (numString.length() == 3) { // e.g. 830pm
-				if (Integer.parseInt(numString) / 100 <= 12 && Integer.parseInt(numString) % 100 <= 59) {
-					return true;
-				}
-			}
+		} catch (ParseException e) {
+			return null;
 		}
-		return false;
+
 	}
 
 	// Deals with 24 hrs format.
 	// TODO: deal with inputs like 2500, 1270
-	public static Boolean is24hrTimeFormat(String string) {
+	public static Date is24hrTimeFormat(String string) {
 		string = string.trim();
-		if (string.length() == 4) {
-			try {
-				if (isOnlyNumbers(string)) {
-					String hrsString = string.substring(string.length() - 2);
-					String minsString = string.substring(string.length() - 2, string.length());
-					if (Integer.parseInt(hrsString) <= 23 && Integer.parseInt(minsString) <= 59) {
-						return true;
-					}
-				}
-			} catch (NumberFormatException e) {
-				return false;
-			}
-
-		}
-		return false;
-	}
-
-	/*********************************************************************
-	 * UTILITY * *
-	 *********************************************************************/
-	// check string only contains numbers
-	public static Boolean isOnlyNumbers(String string) {
+		SimpleDateFormat timeFormat;
+		Date time;
 		try {
-			Integer.parseInt(string);
-			return true;
-		} catch (NumberFormatException nfe) {
-			return false;
+			timeFormat = new SimpleDateFormat("HHmm");
+			timeFormat.setLenient(false);
+			time = timeFormat.parse(string);
+			return time;
+		} catch (ParseException e) {
+			return null;
 		}
+
 	}
 
 }
