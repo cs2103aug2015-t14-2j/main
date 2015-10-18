@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.swing.SwingUtilities;
+
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -58,7 +60,12 @@ public class Controller implements NativeKeyListener {
 		if(isShortCut() && !isShortCutPressed){
     		isShortCutPressed = true;
     		LOGGER.info("ShortCut triggered");
-    		//Do whatever
+    		try {
+				Gui.switchViewWindow(Gui.getCurrentInstance());
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
     	}
     	
         //TODO: shortcut for exit?
@@ -100,20 +107,27 @@ public class Controller implements NativeKeyListener {
 
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.SEVERE);
-		TaskHandler.startTasks(args);
 		
         try {
                 Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
                 logger.setLevel(Level.OFF);
                 GlobalScreen.registerNativeHook();
         }
+        
         catch (NativeHookException ex) {
-                System.err.println("There was a problem registering the native hook.");
-                System.err.println(ex.getMessage());
+                System.err.println("There was a problem enableing the shortcut functionality, ensure no instances are running");
+                LOGGER.severe(ex.getMessage());
                 System.exit(1);
         }
 
         //Construct the example object and initialze native hook.
         GlobalScreen.addNativeKeyListener(Controller.getInstance());
+        
+      //start the GUI
+        Gui.initGUI();
+        
+        //start the task handler
+	    TaskHandler.startTasks(args);
+        
     }
 }
