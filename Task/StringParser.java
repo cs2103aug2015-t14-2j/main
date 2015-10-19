@@ -1,8 +1,7 @@
 package Task;
 
-import java.util.ArrayList;
+import java.text.ParseException;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 /**
  *  Represents the parser for strings
@@ -29,11 +28,18 @@ public class StringParser {
 	 * @param command The type of command used to treat the userInput differently
 	 * @param userInput The string from the user
 	 * @return The hashmap with valid task inputs
+	 * @throws ParseException Used to detect user errors in input
 	 */
-	public static HashMap<PARAMETER, String> getValuesFromInput(COMMAND_TYPE command, String userInput) {
+	public static HashMap<PARAMETER, Object> getValuesFromInput(COMMAND_TYPE command, String userInput) throws ParseException {
 		
 		HashMap<PARAMETER, String> keywordHash = new HashMap<PARAMETER, String>(0);
 		
+		obtainStringHashMap(command, userInput, keywordHash);
+		
+		return Validator.getObjectHashMap(keywordHash);
+	}
+
+	public static void obtainStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
 		switch (command) {
 		case ADD_TASK:
 			//Take the "" keyword out first
@@ -104,9 +110,6 @@ public class StringParser {
 		default:
 			
 		}
-		removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
-		
-		return keywordHash;
 	}
 
 	/**
@@ -137,28 +140,6 @@ public class StringParser {
 			else return "";
 		}
 		return userInput;
-	}
-
-	/**
-	 * removes invalid inputs as dictated by the validator
-	 * @param validKeywordHash Hashmap of the valid entries in the original Hashmap
-	 * @param keywordHash The original Hashmap to be cleaned for valid entries
-	 * @return The original Hashmap minus any invalid entries as dictated by the validKeywordHash
-	 */
-	private static HashMap<PARAMETER, String> removeInvalidInputs(HashMap<PARAMETER, String> validKeywordHash,
-			HashMap<PARAMETER, String> keywordHash) {
-		ArrayList<PARAMETER> toRemove = new ArrayList<PARAMETER>();
-		for(Entry<PARAMETER, String> entry : validKeywordHash.entrySet()) {
-			if(validKeywordHash.get(entry.getKey()) != "VALID"){
-				 toRemove.add(entry.getKey());
-			}
-		}
-		for(int i = 0; i < toRemove.size(); i++){
-			keywordHash.remove(toRemove.get(i));
-		}
-		
-		return keywordHash;
-		
 	}
 
 	/**
