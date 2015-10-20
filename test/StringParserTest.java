@@ -186,17 +186,6 @@ public class StringParserTest {
 		assertEquals("hong kong",
 						keywordHash.get(PARAMETER.VENUE));
 	}
-	
-	@Test
-	public void testContainsOnlyNumbers(){
-		
-		assertEquals(true,StringParser.containsOnlyNumbers("4"));
-		assertEquals(true,StringParser.containsOnlyNumbers(" 4"));
-		assertEquals(true,StringParser.containsOnlyNumbers("4 "));
-		assertEquals(true,StringParser.containsOnlyNumbers("4 9"));
-		assertEquals(false,StringParser.containsOnlyNumbers("4 j"));
-		assertEquals(false,StringParser.containsOnlyNumbers(""));
-	}
 
 	@Test
 	public void testFindKeywordIndexInput() {

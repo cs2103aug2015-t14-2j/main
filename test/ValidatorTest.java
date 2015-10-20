@@ -9,7 +9,6 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import Task.Validator;
 import Task.*;
 
 public class ValidatorTest {
@@ -90,6 +89,16 @@ public class ValidatorTest {
 		assertEquals(returnedDeadlineTime, "25-05-2016 1000");
 	}
 
+	@Test
+	public void testContainsOnlyNumbers(){
+		
+		assertEquals(true,Validator.containsOnlyNumbers("4"));
+		assertEquals(true,Validator.containsOnlyNumbers(" 4"));
+		assertEquals(true,Validator.containsOnlyNumbers("4 "));
+		assertEquals(true,Validator.containsOnlyNumbers("4 9"));
+		assertEquals(false,Validator.containsOnlyNumbers("4 j"));
+		assertEquals(false,Validator.containsOnlyNumbers(""));
+	}
 
 	@Test
 	// Test Correct dates in this format: DD/MMM(WORD)

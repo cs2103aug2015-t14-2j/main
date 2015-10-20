@@ -84,9 +84,14 @@ public class StringParser {
 			
 			userInput = getTaskID(userInput, keywordHash);
 			
-			//Take the "" keyword out first
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			
+			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
+					findKeywordIndexInput(userInput,"today",0) >= 0 ||
+					findKeywordIndexInput(userInput,"tomorrow",0) >= 0){
+				hasSamedate = true;
+			}
 			
 			//Take the repeating param keywords out
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
@@ -98,14 +103,14 @@ public class StringParser {
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
 												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}};
 			
-			if(findKeywordIndexInput(userInput,"on",0) >= 0){
+			if(hasSamedate){
 				paramInInputEd[1] = new PARAMETER[] {PARAMETER.START_TIME};
 				paramInInputEd[2] = new PARAMETER[] {PARAMETER.END_TIME};
 			}
 			
 			addAttributesToHashTable(keywordsInInputEd, paramInInputEd, userInput.split(SPACE_CHARACTER), keywordHash);
 			
-			if(findKeywordIndexInput(userInput,"on",0) >= 0){
+			if(hasSamedate){
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
 			break;
@@ -199,23 +204,11 @@ public class StringParser {
 			return "";
 		}
 		
-		if(containsOnlyNumbers(inputArray[0])){
-			keywordHash.put(PARAMETER.TASKID, inputArray[0]);
-			if(inputArray.length > 1){
-				return userInput.split(SPACE_CHARACTER,2)[1];
-			}
-			else return "";
+		keywordHash.put(PARAMETER.TASKID, inputArray[0]);
+		if(inputArray.length > 1){
+			return userInput.split(SPACE_CHARACTER,2)[1];
 		}
-		return userInput;
-	}
-
-	/**
-	 * Used to check if the contents of a string are numerical
-	 * @param numString The string to be checked for all numbers
-	 * @return A boolean representation of wheather the string provided is all numbers
-	 */
-	public static boolean containsOnlyNumbers(String numString) {
-		return numString.matches("^[0-9 ]+$");
+		else return "";
 	}
 
 	/**
