@@ -27,6 +27,8 @@ public class StringParserTest {
 		assertEquals(0,
 				keywordHash.size());
 		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
 		//Basic case
 		
 		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
@@ -41,6 +43,8 @@ public class StringParserTest {
 		assertEquals("1100",
 				keywordHash.get(PARAMETER.DEADLINE_TIME));
 		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
 		//Having same day scheduling
 		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
 				"at \"hong kong\" do \"to be or not\" on 15/11 from 1100 to 1500",keywordHash);
@@ -53,6 +57,8 @@ public class StringParserTest {
 				keywordHash.get(PARAMETER.START_TIME));
 		assertEquals("1500",
 				keywordHash.get(PARAMETER.END_TIME));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
 		
 		//Having same day scheduling
 		
@@ -67,6 +73,36 @@ public class StringParserTest {
 				keywordHash.get(PARAMETER.START_TIME));
 		assertEquals("1500",
 				keywordHash.get(PARAMETER.END_TIME));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		//Using today keyword
+		
+		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
+				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" today",keywordHash);
+		
+		assertEquals("today",
+				keywordHash.get(PARAMETER.START_DATE));
+		assertEquals("today",
+				keywordHash.get(PARAMETER.END_DATE));
+		assertEquals("1100",
+				keywordHash.get(PARAMETER.START_TIME));
+		assertEquals("1500",
+				keywordHash.get(PARAMETER.END_TIME));
+		
+		//Using tomrrow keyword
+		
+				StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
+						"from 1100 at \"hong kong\" to 1500 do \"to be or not\" tomorrow",keywordHash);
+				
+				assertEquals("tomorrow",
+						keywordHash.get(PARAMETER.START_DATE));
+				assertEquals("tomorrow",
+						keywordHash.get(PARAMETER.END_DATE));
+				assertEquals("1100",
+						keywordHash.get(PARAMETER.START_TIME));
+				assertEquals("1500",
+						keywordHash.get(PARAMETER.END_TIME));
 	}
 	
 	@Test
