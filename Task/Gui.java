@@ -131,8 +131,6 @@ public class Gui extends JFrame {
 			String userInput = "";
 		    try {
 		        Gui.class.wait();
-		        Gui.getCurrentInstance();
-
 		        userInput = Gui.tb.getText();
 		        Gui.tb.setText("");
 		    } catch (InterruptedException e) {

@@ -6,8 +6,6 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.SwingUtilities;
-
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
@@ -132,8 +130,8 @@ public class Controller implements NativeKeyListener {
 	    
 	    while(true) {
 	    	//listen for line
-	    	String userInput = scanner.nextLine();
-			showToUser(TaskHandler.inputFeedBack(userInput));
+	    	//showToUser(TaskHandler.inputFeedBack(scanner.nextLine()));
+	    	showToUser(TaskHandler.inputFeedBack(Gui.getCurrentInstance().getUserInput()));
 		}
     }
 	
@@ -142,7 +140,7 @@ public class Controller implements NativeKeyListener {
 	 * @param text Text to show the user
 	 */
 	private static void showToUser(String text) {
-		if(text.isEmpty()) {
+		if(text == null || text.isEmpty()) {
 			return;
 		}
 		

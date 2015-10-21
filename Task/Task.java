@@ -62,7 +62,7 @@ public class Task {
 	 * @param endTime
 	 * @param venue
 	 */
-	public Task (int taskId, String desc, Date startTime, Date endTime, String venue) {
+	public Task (int taskId, String desc, Date startTime, Date endTime, String venue) throws IllegalArgumentException{
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
@@ -71,7 +71,7 @@ public class Task {
 			this.period = new Period(startTime, endTime);
 		} catch (IllegalArgumentException e) {
 			this.period = null;
-			System.out.println("Invalid start and end time. Please specify a start time that is before end time.");
+			throw e;
 		}
 		this.deadline = null;
 		this.venue = venue;

@@ -22,7 +22,7 @@ public class StringParserTest {
 		
 		//Empty Case
 		
-		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
 				"",keywordHash);
 		assertEquals(0,
 				keywordHash.size());
@@ -31,7 +31,7 @@ public class StringParserTest {
 		
 		//Basic case
 		
-		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
 				"by 12/11 1100 at \"hong kong\" do \"to be or not\" ",keywordHash);
 		
 		assertEquals("to be or not",
@@ -46,7 +46,7 @@ public class StringParserTest {
 		keywordHash =  new HashMap<PARAMETER, String>(0);
 		
 		//Having same day scheduling
-		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
 				"at \"hong kong\" do \"to be or not\" on 15/11 from 1100 to 1500",keywordHash);
 		
 		assertEquals("15/11",
@@ -62,7 +62,7 @@ public class StringParserTest {
 		
 		//Having same day scheduling
 		
-		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
 				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 15/11",keywordHash);
 		
 		assertEquals("15/11",
@@ -78,7 +78,7 @@ public class StringParserTest {
 		
 		//Using today keyword
 		
-		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
 				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" today",keywordHash);
 		
 		assertEquals("today",
@@ -92,7 +92,7 @@ public class StringParserTest {
 		
 		//Using tomrrow keyword
 		
-				StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,
+				StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
 						"from 1100 at \"hong kong\" to 1500 do \"to be or not\" tomorrow",keywordHash);
 				
 				assertEquals("tomorrow",
@@ -109,7 +109,7 @@ public class StringParserTest {
 	public void testEditobtainStringHashMap() {
 		
 		//Basic case
-		StringParser.obtainStringHashMap(COMMAND_TYPE.EDIT_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"4 by 12/11 1100 at \"hong kong\" do \"to be or not\" ",keywordHash);
 		assertEquals("4",
 				keywordHash.get(PARAMETER.TASKID));
@@ -126,14 +126,14 @@ public class StringParserTest {
 	@Test
 	public void testDisplayobtainStringHashMap() {
 		//Empty Case
-		StringParser.obtainStringHashMap(COMMAND_TYPE.EDIT_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"",keywordHash);
 		assertEquals(0,
 				keywordHash.size());
 		
 		//Basic case
 		
-		StringParser.obtainStringHashMap(COMMAND_TYPE.DISPLAY,
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
 				" 4",keywordHash);
 		assertEquals("4",
 				keywordHash.get(PARAMETER.TASKID));
@@ -142,27 +142,27 @@ public class StringParserTest {
 	@Test
 	public void testDeleteobtainStringHashMap() {
 		//Empty Case
-		StringParser.obtainStringHashMap(COMMAND_TYPE.DELETE_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.DELETE_TASK,
 				"",keywordHash);
 		assertEquals(0,
 				keywordHash.size());
 		
 		//Basic case
-		StringParser.obtainStringHashMap(COMMAND_TYPE.EDIT_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"10",keywordHash);
 		assertEquals("10",
 				keywordHash.get(PARAMETER.TASKID));
 		
 		//Basic case space before
 		
-		StringParser.obtainStringHashMap(COMMAND_TYPE.EDIT_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				" 10",keywordHash);
 		assertEquals("10",
 				keywordHash.get(PARAMETER.TASKID));
 		
 		//Basic case space after
 		
-		StringParser.obtainStringHashMap(COMMAND_TYPE.EDIT_TASK,
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"10 ",keywordHash);
 		assertEquals("10",
 				keywordHash.get(PARAMETER.TASKID));
@@ -173,7 +173,7 @@ public class StringParserTest {
 	@Test
 	public void testTransferQuoteToHashMap() {
 		
-		StringParser.obtainStringHashMap(COMMAND_TYPE.ADD_TASK,"",keywordHash); //Initialize
+		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,"",keywordHash); //Initialize
 		
 		assertEquals("at \"hong kong\" by 12/11 1100",
 						StringParser.transferQuoteToHashMap(PARAMETER.DESC,"do",

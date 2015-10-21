@@ -483,13 +483,18 @@ public class TaskHandler {
 		
 		if(desc != null){
 			Task task = null;
-			if (startTime != null && endTime != null){
-				task = new Task(currentTaskId+1, desc, startDate, endDate, venue);// Event
-			} else if (deadlineDate != null){
-				task = new Task(currentTaskId+1, desc, deadlineDate, venue);		// Deadline task
-			} else {
-				task = new Task(currentTaskId+1, desc, venue);						// Floating task
+			try{
+				if (startTime != null && endTime != null){
+					task = new Task(currentTaskId+1, desc, startDate, endDate, venue);// Event
+				} else if (deadlineDate != null){
+					task = new Task(currentTaskId+1, desc, deadlineDate, venue);		// Deadline task
+				} else {
+					task = new Task(currentTaskId+1, desc, venue);						// Floating task
+				}
+			} catch (IllegalArgumentException e){
+				return e.getMessage();
 			}
+			
 			// Make sure that we are not adding a null Task
 			assert(task!=null);
 
