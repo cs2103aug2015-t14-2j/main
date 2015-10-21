@@ -43,7 +43,17 @@ public class Gui extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         tb = new JTextField("", TEXTBOX_SIZE);
-        
+        tb.addActionListener(new AbstractAction()
+							        {
+							            @Override
+							            public void actionPerformed(ActionEvent e)
+							            {
+							            	synchronized(Gui.class) {
+							            		Gui.class.notify();
+							            		//TODO: call main thread
+							            	}
+							            }
+							        });
         add(tb);
     }
     
@@ -109,5 +119,16 @@ public class Gui extends JFrame {
             }
         });
     }
+
+	public String getUserInput() {
+		synchronized(Gui.class) {
+		    try {
+		        Gui.class.wait();
+		        Gui.getCurrentInstance()
+		    } catch (InterruptedException e) {
+		        // Happens if someone interrupts your thread.
+		    }
+		}
+	}
     
 }

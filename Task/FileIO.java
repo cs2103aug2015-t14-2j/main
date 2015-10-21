@@ -247,8 +247,8 @@ public class FileIO {
 		jsonWriter.name("taskId").value(currentTask.getTaskId());
 		jsonWriter.name("createdTime").value(toNullOrDateString(currentTask.getCreatedTime()));
 		jsonWriter.name("lastModifiedTime").value(toNullOrDateString(currentTask.getModifiedTime()));
-		jsonWriter.name("startTime").value(toNullOrDateString(currentTask.getStartTime()));
-		jsonWriter.name("endTime").value(toNullOrDateString(currentTask.getEndTime()));
+		jsonWriter.name("startTime").value(toNullOrDateString(currentTask.getStartDateTime()));
+		jsonWriter.name("endTime").value(toNullOrDateString(currentTask.getEndDateTime()));
 		jsonWriter.name("deadline").value(toNullOrDateString(currentTask.getDeadline()));
 		jsonWriter.name("venue").value(currentTask.getVenue());
 		jsonWriter.name("description").value(currentTask.getDescription());

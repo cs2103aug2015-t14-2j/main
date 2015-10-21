@@ -152,8 +152,8 @@ public class Task {
 			startTime = null;
 			endTime   = null;
 		} else {
-			startTime = dateFormat.format(this.period.getStartTime());
-			endTime   = dateFormat.format(this.period.getEndTime());
+			startTime = dateFormat.format(this.period.getStartDateTime());
+			endTime   = dateFormat.format(this.period.getEndDateTime());
 		}
 			
 		if (this.deadline == null) {
@@ -242,39 +242,39 @@ public class Task {
 		this.taskId = taskId;
 	}
 
-	public Date getStartTime() {
+	public Date getStartDateTime() {
 		if (this.period == null) {
 			return null;
 		} else {
-			return this.period.getStartTime();			
+			return this.period.getStartDateTime();			
 		}
 	}
 
-	public void setStartTime(Date startTime) {
+	public void setStartDateTime(Date startTime) {
 		if (this.period == null) {
 			// Assume default endTime one hour from startTime
 			Date endTime = new Date(startTime.getTime() + (60L * 60L * 1000L));
 			this.period = new Period(startTime, endTime);
 		} else {			
-			this.period.setStartTime(startTime);
+			this.period.setStartDateTime(startTime);
 		}
 	}
 
-	public Date getEndTime() {
+	public Date getEndDateTime() {
 		if (this.period == null) {
 			return null;
 		} else {
-			return this.period.getEndTime();			
+			return this.period.getEndDateTime();			
 		}
 	}
 
-	public void setEndTime(Date endTime) {
+	public void setEndDateTime(Date endTime) {
 		if (this.period == null) {
 			// Assume default startTime one hour before startTime
 			Date startTime = new Date(endTime.getTime() - (60L * 60L * 1000L));
 			this.period = new Period(startTime, endTime);
 		} else {
-			this.period.setEndTime(endTime);			
+			this.period.setEndDateTime(endTime);			
 		}
 	}
 	

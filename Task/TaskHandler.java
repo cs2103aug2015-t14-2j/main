@@ -94,19 +94,19 @@ public class TaskHandler {
 	/**
 	 * Starts the program
 	 * @param args The file path to load the file in
+	 * @return 
 	 */
-	public static void startTasks(String[] args) {
+	public static String startTasks(String[] args) {
 		String localFilePath = determineFilePath(args);
 		init(localFilePath);
-		showToUser(MESSAGE_WELCOME);
-		while(true) {
-			showToUser("> Enter command:");
-			String command = scanner.nextLine();
-			if(isValidCommand(command)) {
-				String feedback = executeCommand(command);
-				showToUser(feedback);
-			}			
+		return MESSAGE_WELCOME;
+	}
+	
+	public static String inputFeedBack(String input){
+		if(isValidCommand(input)) {
+			return executeCommand(input);
 		}
+		return null;
 	}
 	
 	public static void setFilePath(String localFilePath) {
@@ -133,18 +133,6 @@ public class TaskHandler {
 		fileIO = new FileIO(localFilePath);
 		taskList = fileIO.readFromFile();
 		currentTaskId = fileIO.getCurrentTaskId();
-	}
-	
-	/**
-	 * Displays text to user, do not print if empty string
-	 * @param text Text to show the user
-	 */
-	private static void showToUser(String text) {
-		if(text.isEmpty()) {
-			return;
-		}
-		
-		Controller.getInstance().printToScreen(text);
 	}
 
 	/**
@@ -223,16 +211,17 @@ public class TaskHandler {
 					return message;
 				case UNDO:
 					message = undoSingleCommand();
+					fileIO.writeToFile(taskList);
 					return message;
 				case REDO:
 					message = redoSingleCommand();
+					fileIO.writeToFile(taskList);
 					return message;
 				case INVALID_COMMAND:
 					showHelpMenu();
 					return "";
 				case EXIT:
 					fileIO.writeToFile(taskList);
-					showToUser(MESSAGE_EXIT);
 					System.exit(0);
 				default:
 					return "There is an error in your code.";
@@ -249,8 +238,7 @@ public class TaskHandler {
 				UndoableEdit nextEdit = undoManager.editToBeUndone();
 				TaskEdit taskEdit = (TaskEdit) nextEdit;
 				undoManager.undo();
-				showToUser(taskEdit.getTask().toString());
-				return MESSAGE_UNDO_TASK;
+				return taskEdit.getTask().toString() + "\n" + MESSAGE_UNDO_TASK;
 			} else {
 				return ERROR_CANNOT_UNDO;
 			}
@@ -265,8 +253,7 @@ public class TaskHandler {
 				UndoableEdit nextEdit = undoManager.editToBeRedone();
 				TaskEdit taskEdit = (TaskEdit) nextEdit;
 				undoManager.redo();
-				showToUser(taskEdit.getTask().toString());
-				return MESSAGE_REDO_TASK;
+				return taskEdit.getTask().toString() + "\n" + MESSAGE_REDO_TASK;
 			} else {
 				return ERROR_CANNOT_REDO;
 			}
@@ -292,11 +279,11 @@ public class TaskHandler {
 		Date prevStartDate;
 		Date prevEndDate;
 		Date prevDeadlineDate;
-		Period oldPeriod;
+		Period oldPeriod = null;
 		Period newPeriod;
 		
-		String prevStartTime;
-		String prevEndTime;
+		String prevStartTime 	= "0000";
+		String prevEndTime 		= "2359";
 		String prevDeadlineTime;
 
 		boolean isUpdated = false;
@@ -335,14 +322,16 @@ public class TaskHandler {
 			// E.g. edit 2 on 12/10/15 from 1200 to 1400
 			if (startDate != null && startTime != null && endDate != null && endTime != null){
 				
-				prevStartDate = task.getStartTime();
-				prevEndDate   = task.getEndTime();
+				prevStartDate = task.getStartDateTime();
+				prevEndDate   = task.getEndDateTime();
 				
-				oldPeriod = new Period(prevStartDate, prevEndDate);
+				if(prevStartDate != null && prevEndDate != null){
+					oldPeriod = new Period(prevStartDate, prevEndDate);
+				}
 				newPeriod = new Period(startDate, endDate);
 				
-				task.setStartTime(startDate);
-				task.setEndTime(endDate);
+				task.setStartDateTime(startTime);
+				task.setEndDateTime(endTime);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				
 				compoundEdit.addEdit(edit);
@@ -352,18 +341,22 @@ public class TaskHandler {
 			// Set startDate and endDate, without changing startTime and endTime
 			// E.g. edit 2 on 12/10/15
 			if (startDate != null && startTime == null && endDate != null && endTime == null) {
-				prevStartDate = task.getStartTime();
-				prevEndDate   = task.getEndTime();
-				// Get the original time of the day for start and end of the event
-				prevStartTime = timeFormat.format(prevStartDate);
-				prevEndTime   = timeFormat.format(prevEndDate);
+				prevStartDate = task.getStartDateTime();
+				prevEndDate   = task.getEndDateTime();
+				if(prevStartDate != null && prevEndDate != null){
+					// Get the original time of the day for start and end of the event
+					prevStartTime = timeFormat.format(prevStartDate);
+					prevEndTime   = timeFormat.format(prevEndDate);
+					oldPeriod = new Period(prevStartDate, prevEndDate);
+				}
 				
-				
-				oldPeriod = new Period(prevStartDate, prevEndDate);
 				newPeriod = new Period(startDate, endDate);
 				
-				task.setStartTime(startDate);
-				task.setEndTime(endDate);
+				startDate	= changeDateTime(startDate, prevStartTime);
+				endDate		= changeDateTime(endDate, prevEndTime);
+				
+				task.setStartDateTime(startDate);
+				task.setEndDateTime(endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated     = true;
@@ -373,13 +366,15 @@ public class TaskHandler {
 			// E.g. edit 2 from 12/10/15 1200
 			if (startDate != null && startTime != null && endDate == null && endTime == null) {
 				
-				prevStartDate = task.getStartTime();
-				prevEndDate   = task.getEndTime();	
+				prevStartDate = task.getStartDateTime();
+				prevEndDate   = task.getEndDateTime();	
 
-				oldPeriod = new Period(prevStartDate, prevEndDate);
+				if(prevStartDate != null && prevEndDate != null){
+					oldPeriod = new Period(prevStartDate, prevEndDate);
+				}
 				newPeriod = new Period(startDate, prevEndDate);
 				
-				task.setStartTime(startDate);
+				task.setStartDateTime(endTime);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated  = true;
@@ -389,13 +384,15 @@ public class TaskHandler {
 			// E.g. edit 2 on 12/10/15 from 1400
 			if (startDate != null && startTime != null && endDate != null && endTime == null) {
 
-				prevStartDate = task.getStartTime();
-				prevEndDate   = task.getEndTime();	
+				prevStartDate = task.getStartDateTime();
+				prevEndDate   = task.getEndDateTime();	
 
-				oldPeriod = new Period(prevStartDate, prevEndDate);
+				if(prevStartDate != null && prevEndDate != null){
+					oldPeriod = new Period(prevStartDate, prevEndDate);
+				}
 				newPeriod = new Period(startDate, prevEndDate);
 
-				task.setStartTime(startDate);
+				task.setStartDateTime(startTime);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated  = true;
@@ -404,15 +401,17 @@ public class TaskHandler {
 			// Set startDate only
 			// E.g. edit 2 from 12/10/15
 			if (startDate != null && startTime == null && endDate == null && endTime == null) {
-				prevStartDate = task.getStartTime();
-				prevEndDate   = task.getEndTime();
+				prevStartDate = task.getStartDateTime();
+				prevEndDate   = task.getEndDateTime();
 				// Get the original time of the day for start of the event
 				prevStartTime = timeFormat.format(prevStartDate);
 								
-				oldPeriod = new Period(prevStartDate, prevEndDate);
+				if(prevStartDate != null && prevEndDate != null){
+					oldPeriod = new Period(prevStartDate, prevEndDate);
+				}
 				newPeriod = new Period(startDate, prevEndDate);
 
-				task.setStartTime(startDate);
+				task.setStartDateTime(startTime);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated     = true;
@@ -421,15 +420,15 @@ public class TaskHandler {
 			// Set endDate, endTime
 			// E.g. edit 2 to 12/10/15 1400
 			if (startDate == null && startTime == null && endDate != null && endTime != null) {
-				prevEndDate   = task.getEndTime();
-				prevStartDate = task.getStartTime();
-				
-				endDate  = dateFormat.parse(endDate + " " + endTime);
+				prevEndDate   = task.getEndDateTime();
+				prevStartDate = task.getStartDateTime();
 
-				oldPeriod = new Period(prevStartDate, prevEndDate);
+				if(prevStartDate != null && prevEndDate != null){
+					oldPeriod = new Period(prevStartDate, prevEndDate);
+				}
 				newPeriod = new Period(startDate, prevEndDate);
 
-				task.setEndTime(endDate);
+				task.setEndDateTime(endTime);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated = true;
@@ -439,13 +438,15 @@ public class TaskHandler {
 			// E.g. edit 2 on 12/10/15 to 1600
 			if (startDate != null && startTime == null && endDate != null && endTime != null) {
 
-				prevStartDate = task.getStartTime();
-				prevEndDate   = task.getEndTime();
+				prevStartDate = task.getStartDateTime();
+				prevEndDate   = task.getEndDateTime();
 
-				oldPeriod = new Period(prevStartDate, prevEndDate);
+				if(prevStartDate != null && prevEndDate != null){
+					oldPeriod = new Period(prevStartDate, prevEndDate);
+				}
 				newPeriod = new Period(prevStartDate, prevEndDate);
 
-				task.setEndTime(endDate);
+				task.setEndDateTime(endTime);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated = true;
@@ -454,18 +455,20 @@ public class TaskHandler {
 			// Set endDate only
 			// E.g. edit 2 to 12/10/15
 			if (startDate == null && startTime == null && endDate != null && endTime == null) {
-				prevStartDate = task.getStartTime();
-				prevEndDate = task.getEndTime();
+				prevStartDate = task.getStartDateTime();
+				prevEndDate = task.getEndDateTime();
 
 				// Get the original time of the day for end of the event
 				prevEndTime = timeFormat.format(prevEndDate);
 				
 				endDate    = dateFormat.parse(endDate + " " + prevEndTime);
 				
-				oldPeriod = new Period(prevStartDate, prevEndDate);
+				if(prevStartDate != null && prevEndDate != null){
+					oldPeriod = new Period(prevStartDate, prevEndDate);
+				}
 				newPeriod = new Period(prevStartDate, endDate);
 				
-				task.setEndTime(endDate);	
+				task.setEndDateTime(endTime);	
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated   = true;			
@@ -474,9 +477,8 @@ public class TaskHandler {
 			// Set deadlineDate and deadlineTime
 			if (deadlineDate != null && deadlineTime != null){
 				prevDeadlineDate = task.getDeadline();
-
-				_deadlineDate = dateFormat.parse(deadlineDate + " " + deadlineTime);
-				task.setDeadline(_deadlineDate);
+				
+				task.setDeadline(deadlineTime);
 				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
 				compoundEdit.addEdit(edit);
 				isUpdated     = true;
@@ -487,8 +489,7 @@ public class TaskHandler {
 				prevDeadlineDate = task.getDeadline();
 				prevDeadlineTime = timeFormat.format(prevDeadlineDate);
 				
-				_deadlineDate    = dateFormat.parse(deadlineDate + " " + prevDeadlineTime);
-				task.setDeadline(_deadlineDate);
+				task.setDeadline(deadlineTime);
 				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
 				compoundEdit.addEdit(edit);
 				isUpdated        = true;
@@ -510,9 +511,18 @@ public class TaskHandler {
 			e.printStackTrace();
 			return ERROR_DATEFORMAT;
 			
+		} catch (IllegalArgumentException a){
+			a.printStackTrace();
+			//TODO:change message
+			return ERROR_DATEFORMAT;
 		}
 	}
 	
+	private static Date changeDateTime(Date date, String prevTimeString) throws ParseException {
+		String test1 = dateFormat.format(date);
+		return new SimpleDateFormat("dd/M/yyyy HHmm").parse(test1.split(" ")[0] + " " + prevTimeString);
+	}
+
 	/**
 	 * Adds a task to the task list
 	 * @param task The task to be added to the taskList
@@ -558,17 +568,21 @@ public class TaskHandler {
 	/**
 	 * Shows the Help menu to the user
 	 */
-	private static void showHelpMenu() {
-		showToUser(ERROR_INVALID_COMMAND);
-		showToUser("");
-		showToUser(HELP_TITLE);
-		showToUser(HELP_SUBTITLE);
-		showToUser(HELP_ADD_TASK);
-		showToUser(HELP_DELETE_TASK);
-		showToUser(HELP_DISPLAY);
-		// showToUser(HELP_SEARCH_TASK);
-		showToUser(HELP_EDIT_TASK);
-		showToUser(HELP_EXIT);
+	private static String showHelpMenu() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append(ERROR_INVALID_COMMAND);
+		sb.append("");
+		sb.append(HELP_TITLE);
+		sb.append(HELP_SUBTITLE);
+		sb.append(HELP_ADD_TASK);
+		sb.append(HELP_DELETE_TASK);
+		sb.append(HELP_DISPLAY);
+		// sb.append(HELP_SEARCH_TASK);
+		sb.append(HELP_EDIT_TASK);
+		sb.append(HELP_EXIT);
+		
+		return sb.toString();
 	}
 	
 	/**

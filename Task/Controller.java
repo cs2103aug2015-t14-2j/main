@@ -127,7 +127,23 @@ public class Controller implements NativeKeyListener {
         Gui.initGUI();
         
         //start the task handler
-	    TaskHandler.startTasks(args);
-        
+        showToUser(TaskHandler.startTasks(args));
+	    
+	    while(true) {
+	    	//listen for line
+			showToUser(TaskHandler.inputFeedBack(Gui.getCurrentInstance().getUserInput()));
+		}
     }
+	
+	/**
+	 * Displays text to user, do not print if empty string
+	 * @param text Text to show the user
+	 */
+	private static void showToUser(String text) {
+		if(text.isEmpty()) {
+			return;
+		}
+		
+		Controller.getInstance().printToScreen(text);
+	}
 }
