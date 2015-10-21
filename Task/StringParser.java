@@ -40,7 +40,7 @@ public class StringParser {
 		return Validator.getObjectHashMap(keywordHash);
 	}
 
-	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
+	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) throws ParseException {
 		
 		boolean hasSamedate = false;
 		
@@ -231,8 +231,9 @@ public class StringParser {
 	 * @param userInput The user input
 	 * @param keywordHash 
 	 * @return The string after the ID has been taken out
+	 * @throws ParseException 
 	 */
-	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) {
+	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) throws ParseException {
 		String[] inputArray = userInput.split(SPACE_CHARACTER,2);
 		if(inputArray[0].equals("") && inputArray.length > 1){			//Check for variations in the number
 			inputArray[0] = userInput.split(SPACE_CHARACTER,3)[1];
@@ -244,7 +245,9 @@ public class StringParser {
 		} else if(inputArray[0].equals("") && inputArray.length == 1){
 			return "";
 		}
-		
+		if(inputArray[0] == null){
+			throw new ParseException("PARAMETER.TASKID", 0);
+		}
 		keywordHash.put(PARAMETER.TASKID, inputArray[0]);
 		if(inputArray.length > 1){
 			return userInput.split(SPACE_CHARACTER,2)[1];

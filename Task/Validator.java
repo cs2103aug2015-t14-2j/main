@@ -201,6 +201,8 @@ public class Validator {
 			if(taskID != null){
 				if(containsOnlyNumbers(taskID)){
 					objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
+				} else {
+					throw new ParseException("PARAMETER.TASKID", 0);
 				}
 			}
 		
