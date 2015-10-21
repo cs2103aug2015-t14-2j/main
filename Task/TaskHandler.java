@@ -45,6 +45,8 @@ public class TaskHandler {
 	private static final String MESSAGE_EDIT_TASK      = "Task has been updated!";
 	private static final String MESSAGE_UNDO_TASK      = "Successfully rolled back 1 change.";
 	private static final String MESSAGE_REDO_TASK      = "Successfully redoed 1 change.";
+	private static final String MESSAGE_DONE_TASK      = "Successfully updated to done.";
+	private static final String MESSAGE_UNDONE_TASK    = "Successfully updated to undone.";
 	private static final String MESSAGE_EXIT           = "Thanks for using TaskBuddy! Changes saved to disk.";
 	
 	// Define error messages here
@@ -78,6 +80,9 @@ public class TaskHandler {
 	private static final int NUM_ARGS_DISPLAY_TASK = 0;
 	private static final int NUM_ARGS_SEARCH_TASK  = 1;
 	private static final int NUM_ARGS_EDIT_TASK    = 1;
+	
+	private static final boolean TASK_DONE    	= true;
+	private static final boolean TASK_NOT_DONE	= false;
 	
 	private static Scanner         scanner           = new Scanner(System.in);
 	private static Calendar        calendar          = Calendar.getInstance();
@@ -217,6 +222,16 @@ public class TaskHandler {
 					message = redoSingleCommand();
 					fileIO.writeToFile(taskList);
 					return message;
+				case DONE:
+					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
+					message = markTask((int)parsedParamTable.get(PARAMETER.TASKID),TASK_DONE);
+					fileIO.writeToFile(taskList);
+					return "";
+				case UNDONE:
+					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
+					message = markTask((int)parsedParamTable.get(PARAMETER.TASKID), TASK_NOT_DONE);
+					fileIO.writeToFile(taskList);
+					return "";
 				case INVALID_COMMAND:
 					showHelpMenu();
 					return "";
@@ -232,6 +247,28 @@ public class TaskHandler {
 		} catch (IllegalArgumentException a) {
 			return "There is an error in your command: " + a.getMessage();
 		}
+	}
+
+	/**
+	 * TODO:
+	 * @param i
+	 * @param taskDone
+	 * @return
+	 */
+	private static String markTask(int taskID, boolean taskDone) {
+		for(Task t:taskList){
+			if(t.getTaskId() == taskID){
+				String isDoneTask = Integer.toString(t.getTaskId());
+				if(taskDone){
+					return isDoneTask + MESSAGE_DONE_TASK;
+					taskList.markDone(t,taskDone);
+				} else {
+					return isDoneTask + MESSAGE_UNDONE_TASK;
+					taskList.markDone(t,taskDone);
+				}
+			}
+		}
+		return ERROR_NOT_FOUND_TASK;
 	}
 
 	private static String undoSingleCommand() {
@@ -510,9 +547,9 @@ public class TaskHandler {
 	 * Remove a specific task from the file
 	 * @param task The task to be deleted from the taskList
 	 */
-	private static String removeTask(int stringID) {
+	private static String removeTask(int taskID) {
 		for(Task t:taskList){
-			if(t.getTaskId() == stringID){
+			if(t.getTaskId() == taskID){
 				String removedTask = Integer.toString(t.getTaskId());
 				taskList.remove(t);
 				return removedTask + MESSAGE_DELETE_TASK;
