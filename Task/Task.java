@@ -23,13 +23,13 @@ public class Task {
 	private int  taskId;
 	
 	// A task has these properties
-	private Period period = null;
-	private Date deadline = null;
-	private String venue = null;
-	private String description = null;
-	private boolean isDone = false;
+	private Period period          = null;
+	private Date deadline          = null;
+	private String venue           = null;
+	private String description     = null;
+	private boolean isDone         = false;
 	private boolean isPastDeadline = false;
-	private boolean hasEnded = false;
+	private boolean hasEnded       = false;
 	
 	/**
 	 * Constructor for tasks without startTime, endTime and deadline. 
@@ -38,14 +38,14 @@ public class Task {
 	 * @param taskId
 	 * @param desc
 	 */
-	public Task (int taskId, String desc) {
+	public Task (int taskId, String desc, String venue) {
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
 		
 		this.period = null;
 		this.deadline = null;
-		this.venue = null;
+		this.venue = venue;
 		this.description = desc;
 		this.isDone = false;
 		this.isPastDeadline = false;
@@ -62,12 +62,17 @@ public class Task {
 	 * @param endTime
 	 * @param venue
 	 */
-	public Task (int taskId, String desc, Date startTime, Date endTime, String venue) {
+	public Task (int taskId, String desc, Date startTime, Date endTime, String venue) throws IllegalArgumentException{
 		this.createdTime = new Date();
 		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
 		
-		this.period = new Period(startTime, endTime);
+		try {
+			this.period = new Period(startTime, endTime);
+		} catch (IllegalArgumentException e) {
+			this.period = null;
+			throw e;
+		}
 		this.deadline = null;
 		this.venue = venue;
 		this.description = desc;
@@ -75,31 +80,9 @@ public class Task {
 		this.isPastDeadline = false;
 		this.hasEnded = hasEnded(this.createdTime , endTime);
 	}
-	
-	/**
-	 * Constructor for tasks with only venue.
-	 * Used when user adds a new task
-	 * 
-	 * @param taskId
-	 * @param desc
-	 * @param venue
-	 */
-	public Task (int taskId, String desc, String venue) {
-		this.createdTime = new Date();
-		this.lastModifiedTime = this.createdTime;
-		this.taskId = taskId;
 		
-		this.period = null;
-		this.deadline = null;
-		this.venue = venue;
-		this.description = desc;
-		this.isDone = false;
-		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
-		this.hasEnded = false;
-	}
-	
 	/**
-	 * Constructor for tasks with only deadline and venue.
+	 * Constructor for tasks with only deadline and desc.
 	 * Used when user adds a new task
 	 * 
 	 * @param taskId
@@ -145,7 +128,12 @@ public class Task {
 		if (startTime == null && endTime == null) {
 			this.period = null;
 		} else {
-			this.period = new Period(startTime, endTime);			
+			try {
+				this.period = new Period(startTime, endTime);			
+			} catch (IllegalArgumentException e) {
+				this.period = null;
+				System.out.println("Invalid start and end time. Please specify a start time that is before end time.");
+			}
 		}
 		this.deadline = deadline;
 		this.venue = venue;
@@ -164,8 +152,8 @@ public class Task {
 			startTime = null;
 			endTime   = null;
 		} else {
-			startTime = dateFormat.format(this.period.getStartTime());
-			endTime   = dateFormat.format(this.period.getEndTime());
+			startTime = dateFormat.format(this.period.getStartDateTime());
+			endTime   = dateFormat.format(this.period.getEndDateTime());
 		}
 			
 		if (this.deadline == null) {
@@ -176,15 +164,15 @@ public class Task {
 		
 		String result = "";
 		result += "Task :\n";
-		result += "   Task ID        : " + this.taskId + "\n";
-		result += "   Description    : " + this.description + "\n";
-		result += "   Start Time     : " + startTime + "\n";
-		result += "   End Time       : " + endTime + "\n";
-		result += "   Deadline       : " + deadline + "\n";
-		result += "   Venue          : " + this.venue + "\n";
-		result += "   isDone         : " + this.isDone + "\n";
-		result += "   isPastDeadline : " + this.isPastDeadline + "\n";
-		result += "   hasEnded       : " + this.isPastDeadline + "\n";
+		result += "   Task ID           : " + this.taskId + "\n";
+		result += "   Description       : " + this.description + "\n";
+		result += "   Start Time        : " + startTime + "\n";
+		result += "   End Time          : " + endTime + "\n";
+		result += "   Deadline          : " + deadline + "\n";
+		result += "   Venue             : " + this.venue + "\n";
+		result += "   Completed?        : " + this.isDone + "\n";
+		result += "   Is Past Deadline? : " + this.isPastDeadline + "\n";
+		result += "   Has Ended?        : " + this.isPastDeadline + "\n";
 		
 		return result;
 	}
@@ -254,40 +242,44 @@ public class Task {
 		this.taskId = taskId;
 	}
 
-	public Date getStartTime() {
+	public Date getStartDateTime() {
 		if (this.period == null) {
 			return null;
 		} else {
-			return this.period.getStartTime();			
+			return this.period.getStartDateTime();			
 		}
 	}
 
-	public void setStartTime(Date startTime) {
+	public void setStartDateTime(Date startTime) {
 		if (this.period == null) {
 			// Assume default endTime one hour from startTime
 			Date endTime = new Date(startTime.getTime() + (60L * 60L * 1000L));
 			this.period = new Period(startTime, endTime);
 		} else {			
-			this.period.setStartTime(startTime);
+			this.period.setStartDateTime(startTime);
 		}
 	}
 
-	public Date getEndTime() {
+	public Date getEndDateTime() {
 		if (this.period == null) {
 			return null;
 		} else {
-			return this.period.getEndTime();			
+			return this.period.getEndDateTime();			
 		}
 	}
 
-	public void setEndTime(Date endTime) {
+	public void setEndDateTime(Date endTime) {
 		if (this.period == null) {
 			// Assume default startTime one hour before startTime
 			Date startTime = new Date(endTime.getTime() - (60L * 60L * 1000L));
 			this.period = new Period(startTime, endTime);
 		} else {
-			this.period.setEndTime(endTime);			
+			this.period.setEndDateTime(endTime);			
 		}
+	}
+	
+	public void setPeriod(Period _period) {
+		this.period = _period;
 	}
 
 	public Date getDeadline() {
