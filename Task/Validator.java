@@ -17,7 +17,8 @@ import java.util.Locale;
  * 
  *         1) ParseException : Invalid formats. E.g. User types in a date or
  *         time format that is not supported. 2) IllegalArgumentException: Dates
- *         are invalid. E.g. End date is before start date
+ *         are invalid. E.g. End date is before start date 3)
+ *         IllegalStateException: String invalid. E.g. No input in venue or desc
  * 
  *         Date Formats currently recognised:
  * 
@@ -46,32 +47,34 @@ public class Validator {
 	}
 
 	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap)
-			throws ParseException, IllegalArgumentException {
+			throws ParseException {
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
 			objectHashMap.put(PARAMETER.DESC, hashmap.get(PARAMETER.DESC));
+		} else {
+			throw new IllegalStateException("PARAMETER.DESC");
 		}
 
 		if (hashmap.get(PARAMETER.VENUE) != null) {
 			if (isValidString(hashmap.get(PARAMETER.VENUE))) {
 				objectHashMap.put(PARAMETER.VENUE, hashmap.get(PARAMETER.VENUE));
+			} else {
+				throw new IllegalStateException("PARAMETER.VENUE");
 			}
 		}
 		// DO DATE
 		// START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE_DATE,
 		// DEADLINE_TIME, REMIND_TIMES
-		String startDate 		= hashmap.get(PARAMETER.START_DATE);
-		Date start_Date 		= null;
-		String endDate 			= hashmap.get(PARAMETER.END_DATE);
-		Date end_Date 			= null;
-		String startTime 		= hashmap.get(PARAMETER.START_TIME);
-		String endTime 			= hashmap.get(PARAMETER.END_TIME);
-		String deadlineDate 	= hashmap.get(PARAMETER.DEADLINE_DATE);
-		String deadlineTime 	= hashmap.get(PARAMETER.DEADLINE_TIME);
-		String remindTimes 		= hashmap.get(PARAMETER.REMIND_TIMES);
-		String taskID 			= hashmap.get(PARAMETER.TASKID);
-
+		String startDate = hashmap.get(PARAMETER.START_DATE);
+		Date start_Date = null;
+		String endDate = hashmap.get(PARAMETER.END_DATE);
+		Date end_Date = null;
+		String startTime = hashmap.get(PARAMETER.START_TIME);
+		String endTime = hashmap.get(PARAMETER.END_TIME);
+		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
+		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
+		String remindTimes = hashmap.get(PARAMETER.REMIND_TIMES);
 
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
@@ -89,7 +92,11 @@ public class Validator {
 		if (endDate != null) {
 			end_Date = validDateFormat(endDate);
 			if (end_Date != null) {
-				objectHashMap.put(PARAMETER.END_DATE, end_Date);
+				if (end_Date.before(start_Date)) {
+					throw new IllegalArgumentException("END_DATE before START_DATE");
+				} else {
+					objectHashMap.put(PARAMETER.END_DATE, end_Date);
+				}
 			} else {
 				throw new ParseException("PARAMETER.END_DATE", 0);// No such
 																	// format
@@ -126,8 +133,12 @@ public class Validator {
 				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
 
-				end_Date = cal.getTime();
-				objectHashMap.put(PARAMETER.END_TIME, end_Date);
+				if (cal.getTime().before(start_Date)) {
+					throw new IllegalArgumentException("END_DATE before START_DATE");
+				} else {
+					end_Date = cal.getTime();
+					objectHashMap.put(PARAMETER.END_TIME, end_Date);
+				}
 			} else {
 				throw new ParseException("PARAMETER.END_TIME", 0);
 			}
@@ -172,52 +183,9 @@ public class Validator {
 				throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
 		}
-		
-		// Deadline time
-			if (deadlineTime != null) {
-				Date timeOfDeadline = validTimeFormat(deadlineTime);
-				if (timeOfDeadline != null) {
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(dateOfDeadline);
-
-					Calendar timePortion = Calendar.getInstance();
-					timePortion.setTime(timeOfDeadline);
-
-					cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
-					cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-
-					Calendar current = Calendar.getInstance();
-					dateOfDeadline = cal.getTime();
-					if (cal.getTime().before(current.getTime())) {
-						throw new IllegalArgumentException("DEADLINE_TIME before CURRENT");
-					} else {
-						objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
-					}
-				} else {
-					throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
-				}
-			}
-			
-			if(taskID != null){
-				if(containsOnlyNumbers(taskID)){
-					objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
-				} else {
-					throw new ParseException("PARAMETER.TASKID", 0);
-				}
-			}
-		
-		// TODO:REMIND TIMES????
+		// REMIND TIMES????
 
 		return objectHashMap;
-	}
-	
-	/**
-	 * Used to check if the contents of a string are numerical
-	 * @param numString The string to be checked for all numbers
-	 * @return A boolean representation of wheather the string provided is all numbers
-	 */
-	public static boolean containsOnlyNumbers(String numString) {
-		return numString.matches("^[0-9 ]+$");
 	}
 
 	/*
@@ -228,7 +196,8 @@ public class Validator {
 	 */
 
 	private static boolean isValidString(String string) {
-		if (string == null || string.trim().equals("")) {
+		string = string.trim();
+		if (string == null || string.equals("")) {
 			return false;
 		}
 		return true;
@@ -260,38 +229,58 @@ public class Validator {
 
 	public static Date numberDateFormat(String string) {
 		Date date;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yy");
+		SimpleDateFormat dateFormat = null;
 		string = string.trim();
 
 		// dd/MM and dd/MM/yyyy
 		if (!Character.isDigit(string.charAt(2))) {
 			if (string.contains("/")) {
-				dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-				dateFormat.setLenient(false);
-				if (string.length() <= 5) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "/" + year;
+				if (string.length() == 8) {
+					dateFormat = new SimpleDateFormat("dd/MM/yy");
+					dateFormat.setLenient(false);
+				} else {
+					dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+					dateFormat.setLenient(false);
+					if (string.length() <= 5) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "/" + year;
+					}
 				}
 			} else if (string.contains("-")) {
-				dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-				dateFormat.setLenient(false);
-				if (string.length() <= 5) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "-" + year;
+				if (string.length() == 8) {
+					dateFormat = new SimpleDateFormat("dd/MM/yy");
+					dateFormat.setLenient(false);
+				} else {
+					dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+					dateFormat.setLenient(false);
+					if (string.length() <= 5) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "-" + year;
+					}
 				}
 			} else if (string.contains(" ")) {
-				dateFormat = new SimpleDateFormat("dd MM yyyy");
-				dateFormat.setLenient(false);
-				if (string.length() <= 5) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + " " + year;
+				if (string.length() == 8) {
+					dateFormat = new SimpleDateFormat("dd/MM/yy");
+					dateFormat.setLenient(false);
+				} else {
+					dateFormat = new SimpleDateFormat("dd MM yyyy");
+					dateFormat.setLenient(false);
+					if (string.length() <= 5) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + " " + year;
+					}
 				}
 			} else if (string.contains(",")) {
-				dateFormat = new SimpleDateFormat("dd,MM,yyyy");
-				dateFormat.setLenient(false);
-				if (string.length() <= 5) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "," + year;
+				if (string.length() == 8) {
+					dateFormat = new SimpleDateFormat("dd/MM/yy");
+					dateFormat.setLenient(false);
+				} else {
+					dateFormat = new SimpleDateFormat("dd,MM,yyyy");
+					dateFormat.setLenient(false);
+					if (string.length() <= 5) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "," + year;
+					}
 				}
 			}
 		}
@@ -312,9 +301,7 @@ public class Validator {
 			}
 		}
 		try {
-		
 			date = dateFormat.parse(string);
-				
 			return date;
 		} catch (ParseException e) {
 			return null;
@@ -325,179 +312,200 @@ public class Validator {
 	public static Date wordMonthFormat(String string) {
 		Date date;
 		string = string.trim();
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yy");
+		SimpleDateFormat dateFormat = null;
 		// deals with single digit dates 9-august
 		if (!Character.isDigit(string.charAt(1)) && Character.isDigit(string.charAt(0))) {
 			string = "0" + string;
 		}
-		
+
 		// dd/MMM---------------------------------------------------------------
-		if (!Character.isLetter(string.charAt(2))){
-		if (string.contains("/")) {
-			// Deals with Fully typed months
-			if (containMonthWord(string)) {
-				if (countOccurence(string, '/') == 1) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "/" + year;
+		if (!Character.isLetter(string.charAt(2))) {
+			if (string.contains("/")) {
+				// Deals with Fully typed month
+				if (containMonthWord(string.toLowerCase())) {
+					if (countOccurence(string, '/') == 1) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "/" + year;
+						dateFormat = new SimpleDateFormat("dd/MMMM/yyyy", Locale.ENGLISH);
+					} else if (!Character.isDigit(string.charAt(string.length() - 3))
+							&& countOccurence(string, '/') == 2) {
+						dateFormat = new SimpleDateFormat("dd/MMMM/yy", Locale.ENGLISH);
+					} else {
+						dateFormat = new SimpleDateFormat("dd/MMMM/yyyy", Locale.ENGLISH);
+					}
 				}
-				dateFormat = new SimpleDateFormat("dd/MMMM/yyyy", Locale.ENGLISH);
-			}
-			// Deals with 3 letters word month
-			else {
-				if (string.length() == 9) {
-					dateFormat = new SimpleDateFormat("dd/MMM/yy");
-				} else {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "/" + year;
-					dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
+				// Deals with 3 letters word month
+				else {
+					if (string.length() == 9) {
+						dateFormat = new SimpleDateFormat("dd/MMM/yy");
+					} else {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "/" + year;
+						dateFormat = new SimpleDateFormat("dd/MMM/yyyy");
+					}
 				}
-			}
 
-		} else if (string.contains("-")) {
+			} else if (string.contains("-")) {
 
-			// Deals with Fully typed months
-			if (containMonthWord(string)) {
-				if (countOccurence(string, '-') == 1) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "-" + year;
+				// Deals with Fully typed months
+				if (containMonthWord(string.toLowerCase())) {
+					if (countOccurence(string, '-') == 1) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "-" + year;
+						dateFormat = new SimpleDateFormat("dd-MMMM-yyyy", Locale.ENGLISH);
+					} else if (!Character.isDigit(string.charAt(string.length() - 3))
+							&& countOccurence(string, '-') == 2) {
+						dateFormat = new SimpleDateFormat("dd-MMMM-yy", Locale.ENGLISH);
+					} else {
+						dateFormat = new SimpleDateFormat("dd-MMMM-yyyy", Locale.ENGLISH);
+					}
 				}
-				dateFormat = new SimpleDateFormat("dd-MMMM-yyyy", Locale.ENGLISH);
-			}
-			// Deals with 3 letters word month
-			else {
-				if (string.length() == 9) {
-					dateFormat = new SimpleDateFormat("dd-MMM-yy");
-				} else {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "-" + year;
-					dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+				// Deals with 3 letters word month
+				else {
+					if (string.length() == 9) {
+						dateFormat = new SimpleDateFormat("dd-MMM-yy");
+					} else {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "-" + year;
+						dateFormat = new SimpleDateFormat("dd-MMM-yyyy");
+					}
 				}
-			}
-		} else if (string.contains(" ")) {
+			} else if (string.contains(" ")) {
 
-			// Deals with Fully typed months
-			if (containMonthWord(string)) {
-				if (countOccurence(string, ' ') == 1) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + " " + year;
+				// Deals with Fully typed months
+				if (containMonthWord(string.toLowerCase())) {
+					if (countOccurence(string, ' ') == 1) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + " " + year;
+						dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
+					} else if (!Character.isDigit(string.charAt(string.length() - 3))
+							&& countOccurence(string, ' ') == 2) {
+						dateFormat = new SimpleDateFormat("dd MMMM yy", Locale.ENGLISH);
+					} else {
+						dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
+					}
 				}
-				dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH);
-			}
-			// Deals with 3 letters word month
-			else {
-				if (string.length() == 9) {
-					dateFormat = new SimpleDateFormat("dd MMM yy");
-				} else {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + " " + year;
-					dateFormat = new SimpleDateFormat("dd MMM yyyy");
+				// Deals with 3 letters word month
+				else {
+					if (string.length() == 9) {
+						dateFormat = new SimpleDateFormat("dd MMM yy");
+					} else {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + " " + year;
+						dateFormat = new SimpleDateFormat("dd MMM yyyy");
+					}
 				}
-			}
-		} else if (string.contains(",")) {
+			} else if (string.contains(",")) {
 
-			// Deals with Fully typed months
-			if (containMonthWord(string)) {
-				if (countOccurence(string, ',') == 1) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "," + year;
+				// Deals with Fully typed months
+				if (containMonthWord(string.toLowerCase())) {
+					if (countOccurence(string, ',') == 1) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "," + year;
+						dateFormat = new SimpleDateFormat("dd,MMMM,yyyy", Locale.ENGLISH);
+					} else if (!Character.isDigit(string.charAt(string.length() - 3))
+							&& countOccurence(string, ',') == 2) {
+						dateFormat = new SimpleDateFormat("dd,MMMM,yy", Locale.ENGLISH);
+					} else {
+						dateFormat = new SimpleDateFormat("dd,MMMM,yyyy", Locale.ENGLISH);
+					}
 				}
-				dateFormat = new SimpleDateFormat("dd,MMMM,yyyy", Locale.ENGLISH);
-			}
-			// Deals with 3 letters word month
-			else {
-				if (string.length() == 9) {
-					dateFormat = new SimpleDateFormat("dd,MMM,yy");
-				} else {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + " " + year;
-					dateFormat = new SimpleDateFormat("dd,MMM,yyyy");
+				// Deals with 3 letters word month
+				else {
+					if (string.length() == 9) {
+						dateFormat = new SimpleDateFormat("dd,MMM,yy");
+					} else {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "," + year;
+						dateFormat = new SimpleDateFormat("dd,MMM,yyyy");
+					}
 				}
 			}
 		}
-		}
-		// MMM dd ------------------------------------------------------------------------------------
-		else if(Character.isLetter(string.charAt(2))){
-			if (string.contains("/")){
-			if (containMonthWord(string)) {
-				if (countOccurence(string, '/') == 1) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "/" + year;
+		// MMM dd
+		// ------------------------------------------------------------------------------------
+		else if (Character.isLetter(string.charAt(2))) {
+			if (string.contains("/")) {
+				if (containMonthWord(string)) {
+					if (countOccurence(string, '/') == 1) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "/" + year;
+					}
+					dateFormat = new SimpleDateFormat("MMMM/dd/yyyy", Locale.ENGLISH);
 				}
-				dateFormat = new SimpleDateFormat("MMMM/dd/yyyy", Locale.ENGLISH);
-			}
-			// Deals with 3 letters word month
-			else {
-				if (string.length() == 9) {
-					dateFormat = new SimpleDateFormat("MMM/dd/yy");
-				} else {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "/" + year;
-					dateFormat = new SimpleDateFormat("MMM/dd/yyyy");
+				// Deals with 3 letters word month
+				else {
+					if (string.length() == 9) {
+						dateFormat = new SimpleDateFormat("MMM/dd/yy");
+					} else {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "/" + year;
+						dateFormat = new SimpleDateFormat("MMM/dd/yyyy");
+					}
 				}
-			}
-			
-		} else if (string.contains("-")) {
 
-			// Deals with Fully typed months
-			if (containMonthWord(string)) {
-				if (countOccurence(string, '-') == 1) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "-" + year;
-				}
-				dateFormat = new SimpleDateFormat("MMMM-dd-yyyy", Locale.ENGLISH);
-			}
-			// Deals with 3 letters word month
-			else {
-				if (string.length() == 9) {
-					dateFormat = new SimpleDateFormat("MMM-dd-yy");
-				} else {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "-" + year;
-					dateFormat = new SimpleDateFormat("MMM-dd-yyyy");
-				}
-			}
-		} else if (string.contains(" ")) {
-			
-			// Deals with Fully typed months
-			if (containMonthWord(string)) {
-				if (countOccurence(string, ' ') == 1) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + " " + year;
-				}
-				System.out.println(string);
-				dateFormat = new SimpleDateFormat("MMMM dd yyyy", Locale.ENGLISH);
-			}
-			// Deals with 3 letters word month
-			else {
-				if (string.length() == 9) {
-					dateFormat = new SimpleDateFormat("MMM dd yy");
-				} else {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + " " + year;
-					dateFormat = new SimpleDateFormat("MMM dd yyyy");
-				}
-			}
-		} else if (string.contains(",")) {
+			} else if (string.contains("-")) {
 
-			// Deals with Fully typed months
-			if (containMonthWord(string)) {
-				if (countOccurence(string, ',') == 1) {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + "," + year;
+				// Deals with Fully typed months
+				if (containMonthWord(string)) {
+					if (countOccurence(string, '-') == 1) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "-" + year;
+					}
+					dateFormat = new SimpleDateFormat("MMMM-dd-yyyy", Locale.ENGLISH);
 				}
-				dateFormat = new SimpleDateFormat("MMMM,dd,yyyy", Locale.ENGLISH);
-			}
-			// Deals with 3 letters word month
-			else {
-				if (string.length() == 9) {
-					dateFormat = new SimpleDateFormat("MMM,dd,yy");
-				} else {
-					int year = Calendar.getInstance().get(Calendar.YEAR);
-					string = string + " " + year;
-					dateFormat = new SimpleDateFormat("MMM,dd,yyyy");
+				// Deals with 3 letters word month
+				else {
+					if (string.length() == 9) {
+						dateFormat = new SimpleDateFormat("MMM-dd-yy");
+					} else {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "-" + year;
+						dateFormat = new SimpleDateFormat("MMM-dd-yyyy");
+					}
+				}
+			} else if (string.contains(" ")) {
+
+				// Deals with Fully typed months
+				if (containMonthWord(string)) {
+					if (countOccurence(string, ' ') == 1) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + " " + year;
+					}
+					System.out.println(string);
+					dateFormat = new SimpleDateFormat("MMMM dd yyyy", Locale.ENGLISH);
+				}
+				// Deals with 3 letters word month
+				else {
+					if (string.length() == 9) {
+						dateFormat = new SimpleDateFormat("MMM dd yy");
+					} else {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + " " + year;
+						dateFormat = new SimpleDateFormat("MMM dd yyyy");
+					}
+				}
+			} else if (string.contains(",")) {
+
+				// Deals with Fully typed months
+				if (containMonthWord(string)) {
+					if (countOccurence(string, ',') == 1) {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + "," + year;
+					}
+					dateFormat = new SimpleDateFormat("MMMM,dd,yyyy", Locale.ENGLISH);
+				}
+				// Deals with 3 letters word month
+				else {
+					if (string.length() == 9) {
+						dateFormat = new SimpleDateFormat("MMM,dd,yy");
+					} else {
+						int year = Calendar.getInstance().get(Calendar.YEAR);
+						string = string + " " + year;
+						dateFormat = new SimpleDateFormat("MMM,dd,yyyy");
+					}
 				}
 			}
-		}
 		}
 		try {
 			dateFormat.setLenient(false);
@@ -506,7 +514,6 @@ public class Validator {
 		} catch (ParseException e) {
 			return null;
 		}
-		
 
 	}
 
