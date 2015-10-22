@@ -9,7 +9,7 @@
             "deadline": "Sat, 12 Oct, 0015 2000",
             "venue": "NUT",
             "description": "asdfasd",
-            "isDone": true,
+            "isDone": false,
             "isPastDeadline": false,
             "hasEnded": false
         },

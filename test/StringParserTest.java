@@ -175,9 +175,11 @@ public class StringParserTest {
 		
 		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,"",keywordHash); //Initialize
 		
+		//Basic case do
 		assertEquals("at \"hong kong\" by 12/11 1100",
 						StringParser.transferQuoteToHashMap(PARAMETER.DESC,"do",
 								"do \"to be or not\" at \"hong kong\" by 12/11 1100", keywordHash));
+		//Basic case at
 		assertEquals(" by 12/11 1100",
 						StringParser.transferQuoteToHashMap(PARAMETER.VENUE,"at",
 								" at \"hong kong\" by 12/11 1100", keywordHash));

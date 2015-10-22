@@ -40,7 +40,7 @@ public class StringParser {
 		return Validator.getObjectHashMap(keywordHash);
 	}
 
-	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
+	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) throws ParseException {
 		
 		boolean hasSamedate = false;
 		
@@ -122,14 +122,50 @@ public class StringParser {
 		case DELETE_TASK:
 			userInput = getTaskID(userInput, keywordHash);
 			break;
+
 		case DONE:
 			userInput = getTaskID(userInput, keywordHash);
 			break;
+			
 		case UNDONE:
 			userInput = getTaskID(userInput, keywordHash);
-			break;	
-		case SEARCH_TASK:
+			break;
 			
+		case SEARCH_TASK:
+			//Take the "" keyword out first
+			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
+			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			
+			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
+					findKeywordIndexInput(userInput,"today",0) >= 0 ||
+					findKeywordIndexInput(userInput,"tomorrow",0) >= 0){
+				hasSamedate = true;
+			}
+			
+			//Take the repeating param keywords out
+			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
+			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
+			userInput = transferMultipleArgsToHashMap(PARAMETER.START_DATE,"today",KEYWORD,userInput,keywordHash);
+			userInput = transferMultipleArgsToHashMap(PARAMETER.START_DATE,"tomorrow",KEYWORD,userInput,keywordHash);
+			
+			String[] 	  keywordsInInputSearch	={"on","from","to","by"};
+			PARAMETER[][] paramInInputSearch	={{PARAMETER.START_DATE},
+												{PARAMETER.START_DATE, PARAMETER.START_TIME},
+												{PARAMETER.END_DATE, PARAMETER.END_TIME},
+												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}
+												};
+			if(hasSamedate){
+				paramInInputSearch[1] = new PARAMETER[] {PARAMETER.START_TIME};
+				paramInInputSearch[2] = new PARAMETER[] {PARAMETER.END_TIME};
+			}
+			
+			addAttributesToHashTable(keywordsInInputSearch, paramInInputSearch, userInput.split(SPACE_CHARACTER), keywordHash);
+			
+			if(hasSamedate){
+				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
+			}
+			break;
+
 						
 		default:
 			
@@ -196,8 +232,9 @@ public class StringParser {
 	 * @param userInput The user input
 	 * @param keywordHash 
 	 * @return The string after the ID has been taken out
+	 * @throws ParseException 
 	 */
-	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) {
+	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) throws ParseException {
 		String[] inputArray = userInput.split(SPACE_CHARACTER,2);
 		if(inputArray[0].equals("") && inputArray.length > 1){			//Check for variations in the number
 			inputArray[0] = userInput.split(SPACE_CHARACTER,3)[1];
@@ -209,7 +246,9 @@ public class StringParser {
 		} else if(inputArray[0].equals("") && inputArray.length == 1){
 			return "";
 		}
-		
+		if(inputArray[0] == null){
+			throw new ParseException("PARAMETER.TASKID", 0);
+		}
 		keywordHash.put(PARAMETER.TASKID, inputArray[0]);
 		if(inputArray.length > 1){
 			return userInput.split(SPACE_CHARACTER,2)[1];
