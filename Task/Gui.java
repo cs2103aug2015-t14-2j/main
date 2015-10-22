@@ -124,9 +124,11 @@ public class Gui extends JFrame {
 		synchronized(Gui.class) {
 		    try {
 		        Gui.class.wait();
-		        Gui.getCurrentInstance()
+		        Gui.getCurrentInstance();
+		        return "";
 		    } catch (InterruptedException e) {
 		        // Happens if someone interrupts your thread.
+		    	return "";
 		    }
 		}
 	}

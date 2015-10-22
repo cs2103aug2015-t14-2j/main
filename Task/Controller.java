@@ -2,6 +2,7 @@ package Task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,7 +25,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
 public class Controller implements NativeKeyListener {
 	
 	static Controller instance = null;
-	
+	private static Scanner scanner = new Scanner(System.in);
 	private static int[] myArray = new int[]{NativeKeyEvent.VC_SHIFT_L,			//Left shift
 											 	NativeKeyEvent.VC_SHIFT_R		//Right shift
 											 	};
@@ -131,7 +132,8 @@ public class Controller implements NativeKeyListener {
 	    
 	    while(true) {
 	    	//listen for line
-			showToUser(TaskHandler.inputFeedBack(Gui.getCurrentInstance().getUserInput()));
+	    	String userInput = scanner.nextLine();
+			showToUser(TaskHandler.inputFeedBack(userInput));
 		}
     }
 	

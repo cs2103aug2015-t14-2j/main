@@ -46,7 +46,7 @@ public class Validator {
 	}
 
 	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap)
-			throws ParseException {
+			throws ParseException, IllegalArgumentException {
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
@@ -72,6 +72,7 @@ public class Validator {
 		String remindTimes 		= hashmap.get(PARAMETER.REMIND_TIMES);
 		String taskID 			= hashmap.get(PARAMETER.TASKID);
 
+
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 		if (startDate != null) {
@@ -88,11 +89,7 @@ public class Validator {
 		if (endDate != null) {
 			end_Date = validDateFormat(endDate);
 			if (end_Date != null) {
-				if (end_Date.before(start_Date)) {
-					throw new IllegalArgumentException("END_DATE before START_DATE");
-				} else {
-					objectHashMap.put(PARAMETER.END_DATE, end_Date);
-				}
+				objectHashMap.put(PARAMETER.END_DATE, end_Date);
 			} else {
 				throw new ParseException("PARAMETER.END_DATE", 0);// No such
 																	// format
@@ -129,12 +126,8 @@ public class Validator {
 				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
 
-				if (cal.getTime().before(start_Date)) {
-					throw new IllegalArgumentException("END_DATE before START_DATE");
-				} else {
-					end_Date = cal.getTime();
-					objectHashMap.put(PARAMETER.END_TIME, end_Date);
-				}
+				end_Date = cal.getTime();
+				objectHashMap.put(PARAMETER.END_TIME, end_Date);
 			} else {
 				throw new ParseException("PARAMETER.END_TIME", 0);
 			}
@@ -265,7 +258,7 @@ public class Validator {
 
 	public static Date numberDateFormat(String string) {
 		Date date;
-		SimpleDateFormat dateFormat = null;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/mm/yy");
 		string = string.trim();
 
 		// dd/MM and dd/MM/yyyy
@@ -317,7 +310,9 @@ public class Validator {
 			}
 		}
 		try {
+		
 			date = dateFormat.parse(string);
+				
 			return date;
 		} catch (ParseException e) {
 			return null;
@@ -328,7 +323,7 @@ public class Validator {
 	public static Date wordMonthFormat(String string) {
 		Date date;
 		string = string.trim();
-		SimpleDateFormat dateFormat = null;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMM yy");
 		// deals with single digit dates 9-august
 		if (!Character.isDigit(string.charAt(1)) && Character.isDigit(string.charAt(0))) {
 			string = "0" + string;

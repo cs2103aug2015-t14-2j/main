@@ -31,16 +31,16 @@ public class StringParser {
 	 * @return The hashmap with valid task inputs
 	 * @throws ParseException Used to detect user errors in input
 	 */
-	public static HashMap<PARAMETER, Object> getValuesFromInput(COMMAND_TYPE command, String userInput) throws ParseException {
+	public static HashMap<PARAMETER, Object> getValuesFromInput(COMMAND_TYPE command, String userInput) throws ParseException, IllegalArgumentException {
 		
 		HashMap<PARAMETER, String> keywordHash = new HashMap<PARAMETER, String>(0);
 		
-		obtainStringHashMap(command, userInput, keywordHash);
+		getStringHashMap(command, userInput, keywordHash);
 		
 		return Validator.getObjectHashMap(keywordHash);
 	}
 
-	public static void obtainStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
+	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
 		
 		boolean hasSamedate = false;
 		
