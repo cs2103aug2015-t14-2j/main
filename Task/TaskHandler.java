@@ -137,7 +137,7 @@ public class TaskHandler {
 		dateFormat.setCalendar(calendar);
 		fileIO = new FileIO(localFilePath);
 		taskList = fileIO.readFromFile();
-		currentTaskId = fileIO.getCurrentTaskId();
+		currentTaskId = fileIO.getMaxTaskId();
 	}
 
 	/**
@@ -509,6 +509,7 @@ public class TaskHandler {
 		} 
 	}
 	
+	// Utility function
 	private static Date changeDateTime(Date date, String prevTimeString) throws ParseException {
 		String test1 = dateFormat.format(date);
 		return new SimpleDateFormat("dd/M/yyyy HHmm").parse(test1.split(" ")[0] + " " + prevTimeString);
@@ -716,7 +717,7 @@ public class TaskHandler {
 	}
 	
 	private static void updateCurrentTaskId() {
-		currentTaskId = fileIO.getCurrentTaskId();
+		currentTaskId = fileIO.getMaxTaskId();
 	}
 
 	public static void setCurrentTaskId(int _currentTaskId) {
