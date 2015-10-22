@@ -188,9 +188,9 @@ public class TaskHandler {
 						return ERROR_EMPTY_TASKLIST;
 					} else if(removeFirstWord(userInput).length() != 0){
 						parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
-						return displayTask((int)parsedParamTable.get(PARAMETER.TASKID));					
+						return displayAllTasks(searchTasks(parsedParamTable));					
 					} else {
-						return displayAllTasks();
+						return displayAllTasks(taskList);
 					}
 				case EDIT_TASK:
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
@@ -246,6 +246,8 @@ public class TaskHandler {
 			return "There is an error in the parameter: " + p.getMessage();
 		} catch (IllegalArgumentException a) {
 			return "There is an error in your command: " + a.getMessage();
+		} catch (IllegalStateException s){
+			return "There is an error in your command: " + s.getMessage();
 		}
 	}
 
@@ -520,14 +522,9 @@ public class TaskHandler {
 		
 		if(desc != null){
 			Task task = null;
+			
 			try{
-				if (startTime != null && endTime != null){
-					task = new Task(currentTaskId+1, desc, startDate, endDate, venue);// Event
-				} else if (deadlineDate != null){
-					task = new Task(currentTaskId+1, desc, deadlineDate, venue);		// Deadline task
-				} else {
-					task = new Task(currentTaskId+1, desc, venue);						// Floating task
-				}
+				task = createTask(currentTaskId+1, desc, venue, startDate, endDate, startTime, endTime, deadlineDate, deadlineTime);
 			} catch (IllegalArgumentException e){
 				return e.getMessage();
 			}
@@ -541,6 +538,17 @@ public class TaskHandler {
 		}
 		
 		return ERROR_NO_DESC;
+	}
+	
+	private static Task createTask(int taskID, String desc, String venue, Date startDate, 
+			Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) throws IllegalArgumentException{
+		if (startTime != null && endTime != null){
+			return new Task(taskID, desc, startDate, endDate, venue);// Event
+		} else if (deadlineDate != null){
+			return new Task(taskID, desc, deadlineDate, venue);		// Deadline task
+		} else {
+			return new Task(taskID, desc, venue);						// Floating task
+		}
 	}
 	
 	/**
@@ -580,29 +588,13 @@ public class TaskHandler {
 	}
 	
 	/**
-	 * 
-	 * @param string
-	 * @return 
-	 */
-	private static String displayTask(int taskID) {
-		if(taskID != -1){
-			for(Task t:taskList){
-				if(t.getTaskId() == taskID){
-					return t.toString();
-				}
-			}
-		}
-		return ERROR_NOT_FOUND_TASK;
-	}
-	
-	/**
 	 * Displays all the current tasks in the taskList
 	 * @return 
 	 */
-	private static String displayAllTasks() {
+	private static String displayAllTasks(ArrayList <Task> list) {
 		StringBuilder taskListString = new StringBuilder();
-		for (int i = 0; i < taskList.size() ; i++) {
-			taskListString.append(taskList.get(i).toString());
+		for (int i = 0; i < list.size() ; i++) {
+			taskListString.append(list.get(i).toString());
 		}
 		return taskListString.toString() + "\n" + MESSAGE_DISPLAY;
 	}
@@ -650,6 +642,54 @@ public class TaskHandler {
 		return null;
 	}
 	
+	public static ArrayList<Task> searchTasks(HashMap<PARAMETER, Object> parsedParamTable){
+		ArrayList<Task> searchResult = new ArrayList<Task>(50);
+		Task compareTask = null;
+		try{
+			compareTask = createTask((int)parsedParamTable.get(PARAMETER.TASKID),
+					(String)parsedParamTable.get(PARAMETER.DESC),
+					(String)parsedParamTable.get(PARAMETER.VENUE), 
+					(Date)parsedParamTable.get(PARAMETER.START_DATE),
+					(Date)parsedParamTable.get(PARAMETER.END_DATE), 
+					(Date)parsedParamTable.get(PARAMETER.START_TIME),
+					(Date)parsedParamTable.get(PARAMETER.END_TIME),
+					(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+					(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME));
+		} catch (NullPointerException e){
+			compareTask = createTask(-1,
+					(String)parsedParamTable.get(PARAMETER.DESC),
+					(String)parsedParamTable.get(PARAMETER.VENUE), 
+					(Date)parsedParamTable.get(PARAMETER.START_DATE),
+					(Date)parsedParamTable.get(PARAMETER.END_DATE), 
+					(Date)parsedParamTable.get(PARAMETER.START_TIME),
+					(Date)parsedParamTable.get(PARAMETER.END_TIME),
+					(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+					(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME));
+		}
+		
+		for(Task t : taskList){
+			if(isTaskSameFields(compareTask, t)){
+				searchResult.add(t);
+			}
+		}
+		return searchResult;
+	}
+	
+	private static boolean isTaskSameFields(Task compareTask, Task taskListTask) {
+		return
+			compareTask.getTaskId()			== -1 	|| compareTask.getTaskId() == taskListTask.getTaskId() &&
+			compareTask.getStartDateTime()	== null	|| compareTask.getStartDateTime().before(taskListTask.getStartDateTime()) &&
+			compareTask.getEndDateTime()	== null	|| compareTask.getEndDateTime().after(taskListTask.getEndDateTime()) &&
+			compareTask.getDeadline() 		== null	|| compareTask.getDeadline().before(taskListTask.getDeadline()) &&
+			compareTask.getVenue()			== null || compareTask.getDescription().contains(taskListTask.getDescription()) &&
+			compareTask.getDescription()	== null || compareTask.getVenue().contains(taskListTask.getVenue())
+			//TODO:search for boolean values
+			//compareTask.isDone() == taskListTask.isDone() &&
+			//compareTask.isPastDeadline() == taskListTask.isPastDeadline() &&
+			//compareTask.isHasEnded() == taskListTask.isHasEnded()
+			;
+	}
+
 	/**
 	 * Takes a single word and figure out the command
 	 * @param commandTypeString The string containing a command

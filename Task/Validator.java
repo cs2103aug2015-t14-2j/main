@@ -49,6 +49,9 @@ public class Validator {
 	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap)
 			throws ParseException {
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
+		if(hashmap.size() == 0){
+			throw new ParseException("NO PARAMETERS GIVEN", 0);
+		}
 
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
 			objectHashMap.put(PARAMETER.DESC, hashmap.get(PARAMETER.DESC));
@@ -196,10 +199,10 @@ public class Validator {
 	 */
 
 	private static boolean isValidString(String string) {
-		string = string.trim();
 		if (string == null || string.equals("")) {
 			return false;
 		}
+		string = string.trim();
 		return true;
 	}
 

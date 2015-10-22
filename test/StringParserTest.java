@@ -5,9 +5,7 @@ import static org.junit.Assert.*;
 import java.text.ParseException;
 import java.util.HashMap;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import Task.StringParser;
 import Task.COMMAND_TYPE;
