@@ -18,7 +18,7 @@ public class StringParserTest {
 	private HashMap<PARAMETER, String> keywordHash =  new HashMap<PARAMETER, String>(0);
 	
 	@Test
-	public void testObtainStringHashMap() {
+	public void testObtainStringHashMap() throws ParseException {
 		
 		//Empty Case
 		
@@ -106,7 +106,7 @@ public class StringParserTest {
 	}
 	
 	@Test
-	public void testEditobtainStringHashMap() {
+	public void testEditobtainStringHashMap() throws ParseException {
 		
 		//Basic case
 		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
@@ -124,7 +124,7 @@ public class StringParserTest {
 	}
 	
 	@Test
-	public void testDisplayobtainStringHashMap() {
+	public void testDisplayobtainStringHashMap() throws ParseException {
 		//Empty Case
 		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"",keywordHash);
@@ -140,7 +140,7 @@ public class StringParserTest {
 	}
 	
 	@Test
-	public void testDeleteobtainStringHashMap() {
+	public void testDeleteobtainStringHashMap() throws ParseException {
 		//Empty Case
 		StringParser.getStringHashMap(COMMAND_TYPE.DELETE_TASK,
 				"",keywordHash);
@@ -171,7 +171,7 @@ public class StringParserTest {
 	// NORMALLY PRIVATE METHOD TESTING //
 
 	@Test
-	public void testTransferQuoteToHashMap() {
+	public void testTransferQuoteToHashMap() throws ParseException {
 		
 		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,"",keywordHash); //Initialize
 		
