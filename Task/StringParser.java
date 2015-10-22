@@ -122,8 +122,14 @@ public class StringParser {
 		case DELETE_TASK:
 			userInput = getTaskID(userInput, keywordHash);
 			break;
-			
+		case DONE:
+			userInput = getTaskID(userInput, keywordHash);
+			break;
+		case UNDONE:
+			userInput = getTaskID(userInput, keywordHash);
+			break;	
 		case SEARCH_TASK:
+			
 						
 		default:
 			

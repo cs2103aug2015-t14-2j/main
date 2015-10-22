@@ -226,12 +226,12 @@ public class TaskHandler {
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 					message = markTask((int)parsedParamTable.get(PARAMETER.TASKID),TASK_DONE);
 					fileIO.writeToFile(taskList);
-					return "";
+					return message;
 				case UNDONE:
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 					message = markTask((int)parsedParamTable.get(PARAMETER.TASKID), TASK_NOT_DONE);
 					fileIO.writeToFile(taskList);
-					return "";
+					return message;
 				case INVALID_COMMAND:
 					showHelpMenu();
 					return "";
@@ -255,16 +255,16 @@ public class TaskHandler {
 	 * @param taskDone
 	 * @return
 	 */
-	private static String markTask(int taskID, boolean taskDone) {
+	private static String markTask(int taskID, boolean isDone) {
 		for(Task t:taskList){
 			if(t.getTaskId() == taskID){
 				String isDoneTask = Integer.toString(t.getTaskId());
-				if(taskDone){
-					return isDoneTask + MESSAGE_DONE_TASK;
-					taskList.markDone(t,taskDone);
+				if(isDone){
+					t.setDone(isDone);
+					return isDoneTask + " " + MESSAGE_DONE_TASK + t.toString();
 				} else {
-					return isDoneTask + MESSAGE_UNDONE_TASK;
-					taskList.markDone(t,taskDone);
+					t.setDone(isDone);
+					return isDoneTask + " " + MESSAGE_UNDONE_TASK + t.toString();
 				}
 			}
 		}
@@ -674,6 +674,10 @@ public class TaskHandler {
 			return COMMAND_TYPE.DELETE_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("undo")) {
 			return COMMAND_TYPE.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase("done")) {
+			return COMMAND_TYPE.DONE;
+		} else if (commandTypeString.equalsIgnoreCase("undone")) {
+			return COMMAND_TYPE.UNDONE;
 		} else if (commandTypeString.equalsIgnoreCase("redo")) {
 			return COMMAND_TYPE.REDO;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
