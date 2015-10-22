@@ -6,18 +6,18 @@ import java.text.SimpleDateFormat;
 import java.text.SimpleDateFormat;
 
 public class Period {
-	private Date startTime;
-	private Date endTime;
+	private Date startDateTime;
+	private Date endDateTime;
 	
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/YY HHmm");
 	
-	public Period (Date startTime, Date endTime) throws IllegalArgumentException {
-		if(startTime.after(endTime)) {
+	public Period (Date startDateTime, Date endDateTime) throws IllegalArgumentException {
+		if(startDateTime.after(endDateTime)) {
 			throw new IllegalArgumentException("Start time is after end time!");
 			
 		}
-		this.startTime = startTime;
-		this.endTime   = endTime;
+		this.startDateTime = startDateTime;
+		this.endDateTime   = endDateTime;
 	}
 	
 	@Override
@@ -27,10 +27,10 @@ public class Period {
 		}
 		
 		Period period = ((Period) obj);
-		if (!this.startTime.equals(period.startTime)) {
+		if (!this.startDateTime.equals(period.startDateTime)) {
 			return false;
 		}
-		if (!this.endTime.equals(period.endTime)) {
+		if (!this.endDateTime.equals(period.endDateTime)) {
 			return false;
 		}
 		
@@ -38,22 +38,22 @@ public class Period {
 	}
 	
 	public String toString() {
-		return dateFormat.format(this.getStartTime()) + " - " + dateFormat.format(this.getEndTime()); 
+		return dateFormat.format(this.getStartDateTime()) + " - " + dateFormat.format(this.getEndDateTime()); 
 	}
 
-	public Date getStartTime() {
-		return startTime;
+	public Date getStartDateTime() {
+		return startDateTime;
 	}
 
-	public void setStartTime(Date startTime) {
-		this.startTime = startTime;
+	public void setStartDateTime(Date startDateTime) {
+		this.startDateTime = startDateTime;
 	}
 
-	public Date getEndTime() {
-		return endTime;
+	public Date getEndDateTime() {
+		return endDateTime;
 	}
 
-	public void setEndTime(Date endTime) {
-		this.endTime = endTime;
+	public void setEndDateTime(Date endDateTime) {
+		this.endDateTime = endDateTime;
 	}
 }

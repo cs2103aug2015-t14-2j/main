@@ -43,7 +43,17 @@ public class Gui extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         tb = new JTextField("", TEXTBOX_SIZE);
-        
+        tb.addActionListener(new AbstractAction()
+							        {
+							            @Override
+							            public void actionPerformed(ActionEvent e)
+							            {
+							            	synchronized(Gui.class) {
+							            		Gui.class.notify();
+							            		//TODO: call main thread
+							            	}
+							            }
+							        });
         add(tb);
     }
     
@@ -60,13 +70,13 @@ public class Gui extends JFrame {
     			guiObject.setOpacity(guiObject.getOpacity()-FADE_OUT_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
+    		tb.setText("");
     	} else {
     		while(guiObject.getOpacity() < FADED_IN){
     			guiObject.setOpacity(guiObject.getOpacity()+FADE_IN_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
     		tb.requestFocusInWindow();
-    		tb.setText("");
     	}
     }
 
@@ -93,11 +103,17 @@ public class Gui extends JFrame {
                 Gui sw = Gui.getCurrentInstance();
 
                 if (isTranslucencySupported) {
-                    sw.setOpacity(FADED_IN);
+                    sw.setOpacity(FADED_OUT);
                 }
 
                 // Display the window.
                 sw.setVisible(true);
+                
+                try {
+					Thread.sleep(FADE_DURATION_MS * FADE_DURATION_MS);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
                 
                 // Switch the view of the window
                 try {
@@ -109,5 +125,20 @@ public class Gui extends JFrame {
             }
         });
     }
+
+	public String getUserInput() {
+		synchronized(Gui.class) {
+			String userInput = "";
+		    try {
+		        Gui.class.wait();
+		        userInput = Gui.tb.getText();
+		        Gui.tb.setText("");
+		    } catch (InterruptedException e) {
+		        // Happens if someone interrupts your thread.
+		    	return "";
+		    }
+		    return userInput;
+		}
+	}
     
 }

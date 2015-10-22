@@ -2,10 +2,9 @@ package Task;
 
 import java.util.ArrayList;
 import java.util.List;
+//import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.swing.SwingUtilities;
 
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -24,7 +23,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
 public class Controller implements NativeKeyListener {
 	
 	static Controller instance = null;
-	
+	//private static Scanner scanner = new Scanner(System.in);
 	private static int[] myArray = new int[]{NativeKeyEvent.VC_SHIFT_L,			//Left shift
 											 	NativeKeyEvent.VC_SHIFT_R		//Right shift
 											 	};
@@ -127,7 +126,24 @@ public class Controller implements NativeKeyListener {
         Gui.initGUI();
         
         //start the task handler
-	    TaskHandler.startTasks(args);
-        
+        showToUser(TaskHandler.startTasks(args));
+	    
+	    while(true) {
+	    	//listen for line
+	    	//showToUser(TaskHandler.inputFeedBack(scanner.nextLine()));
+	    	showToUser(TaskHandler.inputFeedBack(Gui.getCurrentInstance().getUserInput()));
+		}
     }
+	
+	/**
+	 * Displays text to user, do not print if empty string
+	 * @param text Text to show the user
+	 */
+	private static void showToUser(String text) {
+		if(text == null || text.isEmpty()) {
+			return;
+		}
+		
+		Controller.getInstance().printToScreen(text);
+	}
 }
