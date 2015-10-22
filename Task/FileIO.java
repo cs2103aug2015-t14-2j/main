@@ -32,13 +32,13 @@ public class FileIO {
 	private final static String ERROR_MALFORMED_FILE = "ERROR! Corrupted file region. Rest of file cannot be read.\n";
 	private final static String ERROR_MALFORMED_KEY  = "ERROR! File does not match expected format. Restart program with a new file location.\n";
 	private final static String ERROR_FILE_IO        = "ERROR! Cannot read from specified file location. Quit and restart. Exiting program...\n";
-	private int currentTaskId;
+	private int maxTaskId;
 	private String path;
 	
 	public FileIO(String path) {
 		dateFormat.setCalendar(calendar);
 		this.path = path;
-		this.currentTaskId = 0;
+		this.maxTaskId = 0;
 	}
 	
 	/**
@@ -63,7 +63,7 @@ public class FileIO {
 								taskList.add(task);
 							}						
 						} catch (ParseException e) {
-							System.out.format(ERROR_MALFORMED_TASK, currentTaskId);
+							System.out.format(ERROR_MALFORMED_TASK, maxTaskId);
 						} catch (MalformedJsonException e1) {
 							System.out.format(ERROR_MALFORMED_FILE);
 						} catch (IllegalStateException e2) {
@@ -138,8 +138,8 @@ public class FileIO {
 
 	}
 
-	public int getCurrentTaskId() {
-		return currentTaskId;
+	public int getMaxTaskId() {
+		return maxTaskId;
 	}
 	
 	public String getFilePath() {
@@ -210,7 +210,7 @@ public class FileIO {
 				}
 			}
 			jsonReader.endObject();
-			currentTaskId = taskId;
+			maxTaskId = Math.max(taskId, maxTaskId);
 			
 			Date createdTimeDate      = parseStringToDate(createdTime);
 			Date lastModifiedTimeDate = parseStringToDate(lastModifiedTime);

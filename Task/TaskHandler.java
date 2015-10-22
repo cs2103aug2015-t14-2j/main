@@ -137,7 +137,7 @@ public class TaskHandler {
 		dateFormat.setCalendar(calendar);
 		fileIO = new FileIO(localFilePath);
 		taskList = fileIO.readFromFile();
-		currentTaskId = fileIO.getCurrentTaskId();
+		currentTaskId = fileIO.getMaxTaskId();
 	}
 
 	/**
@@ -256,16 +256,18 @@ public class TaskHandler {
 	 * @return
 	 */
 	private static String markTask(int taskID, boolean isDone) {
-		for(Task t:taskList){
-			if(t.getTaskId() == taskID){
-				String isDoneTask = Integer.toString(t.getTaskId());
-				if(isDone){
-					t.setDone(isDone);
-					return isDoneTask + " " + MESSAGE_DONE_TASK + t.toString();
-				} else {
-					t.setDone(isDone);
-					return isDoneTask + " " + MESSAGE_UNDONE_TASK + t.toString();
-				}
+		for (Task t:taskList){
+			if (t.getTaskId() == taskID){
+				String isDoneTask     = Integer.toString(t.getTaskId());
+				boolean prevDone      = t.isDone();
+				TaskEdit compoundEdit = new TaskEdit(t);
+				TaskDoneEdit edit     = new TaskDoneEdit(t, prevDone, isDone);
+				edit.setSignificant();
+				compoundEdit.addEdit(edit);
+				compoundEdit.end();
+				t.setDone(isDone);
+				undoManager.addEdit(compoundEdit);
+				return isDoneTask + " " + MESSAGE_DONE_TASK + t.toString();
 			}
 		}
 		return ERROR_NOT_FOUND_TASK;
@@ -311,7 +313,6 @@ public class TaskHandler {
 		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
 		SimpleDateFormat localDateFormat = new SimpleDateFormat("dd/M/yyyy");
 
-		UndoableSignificantEdit edit = new UndoableSignificantEdit();
 		
 		Task task          = null;
 		Date _deadlineDate = null;
@@ -336,7 +337,8 @@ public class TaskHandler {
 			return ERROR_NOT_FOUND_TASK;
 		}
 		
-		TaskEdit compoundEdit = new TaskEdit(task);
+		UndoableSignificantEdit edit = new UndoableSignificantEdit();
+		TaskEdit compoundEdit        = new TaskEdit(task);
 		// Set description
 		if (desc != null){
 			String oldDesc = task.getDescription();
@@ -507,6 +509,7 @@ public class TaskHandler {
 		} 
 	}
 	
+	// Utility function
 	private static Date changeDateTime(Date date, String prevTimeString) throws ParseException {
 		String test1 = dateFormat.format(date);
 		return new SimpleDateFormat("dd/M/yyyy HHmm").parse(test1.split(" ")[0] + " " + prevTimeString);
@@ -517,7 +520,6 @@ public class TaskHandler {
 	 * @param task The task to be added to the taskList
 	 */
 	private static String addTask(String desc, String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) {
-		
 		if(desc != null){
 			Task task = null;
 			try{
@@ -535,7 +537,14 @@ public class TaskHandler {
 			// Make sure that we are not adding a null Task
 			assert(task!=null);
 
+			TaskEdit compoundEdit = new TaskEdit(task);
+			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId+1, true);
+			edit.setSignificant();
+			compoundEdit.addEdit(edit);
+			compoundEdit.end();
+
 			taskList.add(task);
+			undoManager.addEdit(compoundEdit);
 			currentTaskId += 1;
 			return task.toString() + "\n" + MESSAGE_ADD_TASK;
 		}
@@ -551,7 +560,14 @@ public class TaskHandler {
 		for(Task t:taskList){
 			if(t.getTaskId() == taskID){
 				String removedTask = Integer.toString(t.getTaskId());
+				TaskEdit compoundEdit = new TaskEdit(t);
+				TaskListEdit edit     = new TaskListEdit(t, taskList, currentTaskId, currentTaskId, false);
+				edit.setSignificant();
 				taskList.remove(t);
+				compoundEdit.addEdit(edit);
+				compoundEdit.end();
+
+				undoManager.addEdit(compoundEdit);
 				return removedTask + MESSAGE_DELETE_TASK;
 			}
 		}
@@ -617,18 +633,7 @@ public class TaskHandler {
 		
 		return result;
 	}
-	
-	/**
-	 * Given a tag, and startTime and endTime, return all tasks with that tag
-	 * @param tag 
-	 * @param startTime
-	 * @param endTime
-	 * @return
-	 */
-	public static ArrayList<Task> getByTag (String tag, Date startTime, Date endTime) {
-		return taskList;
-	}
-	
+		
 	/**
 	 * Given a search keyword, and startTime and endTime, return all tasks with that keyword in their description within the search space
 	 * @param keyword
@@ -712,7 +717,10 @@ public class TaskHandler {
 	}
 	
 	private static void updateCurrentTaskId() {
-		currentTaskId = fileIO.getCurrentTaskId();
+		currentTaskId = fileIO.getMaxTaskId();
 	}
 
+	public static void setCurrentTaskId(int _currentTaskId) {
+		currentTaskId = _currentTaskId;
+	}
 }
