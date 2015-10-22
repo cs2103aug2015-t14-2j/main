@@ -115,10 +115,6 @@ public class StringParser {
 			}
 			break;
 			
-		case DISPLAY:
-			userInput = getTaskID(userInput, keywordHash);
-			break;
-			
 		case DELETE_TASK:
 			userInput = getTaskID(userInput, keywordHash);
 			break;
@@ -131,7 +127,8 @@ public class StringParser {
 			userInput = getTaskID(userInput, keywordHash);
 			break;
 			
-		case SEARCH_TASK:
+		case DISPLAY:
+			userInput = getTaskID(userInput, keywordHash);
 			//Take the "" keyword out first
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);

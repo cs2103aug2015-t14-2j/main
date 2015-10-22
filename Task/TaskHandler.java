@@ -666,8 +666,6 @@ public class TaskHandler {
 			return COMMAND_TYPE.GET_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("display")) {
 			return COMMAND_TYPE.DISPLAY;
-		} else if (commandTypeString.equalsIgnoreCase("search")) {
-			return COMMAND_TYPE.SEARCH_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("edit")) {
 			return COMMAND_TYPE.EDIT_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("delete")) {
