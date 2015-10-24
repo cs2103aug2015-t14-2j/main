@@ -120,7 +120,7 @@ public class Controller implements NativeKeyListener {
         Gui.initGUI();
         
         //start the task handler
-        showToUser(TaskHandler.startTasks(args));
+        TaskHandler.startTasks(args);
 	    
 	    while(true) {
 	    	//listen for line
@@ -129,19 +129,8 @@ public class Controller implements NativeKeyListener {
 		}
     }
 	
-	/**
-	 * Displays text to user, do not print if empty string
-	 * @param text Text to show the user
-	 */
-	private static void showToUser(String text) {
-		if(text == null || text.isEmpty()) {
-			return;
-		}
-		
-    }
-
     public void executeGUIInput(String text) {
-        String result = TaskHandler.inputFeedBack(text);
+        TaskHandler.inputFeedBack(text);
 		context.printToTerminal();
         context.clearAllMessages();
     }

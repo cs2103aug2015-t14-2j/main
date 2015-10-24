@@ -45,7 +45,7 @@ public class Validator {
 
 	public Validator() {}
 
-	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap) throws ParseException, IllegalArgumentException {
+	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap) {
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
@@ -79,7 +79,7 @@ public class Validator {
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			} else {
-				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_START_DATE");
 				// throw new ParseException("PARAMETER.START_DATE", 0);// No such
 																	// format
@@ -92,7 +92,7 @@ public class Validator {
 			if (end_Date != null) {
 				objectHashMap.put(PARAMETER.END_DATE, end_Date);
 			} else {
-				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_END_DATE");
 				// throw new ParseException("PARAMETER.END_DATE", 0);// No such
 																	// format
@@ -114,7 +114,7 @@ public class Validator {
 				start_Date = cal.getTime();
 				objectHashMap.put(PARAMETER.START_TIME, start_Date);
 			} else {
-				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_START_TIME");
 				// throw new ParseException("PARAMETER.START_TIME", 0);
 			}
@@ -134,7 +134,7 @@ public class Validator {
 				end_Date = cal.getTime();
 				objectHashMap.put(PARAMETER.END_TIME, end_Date);
 			} else {
-				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_END_TIME");
 				// throw new ParseException("PARAMETER.END_TIME", 0);
 			}
@@ -151,7 +151,7 @@ public class Validator {
 				} 
 				objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 			} else {
-				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_DEADLINE_DATE");
 				// throw new ParseException("PARAMETER.DEADLINE_DATE", 0);
 			}
@@ -178,7 +178,7 @@ public class Validator {
 				}
 				objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
 			} else {
-				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_DEADLINE_TIME");
 				// throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
@@ -188,10 +188,13 @@ public class Validator {
 			if(containsOnlyNumbers(taskID)){
 				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
 			} else {
-				context.displayMessage("ERROR_PARAM_SUBTITLE");
-				context.displayMessage("PARAM_TASKID");
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_TASKID_NUM");
+				objectHashMap.put(PARAMETER.TASKID, 0);
 				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
+		} else {
+			objectHashMap.put(PARAMETER.TASKID, -1);
 		}
 
 		return objectHashMap;
@@ -200,7 +203,7 @@ public class Validator {
 	/**
 	 * Used to check if the contents of a string are numerical
 	 * @param numString The string to be checked for all numbers
-	 * @return A boolean representation of wheather the string provided is all numbers
+	 * @return A boolean representation of whether the string provided is all numbers
 	 */
 	public static boolean containsOnlyNumbers(String numString) {
 		return numString.matches("^[0-9 ]+$");

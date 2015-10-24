@@ -18,7 +18,8 @@ public enum COMMAND_TYPE {
 	UNDO,
 	REDO,
 	INVALID_COMMAND, 
-	EXIT,
 	DONE, 
-	UNDONE
+	UNDONE,
+	HELP,
+	EXIT
 }
