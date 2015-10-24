@@ -3,7 +3,6 @@ package Task;
 import java.util.Date;
 import java.lang.IllegalArgumentException;
 import java.text.SimpleDateFormat;
-import java.text.SimpleDateFormat;
 
 public class Period {
 	private Date startDateTime;

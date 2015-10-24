@@ -12,6 +12,7 @@ import java.util.HashMap;
  */
 
 public class StringParser {
+	private static final Context context = Context.getInstance();
 	
 	//Define String constants here
 	private static final String SPACE_CHARACTER = "\\s+";
@@ -31,7 +32,7 @@ public class StringParser {
 	 * @return The hashmap with valid task inputs
 	 * @throws ParseException Used to detect user errors in input
 	 */
-	public static HashMap<PARAMETER, Object> getValuesFromInput(COMMAND_TYPE command, String userInput) throws ParseException, IllegalArgumentException {
+	public static HashMap<PARAMETER, Object> getValuesFromInput(COMMAND_TYPE command, String userInput) {
 		
 		HashMap<PARAMETER, String> keywordHash = new HashMap<PARAMETER, String>(0);
 		
@@ -40,7 +41,7 @@ public class StringParser {
 		return Validator.getObjectHashMap(keywordHash);
 	}
 
-	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) throws ParseException {
+	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
 		
 		boolean hasSamedate = false;
 		
@@ -229,9 +230,8 @@ public class StringParser {
 	 * @param userInput The user input
 	 * @param keywordHash 
 	 * @return The string after the ID has been taken out
-	 * @throws ParseException 
 	 */
-	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) throws ParseException {
+	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) {
 		String[] inputArray = userInput.split(SPACE_CHARACTER,2);
 		if(inputArray[0].equals("") && inputArray.length > 1){			//Check for variations in the number
 			inputArray[0] = userInput.split(SPACE_CHARACTER,3)[1];
@@ -244,7 +244,8 @@ public class StringParser {
 			return "";
 		}
 		if(inputArray[0] == null){
-			throw new ParseException("PARAMETER.TASKID", 0);
+			// To prevent null exceptions in TaskHandler
+			keywordHash.put(PARAMETER.TASKID, "-1");
 		}
 		keywordHash.put(PARAMETER.TASKID, inputArray[0]);
 		if(inputArray.length > 1){
