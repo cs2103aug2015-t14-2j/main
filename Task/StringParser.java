@@ -243,15 +243,25 @@ public class StringParser {
 		} else if(inputArray[0].equals("") && inputArray.length == 1){
 			return "";
 		}
-		if(inputArray[0] == null){
+		if(inputArray[0] == null || !containsOnlyNumbers(inputArray[0])){
 			// To prevent null exceptions in TaskHandler
 			keywordHash.put(PARAMETER.TASKID, "-1");
+			return userInput;
 		}
 		keywordHash.put(PARAMETER.TASKID, inputArray[0]);
 		if(inputArray.length > 1){
 			return userInput.split(SPACE_CHARACTER,2)[1];
 		}
 		else return "";
+	}
+	
+	/**
+	 * Used to check if the contents of a string are numerical
+	 * @param numString The string to be checked for all numbers
+	 * @return A boolean representation of whether the string provided is all numbers
+	 */
+	public static boolean containsOnlyNumbers(String numString) {
+		return numString.matches("^[0-9 ]+$");
 	}
 
 	/**

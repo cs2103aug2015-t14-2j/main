@@ -143,6 +143,28 @@ public class Task {
 		this.hasEnded = hasEnded;
 	}
 	
+	//To be used for tempory tasks
+	public Task(int taskId, String desc, String venue, Date startTime, Date endTime, Date deadline, boolean isDone, boolean isPastDeadline, boolean hasEnded) {
+		this.createdTime = null;
+		this.lastModifiedTime =  null;
+		this.period = null;
+		
+		try {
+			this.period = new Period(startTime, endTime);			
+		} catch (IllegalArgumentException e) {
+			this.period = null;
+			System.out.println("Invalid start and end time for search");
+		}
+		
+		this.taskId = taskId;
+		this.deadline = deadline;
+		this.venue = venue;
+		this.description = desc;
+		this.isDone = isDone;
+		this.isPastDeadline = isPastDeadline;
+		this.hasEnded = hasEnded;
+	}
+
 	public String toString() {
 		String startTime;
 		String endTime;
@@ -328,5 +350,17 @@ public class Task {
 
 	public void setHasEnded(boolean hasEnded) {
 		this.hasEnded = hasEnded;
+	}
+
+	public boolean isEmpty() {
+		return
+			taskId			== -1 		&&
+			period          == null		&&
+			deadline   		== null		&&
+			venue           == null		&&
+			description     == null		&&
+			isDone         	== false	&&
+			isPastDeadline 	== false	&&
+			hasEnded       	== false;
 	}
 }

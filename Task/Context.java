@@ -17,7 +17,8 @@ public class Context {
 	private static Pair MESSAGE_WELCOME        = new Pair("Welcome to TaskBuddy!");
 	private static Pair MESSAGE_ADD_TASK       = new Pair("Successfully added task.");
 	private static Pair MESSAGE_GET_TASK       = new Pair("Task %d returned");
-	private static Pair MESSAGE_DISPLAY        = new Pair("All tasks displayed.");
+	private static Pair MESSAGE_DISPLAY_ALL    = new Pair("All tasks displayed.");
+	private static Pair MESSAGE_DISPLAY		   = new Pair("Search results:");
 	private static Pair MESSAGE_SEARCH_TASK    = new Pair("Here are tasks matching your keywords:");
 	private static Pair MESSAGE_DELETE_TASK    = new Pair("Task %d has been deleted");
 	private static Pair MESSAGE_EDIT_TASK      = new Pair("Task %d has been updated!");
@@ -35,6 +36,7 @@ public class Context {
 	private static Pair ERROR_INVALID_COMMAND  = new Pair("Invalid Command.");
 	private static Pair ERROR_EMPTY_TASKLIST   = new Pair("You have no tasks!");
 	private static Pair ERROR_TASK_NOT_FOUND   = new Pair("The task was not found!");
+	private static Pair ERROR_NO_RESUlTS_FOUND = new Pair("No results were found!");
 	private static Pair ERROR_IO_TASK   	   = new Pair("The task could not be changed!");
 	private static Pair ERROR_NO_DESC   	   = new Pair("You must have a description for your task!");
 	private static Pair ERROR_CANNOT_UNDO      = new Pair("No more changes to undo.");

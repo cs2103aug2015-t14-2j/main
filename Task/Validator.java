@@ -90,11 +90,7 @@ public class Validator {
 		if (endDate != null) {
 			end_Date = validDateFormat(endDate);
 			if (end_Date != null) {
-				if (end_Date.before(start_Date)) {
-					throw new IllegalArgumentException("END_DATE before START_DATE");
-				} else {
-					objectHashMap.put(PARAMETER.END_DATE, end_Date);
-				}
+				objectHashMap.put(PARAMETER.END_DATE, end_Date);
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_END_DATE");
@@ -154,7 +150,8 @@ public class Validator {
 			if (dateOfDeadline != null) {
 				Calendar cal = Calendar.getInstance();
 				if (dateOfDeadline.before(cal.getTime())) {
-					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");				
+					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
+					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 					// throw new IllegalArgumentException("DEADLINE_DATE before CURRENTDATE");
 				} else {
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
@@ -202,8 +199,6 @@ public class Validator {
 				objectHashMap.put(PARAMETER.TASKID, 0);
 				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
-		} else {
-			objectHashMap.put(PARAMETER.TASKID, -1);
 		}
 
 		return objectHashMap;
@@ -215,7 +210,7 @@ public class Validator {
 	 * @return A boolean representation of whether the string provided is all numbers
 	 */
 	public static boolean containsOnlyNumbers(String numString) {
-		return numString.matches("^[0-9 ]+$");
+		return (numString.matches("^[0-9 ]+$")||(numString.equals("-1")));
 	}
 
 	/*

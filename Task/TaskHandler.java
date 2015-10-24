@@ -144,8 +144,14 @@ public class TaskHandler {
 					context.displayMessage("ERROR_EMPTY_TASKLIST");
 				} else if(removeFirstWord(userInput).length() != 0){
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
-					displayAllTasks(searchTasks(parsedParamTable));					
+					if(searchTasks(parsedParamTable).size() == 0){
+						context.displayMessage("ERROR_NO_RESUlTS_FOUND");
+					} else {
+						context.displayMessage("MESSAGE_DISPLAY");
+						displayAllTasks(searchTasks(parsedParamTable));	
+					}			
 				} else {
+					context.displayMessage("MESSAGE_DISPLAY_ALL");
 					displayAllTasks(taskList);
 				}
 				break;
@@ -577,8 +583,6 @@ public class TaskHandler {
 	 * Displays all the current tasks in the taskList
 	 */
 	private static void displayAllTasks(ArrayList <Task> list) {
-		context.displayMessage("MESSAGE_DISPLAY");
-		
 		for(Task task:list) {
 			context.addTask(task);
 		}
@@ -624,27 +628,19 @@ public class TaskHandler {
 	public static ArrayList<Task> searchTasks(HashMap<PARAMETER, Object> parsedParamTable){
 		ArrayList<Task> searchResult = new ArrayList<Task>(50);
 		Task compareTask = null;
-		try{
-			compareTask = createTask((int)parsedParamTable.get(PARAMETER.TASKID),
-					(String)parsedParamTable.get(PARAMETER.DESC),
-					(String)parsedParamTable.get(PARAMETER.VENUE), 
-					(Date)parsedParamTable.get(PARAMETER.START_DATE),
-					(Date)parsedParamTable.get(PARAMETER.END_DATE), 
-					(Date)parsedParamTable.get(PARAMETER.START_TIME),
-					(Date)parsedParamTable.get(PARAMETER.END_TIME),
-					(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-					(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME));
-		} catch (NullPointerException e){
-			compareTask = createTask(-1,
-					(String)parsedParamTable.get(PARAMETER.DESC),
-					(String)parsedParamTable.get(PARAMETER.VENUE), 
-					(Date)parsedParamTable.get(PARAMETER.START_DATE),
-					(Date)parsedParamTable.get(PARAMETER.END_DATE), 
-					(Date)parsedParamTable.get(PARAMETER.START_TIME),
-					(Date)parsedParamTable.get(PARAMETER.END_TIME),
-					(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-					(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME));
-		}
+		
+		compareTask = new Task((int)parsedParamTable.get(PARAMETER.TASKID),
+				(String)parsedParamTable.get(PARAMETER.DESC),
+				(String)parsedParamTable.get(PARAMETER.VENUE), 
+				(Date)parsedParamTable.get(PARAMETER.START_DATE),
+				(Date)parsedParamTable.get(PARAMETER.END_DATE), 
+				//(Date)parsedParamTable.get(PARAMETER.START_TIME),
+				//(Date)parsedParamTable.get(PARAMETER.END_TIME),
+				(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+				//(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME),
+				false,
+				false,
+				false);
 		
 		for(Task t : taskList){
 			if(isTaskSameFields(compareTask, t)){
@@ -656,16 +652,27 @@ public class TaskHandler {
 	
 	private static boolean isTaskSameFields(Task compareTask, Task taskListTask) {
 		return
-			compareTask.getTaskId()			== -1 	|| compareTask.getTaskId() == taskListTask.getTaskId() &&
-			compareTask.getStartDateTime()	== null	|| compareTask.getStartDateTime().before(taskListTask.getStartDateTime()) &&
-			compareTask.getEndDateTime()	== null	|| compareTask.getEndDateTime().after(taskListTask.getEndDateTime()) &&
-			compareTask.getDeadline() 		== null	|| compareTask.getDeadline().before(taskListTask.getDeadline()) &&
-			compareTask.getVenue()			== null || compareTask.getDescription().contains(taskListTask.getDescription()) &&
-			compareTask.getDescription()	== null || compareTask.getVenue().contains(taskListTask.getVenue())
-			//TODO:search for boolean values
-			//compareTask.isDone() == taskListTask.isDone() &&
-			//compareTask.isPastDeadline() == taskListTask.isPastDeadline() &&
+			(compareTask.getTaskId()		== -1 	|| 
+				compareTask.getTaskId() == taskListTask.getTaskId() 						)&&
+			(compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
+				compareTask.getStartDateTime().before(taskListTask.getStartDateTime()) 				))&&
+			(compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   &&
+				compareTask.getEndDateTime().after(taskListTask.getEndDateTime()) 					))&&
+			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
+				compareTask.getDeadline().before(taskListTask.getDeadline()) 						))&&
+			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
+				compareTask.getVenue().toLowerCase().contains(
+						taskListTask.getVenue().toLowerCase())										))&&
+			(compareTask.getDescription()	== null || (taskListTask.getDescription() != null 	&&
+				compareTask.getDescription().toLowerCase().contains(
+						taskListTask.getDescription().toLowerCase())								))&&
+			
+			//TODO:search for boolean values 
+			//compareTask.isDone() == taskListTask.isDone()
+			//compareTask.isPastDeadline() == taskListTask.isPastDeadline()
 			//compareTask.isHasEnded() == taskListTask.isHasEnded()
+			
+			(!compareTask.isEmpty()															)
 			;
 	}
 
