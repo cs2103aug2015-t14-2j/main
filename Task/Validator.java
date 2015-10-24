@@ -583,11 +583,16 @@ public class Validator {
 	// TODO: deal with inputs like 2500, 1270
 	public static Date is24hrTimeFormat(String string) {
 		string = string.trim();
-		SimpleDateFormat timeFormat;
+		SimpleDateFormat timeFormat = null;
 		Date time;
 		try {
+			if(string.length() == 4){
 			timeFormat = new SimpleDateFormat("HHmm");
 			timeFormat.setLenient(false);
+			}else if(string.length()==3){
+				timeFormat = new SimpleDateFormat("Hmm");
+				timeFormat.setLenient(false);
+			}
 			time = timeFormat.parse(string);
 			return time;
 		} catch (ParseException e) {
@@ -595,5 +600,7 @@ public class Validator {
 		}
 
 	}
+	
+	
 
 }
