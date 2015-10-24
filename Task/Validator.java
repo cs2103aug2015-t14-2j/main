@@ -41,12 +41,11 @@ import java.util.Locale;
  */
 
 public class Validator {
-	public Validator() {
+	private static Context context = Context.getInstance();
 
-	}
+	public Validator() {}
 
-	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap)
-			throws ParseException, IllegalArgumentException {
+	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap) throws ParseException, IllegalArgumentException {
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
@@ -80,7 +79,9 @@ public class Validator {
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			} else {
-				throw new ParseException("PARAMETER.START_DATE", 0);// No such
+				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_START_DATE");
+				// throw new ParseException("PARAMETER.START_DATE", 0);// No such
 																	// format
 			}
 		}
@@ -91,7 +92,9 @@ public class Validator {
 			if (end_Date != null) {
 				objectHashMap.put(PARAMETER.END_DATE, end_Date);
 			} else {
-				throw new ParseException("PARAMETER.END_DATE", 0);// No such
+				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_END_DATE");
+				// throw new ParseException("PARAMETER.END_DATE", 0);// No such
 																	// format
 			}
 		}
@@ -111,7 +114,9 @@ public class Validator {
 				start_Date = cal.getTime();
 				objectHashMap.put(PARAMETER.START_TIME, start_Date);
 			} else {
-				throw new ParseException("PARAMETER.START_TIME", 0);
+				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_START_TIME");
+				// throw new ParseException("PARAMETER.START_TIME", 0);
 			}
 		}
 		// End time
@@ -129,7 +134,9 @@ public class Validator {
 				end_Date = cal.getTime();
 				objectHashMap.put(PARAMETER.END_TIME, end_Date);
 			} else {
-				throw new ParseException("PARAMETER.END_TIME", 0);
+				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_END_TIME");
+				// throw new ParseException("PARAMETER.END_TIME", 0);
 			}
 		}
 		// DEADLINE DATE
@@ -139,12 +146,14 @@ public class Validator {
 			if (dateOfDeadline != null) {
 				Calendar cal = Calendar.getInstance();
 				if (dateOfDeadline.before(cal.getTime())) {
-					throw new IllegalArgumentException("DEADLINE_DATE before CURRENTDATE");
-				} else {
-					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
-				}
+					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");				
+					// throw new IllegalArgumentException("DEADLINE_DATE before CURRENTDATE");
+				} 
+				objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 			} else {
-				throw new ParseException("PARAMETER.DEADLINE_DATE", 0);
+				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_DEADLINE_DATE");
+				// throw new ParseException("PARAMETER.DEADLINE_DATE", 0);
 			}
 		}
 
@@ -164,49 +173,26 @@ public class Validator {
 				Calendar current = Calendar.getInstance();
 				dateOfDeadline = cal.getTime();
 				if (cal.getTime().before(current.getTime())) {
-					throw new IllegalArgumentException("DEADLINE_TIME before CURRENT");
-				} else {
-					objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
+					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
+					// throw new IllegalArgumentException("DEADLINE_TIME before CURRENT");
 				}
+				objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
 			} else {
-				throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
+				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_DEADLINE_TIME");
+				// throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
 		}
-		
-		// Deadline time
-			if (deadlineTime != null) {
-				Date timeOfDeadline = validTimeFormat(deadlineTime);
-				if (timeOfDeadline != null) {
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(dateOfDeadline);
-
-					Calendar timePortion = Calendar.getInstance();
-					timePortion.setTime(timeOfDeadline);
-
-					cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
-					cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-
-					Calendar current = Calendar.getInstance();
-					dateOfDeadline = cal.getTime();
-					if (cal.getTime().before(current.getTime())) {
-						throw new IllegalArgumentException("DEADLINE_TIME before CURRENT");
-					} else {
-						objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
-					}
-				} else {
-					throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
-				}
-			}
 			
-			if(taskID != null){
-				if(containsOnlyNumbers(taskID)){
-					objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
-				} else {
-					throw new ParseException("PARAMETER.TASKID", 0);
-				}
+		if(taskID != null){
+			if(containsOnlyNumbers(taskID)){
+				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
+			} else {
+				context.displayMessage("ERROR_PARAM_SUBTITLE");
+				context.displayMessage("PARAM_TASKID");
+				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
-		
-		// TODO:REMIND TIMES????
+		}
 
 		return objectHashMap;
 	}

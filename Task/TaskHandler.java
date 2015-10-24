@@ -73,14 +73,6 @@ public class TaskHandler {
 	
 	private static final Logger LOGGER = Logger.getLogger(TaskHandler.class.getName());
 	
-	// Define minimum argument numbers here
-	//TODO: Do these make sense to have now?
-	private static final int NUM_ARGS_ADD_TASK     = 6;
-	private static final int NUM_ARGS_GET_TASK     = 3;
-	private static final int NUM_ARGS_DISPLAY_TASK = 0;
-	private static final int NUM_ARGS_SEARCH_TASK  = 1;
-	private static final int NUM_ARGS_EDIT_TASK    = 1;
-	
 	private static final boolean TASK_DONE    	= true;
 	private static final boolean TASK_NOT_DONE	= false;
 	
@@ -95,6 +87,7 @@ public class TaskHandler {
 	private static FileIO           fileIO;
 	private static Validator        validate         = new Validator();
 	private static TaskUndoManager      undoManager;
+	private static Context context = Context.getInstance();
 	
 	/**
 	 * Starts the program
@@ -109,7 +102,8 @@ public class TaskHandler {
 	
 	public static String inputFeedBack(String input){
 		if(isValidCommand(input)) {
-			return executeCommand(input);
+			executeCommand(input);
+			return "";
 		}
 		return null;
 	}
@@ -138,6 +132,7 @@ public class TaskHandler {
 		fileIO = new FileIO(localFilePath);
 		taskList = fileIO.readFromFile();
 		currentTaskId = fileIO.getMaxTaskId();
+		context.clearAllMessages();
 	}
 
 	/**
@@ -159,11 +154,11 @@ public class TaskHandler {
 	 * @param userInput The input to be executed
 	 * @return The feedback to give to the user
 	 */
-	public static String executeCommand(String userInput) {
+	public static void executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
 		HashMap<PARAMETER, Object> parsedParamTable;
 		String message;
-		try{
+//		try{
 			switch (command) {
 				case ADD_TASK:
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
@@ -179,19 +174,21 @@ public class TaskHandler {
 											(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME));
 						
 						fileIO.writeToFile(taskList);
-						return message;
 					} else {
-						return ERROR_INVALID_COMMAND + "\n" + HELP_ADD_TASK; 
+						context.displayMessage("ERROR_INVALID_COMMAND");
+						context.displayMessage("HELP_ADD_TASK");
 					}
+					break;
 				case DISPLAY:
 					if (taskList.isEmpty()) {
-						return ERROR_EMPTY_TASKLIST;
+						context.displayMessage("ERROR_EMPTY_TASKLIST");
 					} else if(removeFirstWord(userInput).length() != 0){
 						parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
-						return displayTask((int)parsedParamTable.get(PARAMETER.TASKID));					
+						displayTask((int)parsedParamTable.get(PARAMETER.TASKID));					
 					} else {
-						return displayAllTasks();
+						displayAllTasks();
 					}
+					break;
 				case EDIT_TASK:
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 	
@@ -206,47 +203,46 @@ public class TaskHandler {
 										(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME));
 					
 					fileIO.writeToFile(taskList);
-					return message;
+					break;
 				case DELETE_TASK:
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 
 					message = removeTask((int)parsedParamTable.get(PARAMETER.TASKID));
 					fileIO.writeToFile(taskList);
-					
-					return message;
+					break;
 				case UNDO:
-					message = undoSingleCommand();
+					undoSingleCommand();
 					fileIO.writeToFile(taskList);
-					return message;
+					break;
 				case REDO:
-					message = redoSingleCommand();
+					redoSingleCommand();
 					fileIO.writeToFile(taskList);
-					return message;
+					break;
 				case DONE:
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 					message = markTask((int)parsedParamTable.get(PARAMETER.TASKID),TASK_DONE);
 					fileIO.writeToFile(taskList);
-					return message;
+					break;
 				case UNDONE:
 					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 					message = markTask((int)parsedParamTable.get(PARAMETER.TASKID), TASK_NOT_DONE);
 					fileIO.writeToFile(taskList);
-					return message;
+					break;
 				case INVALID_COMMAND:
-					showHelpMenu();
-					return "";
+					context.displayMessage("ERROR_INVALID_COMMAND");
+					break;
 				case EXIT:
 					fileIO.writeToFile(taskList);
 					System.exit(0);
 				default:
-					return "There is an error in your code.";
+					break;
 			
 			}
-		} catch (ParseException p){
-			return "There is an error in the parameter: " + p.getMessage();
-		} catch (IllegalArgumentException a) {
-			return "There is an error in your command: " + a.getMessage();
-		}
+//		} catch (ParseException p){
+//			// return "There is an error in the parameter: " + p.getMessage();
+//		} catch (IllegalArgumentException a) {
+//			// return "There is an error in your command: " + a.getMessage();
+//		}
 	}
 
 	/**
@@ -267,39 +263,43 @@ public class TaskHandler {
 				compoundEdit.end();
 				t.setDone(isDone);
 				undoManager.addEdit(compoundEdit);
+				context.displayMessage("MESSAGE_DONE_TASK");
+				context.addTask(t);
 				return isDoneTask + " " + MESSAGE_DONE_TASK + t.toString();
 			}
 		}
 		return ERROR_NOT_FOUND_TASK;
 	}
 
-	private static String undoSingleCommand() {
+	private static void undoSingleCommand() {
 		try {
 			if (undoManager.canUndo()) {
 				UndoableEdit nextEdit = undoManager.editToBeUndone();
 				TaskEdit taskEdit = (TaskEdit) nextEdit;
 				undoManager.undo();
-				return taskEdit.getTask().toString() + "\n" + MESSAGE_UNDO_TASK;
+				context.addTask(taskEdit.getTask());
+				context.displayMessage("MESSAGE_UNDO_TASK");
 			} else {
-				return ERROR_CANNOT_UNDO;
+				context.displayMessage("ERROR_CANNOT_UNDO");
 			}
 		} catch (CannotUndoException e) {
-			return ERROR_CANNOT_UNDO;
+			context.displayMessage("ERROR_CANNOT_REDO");
 		}
 	}
 
-	private static String redoSingleCommand() {
+	private static void redoSingleCommand() {
 		try {
 			if (undoManager.canRedo()) {
 				UndoableEdit nextEdit = undoManager.editToBeRedone();
 				TaskEdit taskEdit = (TaskEdit) nextEdit;
 				undoManager.redo();
-				return taskEdit.getTask().toString() + "\n" + MESSAGE_REDO_TASK;
+				context.addTask(taskEdit.getTask());
+				context.displayMessage("MESSAGE_REDO_TASK");
 			} else {
-				return ERROR_CANNOT_REDO;
+				context.displayMessage("ERROR_CANNOT_REDO");
 			}
 		} catch (CannotRedoException e) {
-			return ERROR_CANNOT_REDO;
+			context.displayMessage("ERROR_CANNOT_UNDO");
 		}
 	}
 
@@ -331,9 +331,11 @@ public class TaskHandler {
 		if (ID != -1){
 			task = searchTasks(ID);
 			if (task == null) {
+				context.displayMessage("ERROR_TASK_NOT_FOUND");
 				return ERROR_NOT_FOUND_TASK;
 			}
 		} else {
+			context.displayMessage("ERROR_TASK_NOT_FOUND");
 			return ERROR_NOT_FOUND_TASK;
 		}
 		
@@ -494,17 +496,23 @@ public class TaskHandler {
 				compoundEdit.end();
 				edit1.setSignificant();
 				undoManager.addEdit(compoundEdit);
+				context.addTask(task);
+				context.displayMessage("MESSAGE_EDIT_TASK");
 				return task.toString() + MESSAGE_EDIT_TASK;
 			} else {
+				context.displayMessage("ERROR_INVALID_COMMAND");
+				context.displayMessage("HELP_EDIT_TASK");
 				return ERROR_INVALID_COMMAND + "\n" + HELP_EDIT_TASK;
 			}
 			
 		} catch (IllegalArgumentException a) {
 			// a.printStackTrace();
 			//TODO:change message
+			context.displayMessage("ERROR_START_BEFORE_END");
 			return ERROR_DATEFORMAT;
 		} catch (ParseException e) {			
 			e.printStackTrace();
+			context.displayMessage("ERROR_DATEFORMAT");
 			return ERROR_DATEFORMAT;	
 		} 
 	}
@@ -531,6 +539,7 @@ public class TaskHandler {
 					task = new Task(currentTaskId+1, desc, venue);						// Floating task
 				}
 			} catch (IllegalArgumentException e){
+				context.displayMessage("ERROR_START_BEFORE_END");
 				return e.getMessage();
 			}
 			
@@ -546,9 +555,11 @@ public class TaskHandler {
 			taskList.add(task);
 			undoManager.addEdit(compoundEdit);
 			currentTaskId += 1;
+			context.addTask(task);
+			context.displayMessage("MESSAGE_ADD_TASK");
 			return task.toString() + "\n" + MESSAGE_ADD_TASK;
 		}
-		
+		context.displayMessage("ERROR_NO_DESC");
 		return ERROR_NO_DESC;
 	}
 	
@@ -568,9 +579,12 @@ public class TaskHandler {
 				compoundEdit.end();
 
 				undoManager.addEdit(compoundEdit);
+				context.addTask(t);
+				context.displayMessage("MESSAGE_DELETE_TASK");
 				return removedTask + MESSAGE_DELETE_TASK;
 			}
 		}
+		context.displayMessage("ERROR_TASK_NOT_FOUND");
 		return ERROR_NOT_FOUND_TASK;
 		
 	}
@@ -608,6 +622,7 @@ public class TaskHandler {
 				}
 			}
 		}
+		context.displayMessage("ERROR_TASK_NOT_FOUND");
 		return ERROR_NOT_FOUND_TASK;
 	}
 	
@@ -616,11 +631,12 @@ public class TaskHandler {
 	 * @return 
 	 */
 	private static String displayAllTasks() {
-		StringBuilder taskListString = new StringBuilder();
-		for (int i = 0; i < taskList.size() ; i++) {
-			taskListString.append(taskList.get(i).toString());
+		context.displayMessage("MESSAGE_DISPLAY");
+		
+		for(Task task:taskList) {
+			context.addTask(task);
 		}
-		return taskListString.toString() + "\n" + MESSAGE_DISPLAY;
+		return "";
 	}
 	
 	/**

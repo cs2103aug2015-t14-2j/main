@@ -24,7 +24,7 @@ public class Gui extends JFrame {
 	static Gui instance = null;
 	static JTextField tb = null;
 	
-    public Gui() {
+    public Gui(Controller c) {
         super("ShapedWindow");
         setLayout(new GridBagLayout());
         setAlwaysOnTop (true);
@@ -43,23 +43,22 @@ public class Gui extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         tb = new JTextField("", TEXTBOX_SIZE);
-        tb.addActionListener(new AbstractAction()
-							        {
-							            @Override
-							            public void actionPerformed(ActionEvent e)
-							            {
-							            	synchronized(Gui.class) {
-							            		Gui.class.notify();
-							            		//TODO: call main thread
-							            	}
-							            }
-							        });
+        Action action = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+            	String input = getUserInput();
+                c.executeGUIInput(input);
+            }
+        };
+
+        tb.addActionListener(action);
         add(tb);
     }
     
 	protected static Gui getCurrentInstance() {
 		if(instance == null){
-			instance = new Gui();
+			instance = new Gui(Controller.getInstance());
 		}
 		return instance;
 	}
@@ -127,18 +126,10 @@ public class Gui extends JFrame {
     }
 
 	public String getUserInput() {
-		synchronized(Gui.class) {
-			String userInput = "";
-		    try {
-		        Gui.class.wait();
-		        userInput = Gui.tb.getText();
-		        Gui.tb.setText("");
-		    } catch (InterruptedException e) {
-		        // Happens if someone interrupts your thread.
-		    	return "";
-		    }
-		    return userInput;
-		}
+		String userInput = "";
+	    userInput = tb.getText();
+	    tb.setText("");
+	    return userInput;
 	}
     
 }
