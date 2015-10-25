@@ -661,11 +661,11 @@ public class TaskHandler {
 			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
 				compareTask.getDeadline().before(taskListTask.getDeadline()) 						))&&
 			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
-				compareTask.getVenue().toLowerCase().contains(
-						taskListTask.getVenue().toLowerCase())										))&&
+					taskListTask.getVenue().toLowerCase().contains(
+							compareTask.getVenue().toLowerCase())									))&&
 			(compareTask.getDescription()	== null || (taskListTask.getDescription() != null 	&&
-				compareTask.getDescription().toLowerCase().contains(
-						taskListTask.getDescription().toLowerCase())								))&&
+					taskListTask.getDescription().toLowerCase().contains(
+							compareTask.getDescription().toLowerCase())								))&&
 			
 			//TODO:search for boolean values 
 			//compareTask.isDone() == taskListTask.isDone()
