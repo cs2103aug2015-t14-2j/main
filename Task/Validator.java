@@ -34,7 +34,9 @@ import java.util.Locale;
  * 
  * 		   5) Words : Today, tomorrow, tdy , tmr
  * 
- * 		   6) Monday to SUNDAY also supported			
+ * 		   6) Monday to SUNDAY also supported	
+ * 			HOWEVER : ONLY WORK ON : START_DATES, DEADLINE_DEADS.
+ * 			Does not support "from monday to friday" , only "on monday", "by monday" etc. 		
  * 
  *         Todo: Today, tday, tomorrow, tmr, mon tues etc,
  * 
@@ -45,7 +47,8 @@ import java.util.Locale;
 
 public class Validator {
 	private static Context context = Context.getInstance();
-
+	static boolean isEndDate = false;
+	
 	public Validator() {
 	}
 
@@ -74,7 +77,8 @@ public class Validator {
 		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
-
+		isEndDate = false;
+		
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 		if (startDate != null) {
@@ -90,8 +94,8 @@ public class Validator {
 			}
 		}
 		// end date
-
 		if (endDate != null) {
+			isEndDate = true;
 			end_Date = validDateFormat(endDate);
 			if (end_Date != null) {
 				objectHashMap.put(PARAMETER.END_DATE, end_Date);
@@ -237,7 +241,7 @@ public class Validator {
 	}
 
 	private static Date validDateFormat(String string) {
-		if (wordFormat(string) != null) {
+		if (wordFormat(string) != null && isEndDate == false) {
 			return wordFormat(string);
 		}
 

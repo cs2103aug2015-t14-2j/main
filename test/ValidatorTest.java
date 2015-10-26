@@ -197,8 +197,6 @@ public class ValidatorTest {
 	}
 	
 	
-	
-	
 	@Test
 	// Test Improper day
 	public void numberDateFormat4() {
@@ -296,5 +294,6 @@ public class ValidatorTest {
 		// String output = timeFormat.format(timeTest);
 		assertEquals(timeTest, null);
 	}
+	
 	
 }
