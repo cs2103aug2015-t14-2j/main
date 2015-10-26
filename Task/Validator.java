@@ -32,7 +32,9 @@ import java.util.Locale;
  * 
  *         4) Word Month Format with Month first accepted. Etc: August 8
  * 
+ * 		   5) Words : Today, tomorrow, tdy , tmr
  * 
+ * 		   6) Monday to SUNDAY also supported			
  * 
  *         Todo: Today, tday, tomorrow, tmr, mon tues etc,
  * 
