@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -155,6 +156,26 @@ public class ValidatorTest {
 		String output = dateFormat.format(dateTest);
 		assertEquals(output, "21-05-2016");
 	}
+	
+	
+	@Test
+	// Test Word Date formats
+	public void testWordFormat(){
+		Date date = Validator.wordFormat("today");
+		Calendar cal = Calendar.getInstance();
+		assertEquals(date, cal.getTime());
+		
+		date = Validator.wordFormat("tomorrow");
+		cal.add(Calendar.DAY_OF_YEAR, 1);
+		assertEquals(date, cal.getTime());
+		
+		date = Validator.wordFormat("day afTer");
+		cal.add(Calendar.DAY_OF_YEAR, 1);
+		assertEquals(date, cal.getTime());
+	}
+	
+	
+	
 	
 	@Test
 	//Test Time formats

@@ -44,10 +44,11 @@ import java.util.Locale;
 public class Validator {
 	private static Context context = Context.getInstance();
 
-	public Validator() {}
+	public Validator() {
+	}
 
 	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap) {
-		
+
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
@@ -57,7 +58,7 @@ public class Validator {
 		if (hashmap.get(PARAMETER.VENUE) != null) {
 			if (isValidString(hashmap.get(PARAMETER.VENUE))) {
 				objectHashMap.put(PARAMETER.VENUE, hashmap.get(PARAMETER.VENUE));
-			} 
+			}
 		}
 		// DO DATE
 		// START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE_DATE,
@@ -81,8 +82,9 @@ public class Validator {
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_START_DATE");
-				// throw new ParseException("PARAMETER.START_DATE", 0);// No such
-																	// format
+				// throw new ParseException("PARAMETER.START_DATE", 0);// No
+				// such
+				// format
 			}
 		}
 		// end date
@@ -95,7 +97,7 @@ public class Validator {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_END_DATE");
 				// throw new ParseException("PARAMETER.END_DATE", 0);// No such
-																	// format
+				// format
 			}
 		}
 		// start TIME
@@ -152,7 +154,8 @@ public class Validator {
 				if (dateOfDeadline.before(cal.getTime())) {
 					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
-					// throw new IllegalArgumentException("DEADLINE_DATE before CURRENTDATE");
+					// throw new IllegalArgumentException("DEADLINE_DATE before
+					// CURRENTDATE");
 				} else {
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 				}
@@ -180,7 +183,8 @@ public class Validator {
 				dateOfDeadline = cal.getTime();
 				if (cal.getTime().before(current.getTime())) {
 					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
-					// throw new IllegalArgumentException("DEADLINE_TIME before CURRENT");
+					// throw new IllegalArgumentException("DEADLINE_TIME before
+					// CURRENT");
 				}
 				objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
 			} else {
@@ -189,9 +193,9 @@ public class Validator {
 				// throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
 		}
-			
-		if(taskID != null){
-			if(containsOnlyNumbers(taskID)){
+
+		if (taskID != null) {
+			if (containsOnlyNumbers(taskID)) {
 				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
@@ -203,14 +207,17 @@ public class Validator {
 
 		return objectHashMap;
 	}
-	
+
 	/**
 	 * Used to check if the contents of a string are numerical
-	 * @param numString The string to be checked for all numbers
-	 * @return A boolean representation of whether the string provided is all numbers
+	 * 
+	 * @param numString
+	 *            The string to be checked for all numbers
+	 * @return A boolean representation of whether the string provided is all
+	 *         numbers
 	 */
 	public static boolean containsOnlyNumbers(String numString) {
-		return (numString.matches("^[0-9 ]+$")||(numString.equals("-1")));
+		return (numString.matches("^[0-9 ]+$") || (numString.equals("-1")));
 	}
 
 	/*
@@ -228,6 +235,10 @@ public class Validator {
 	}
 
 	private static Date validDateFormat(String string) {
+		if (wordFormat(string) != null) {
+			return wordFormat(string);
+		}
+
 		if (numberDateFormat(string) != null) {
 			return numberDateFormat(string);
 		}
@@ -235,6 +246,91 @@ public class Validator {
 			return wordMonthFormat(string);
 		}
 		return null;
+	}
+
+	public static Date wordFormat(String string) {
+		string = string.trim();
+		string = string.toLowerCase();
+		Calendar cal = Calendar.getInstance();
+		
+		Date date;
+		switch (string) {
+		case "today":
+		case "tdy":
+			date = cal.getTime();
+			break;
+		case "tomorrow":
+		case "tmr":
+			cal.add(Calendar.DAY_OF_YEAR, 1);
+			date = cal.getTime();
+			break;
+		case "the day after":
+		case "day after":
+			cal.add(Calendar.DAY_OF_YEAR, 2);
+			date = cal.getTime();
+			break;
+		case "monday":
+		case "mon":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "tuesday":
+		case "tues":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.TUESDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "wednesday":
+		case "wed":
+		case "wednes":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.WEDNESDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;		
+		case "thursday":
+		case "thurs":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.THURSDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "friday":
+		case "fri":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "saturday":
+		case "sat":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "sunday":
+		case "sun":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;			
+		default : 
+			date = null;
+		}
+
+		return date;
 	}
 
 	private static Date validTimeFormat(String string) {
