@@ -32,7 +32,9 @@ import java.util.Locale;
  * 
  *         4) Word Month Format with Month first accepted. Etc: August 8
  * 
+ * 		   5) Words : Today, tomorrow, tdy , tmr
  * 
+ * 		   6) Monday to SUNDAY also supported			
  * 
  *         Todo: Today, tday, tomorrow, tmr, mon tues etc,
  * 
@@ -42,25 +44,22 @@ import java.util.Locale;
  */
 
 public class Validator {
-	public Validator() {
+	private static Context context = Context.getInstance();
 
+	public Validator() {
 	}
 
-	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap)
-			throws ParseException {
+	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap) {
+
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
 			objectHashMap.put(PARAMETER.DESC, hashmap.get(PARAMETER.DESC));
-		} else {
-			throw new IllegalStateException("PARAMETER.DESC");
 		}
 
 		if (hashmap.get(PARAMETER.VENUE) != null) {
 			if (isValidString(hashmap.get(PARAMETER.VENUE))) {
 				objectHashMap.put(PARAMETER.VENUE, hashmap.get(PARAMETER.VENUE));
-			} else {
-				throw new IllegalStateException("PARAMETER.VENUE");
 			}
 		}
 		// DO DATE
@@ -74,7 +73,7 @@ public class Validator {
 		String endTime = hashmap.get(PARAMETER.END_TIME);
 		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
-		String remindTimes = hashmap.get(PARAMETER.REMIND_TIMES);
+		String taskID = hashmap.get(PARAMETER.TASKID);
 
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
@@ -83,8 +82,11 @@ public class Validator {
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			} else {
-				throw new ParseException("PARAMETER.START_DATE", 0);// No such
-																	// format
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_START_DATE");
+				// throw new ParseException("PARAMETER.START_DATE", 0);// No
+				// such
+				// format
 			}
 		}
 		// end date
@@ -92,14 +94,12 @@ public class Validator {
 		if (endDate != null) {
 			end_Date = validDateFormat(endDate);
 			if (end_Date != null) {
-				if (end_Date.before(start_Date)) {
-					throw new IllegalArgumentException("END_DATE before START_DATE");
-				} else {
-					objectHashMap.put(PARAMETER.END_DATE, end_Date);
-				}
+				objectHashMap.put(PARAMETER.END_DATE, end_Date);
 			} else {
-				throw new ParseException("PARAMETER.END_DATE", 0);// No such
-																	// format
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_END_DATE");
+				// throw new ParseException("PARAMETER.END_DATE", 0);// No such
+				// format
 			}
 		}
 		// start TIME
@@ -118,7 +118,9 @@ public class Validator {
 				start_Date = cal.getTime();
 				objectHashMap.put(PARAMETER.START_TIME, start_Date);
 			} else {
-				throw new ParseException("PARAMETER.START_TIME", 0);
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_START_TIME");
+				// throw new ParseException("PARAMETER.START_TIME", 0);
 			}
 		}
 		// End time
@@ -140,7 +142,9 @@ public class Validator {
 					objectHashMap.put(PARAMETER.END_TIME, end_Date);
 				}
 			} else {
-				throw new ParseException("PARAMETER.END_TIME", 0);
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_END_TIME");
+				// throw new ParseException("PARAMETER.END_TIME", 0);
 			}
 		}
 		// DEADLINE DATE
@@ -150,12 +154,17 @@ public class Validator {
 			if (dateOfDeadline != null) {
 				Calendar cal = Calendar.getInstance();
 				if (dateOfDeadline.before(cal.getTime())) {
-					throw new IllegalArgumentException("DEADLINE_DATE before CURRENTDATE");
+					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
+					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
+					// throw new IllegalArgumentException("DEADLINE_DATE before
+					// CURRENTDATE");
 				} else {
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 				}
 			} else {
-				throw new ParseException("PARAMETER.DEADLINE_DATE", 0);
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_DEADLINE_DATE");
+				// throw new ParseException("PARAMETER.DEADLINE_DATE", 0);
 			}
 		}
 
@@ -175,17 +184,42 @@ public class Validator {
 				Calendar current = Calendar.getInstance();
 				dateOfDeadline = cal.getTime();
 				if (cal.getTime().before(current.getTime())) {
-					throw new IllegalArgumentException("DEADLINE_TIME before CURRENT");
-				} else {
-					objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
+					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
+					// throw new IllegalArgumentException("DEADLINE_TIME before
+					// CURRENT");
 				}
+				objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
 			} else {
-				throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_DEADLINE_TIME");
+				// throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
 		}
-		// REMIND TIMES????
+
+		if (taskID != null) {
+			if (containsOnlyNumbers(taskID)) {
+				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
+			} else {
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_TASKID_NUM");
+				objectHashMap.put(PARAMETER.TASKID, 0);
+				// throw new ParseException("PARAMETER.TASKID", 0);
+			}
+		}
 
 		return objectHashMap;
+	}
+
+	/**
+	 * Used to check if the contents of a string are numerical
+	 * 
+	 * @param numString
+	 *            The string to be checked for all numbers
+	 * @return A boolean representation of whether the string provided is all
+	 *         numbers
+	 */
+	public static boolean containsOnlyNumbers(String numString) {
+		return (numString.matches("^[0-9 ]+$") || (numString.equals("-1")));
 	}
 
 	/*
@@ -196,14 +230,17 @@ public class Validator {
 	 */
 
 	private static boolean isValidString(String string) {
-		string = string.trim();
-		if (string == null || string.equals("")) {
+		if (string == null || string.trim().equals("")) {
 			return false;
 		}
 		return true;
 	}
 
 	private static Date validDateFormat(String string) {
+		if (wordFormat(string) != null) {
+			return wordFormat(string);
+		}
+
 		if (numberDateFormat(string) != null) {
 			return numberDateFormat(string);
 		}
@@ -211,6 +248,91 @@ public class Validator {
 			return wordMonthFormat(string);
 		}
 		return null;
+	}
+
+	public static Date wordFormat(String string) {
+		string = string.trim();
+		string = string.toLowerCase();
+		Calendar cal = Calendar.getInstance();
+		
+		Date date;
+		switch (string) {
+		case "today":
+		case "tdy":
+			date = cal.getTime();
+			break;
+		case "tomorrow":
+		case "tmr":
+			cal.add(Calendar.DAY_OF_YEAR, 1);
+			date = cal.getTime();
+			break;
+		case "the day after":
+		case "day after":
+			cal.add(Calendar.DAY_OF_YEAR, 2);
+			date = cal.getTime();
+			break;
+		case "monday":
+		case "mon":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "tuesday":
+		case "tues":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.TUESDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "wednesday":
+		case "wed":
+		case "wednes":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.WEDNESDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;		
+		case "thursday":
+		case "thurs":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.THURSDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "friday":
+		case "fri":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "saturday":
+		case "sat":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;
+		case "sunday":
+		case "sun":
+			cal.add(Calendar.DATE, 1);
+			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+			    cal.add(Calendar.DATE, 1);
+			}
+			date = cal.getTime();
+			break;			
+		default : 
+			date = null;
+		}
+
+		return date;
 	}
 
 	private static Date validTimeFormat(String string) {

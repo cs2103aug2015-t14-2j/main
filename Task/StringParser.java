@@ -1,8 +1,7 @@
 package Task;
 
-import java.util.ArrayList;
+import java.text.ParseException;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 /**
  *  Represents the parser for strings
@@ -13,6 +12,7 @@ import java.util.Map.Entry;
  */
 
 public class StringParser {
+	private static final Context context = Context.getInstance();
 	
 	//Define String constants here
 	private static final String SPACE_CHARACTER = "\\s+";
@@ -20,19 +20,30 @@ public class StringParser {
 	//Define int constants here
 	private static final int QUOTE_INTEGER = 34;
 	private static final int PARAM_NOT_FOUND = -1;
-	//private static final int WITHIN_KEYWORD = 0;
-	//private static final int SEPERATED_BY_SPACES = 1;
-	//private static final int HASHTAG_LENGTH = 1;
+	private static final int WITHIN_KEYWORD = 0;
+	private static final int SEPERATED_BY_SPACES = 1;
+	private static final int KEYWORD = 2;
+	private static final int HASHTAG_LENGTH = 1;
 	
 	/**
 	 * Used to get a HashMap from user input and a command type
 	 * @param command The type of command used to treat the userInput differently
 	 * @param userInput The string from the user
 	 * @return The hashmap with valid task inputs
+	 * @throws ParseException Used to detect user errors in input
 	 */
-	public static HashMap<PARAMETER, String> getValuesFromInput(COMMAND_TYPE command, String userInput) {
+	public static HashMap<PARAMETER, Object> getValuesFromInput(COMMAND_TYPE command, String userInput) {
 		
 		HashMap<PARAMETER, String> keywordHash = new HashMap<PARAMETER, String>(0);
+		
+		getStringHashMap(command, userInput, keywordHash);
+		
+		return Validator.getObjectHashMap(keywordHash);
+	}
+
+	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
+		
+		boolean hasSamedate = false;
 		
 		switch (command) {
 		case ADD_TASK:
@@ -40,23 +51,32 @@ public class StringParser {
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
 			
+			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
+					findKeywordIndexInput(userInput,"today",0) >= 0 ||
+					findKeywordIndexInput(userInput,"tomorrow",0) >= 0){
+				hasSamedate = true;
+			}
+			
 			//Take the repeating param keywords out
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
+			userInput = transferMultipleArgsToHashMap(PARAMETER.START_DATE,"today",KEYWORD,userInput,keywordHash);
+			userInput = transferMultipleArgsToHashMap(PARAMETER.START_DATE,"tomorrow",KEYWORD,userInput,keywordHash);
 			
 			String[] 	  keywordsInInputAdd	={"on","from","to","by"};
 			PARAMETER[][] paramInInputAdd		={{PARAMETER.START_DATE},
 												{PARAMETER.START_DATE, PARAMETER.START_TIME},
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
-												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}};
-			if(findKeywordIndexInput(userInput,"on",0) >= 0){
+												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}
+												};
+			if(hasSamedate){
 				paramInInputAdd[1] = new PARAMETER[] {PARAMETER.START_TIME};
 				paramInInputAdd[2] = new PARAMETER[] {PARAMETER.END_TIME};
 			}
 			
 			addAttributesToHashTable(keywordsInInputAdd, paramInInputAdd, userInput.split(SPACE_CHARACTER), keywordHash);
 			
-			if(findKeywordIndexInput(userInput,"on",0) >= 0){
+			if(hasSamedate){
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
 			break;
@@ -65,9 +85,14 @@ public class StringParser {
 			
 			userInput = getTaskID(userInput, keywordHash);
 			
-			//Take the "" keyword out first
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			
+			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
+					findKeywordIndexInput(userInput,"today",0) >= 0 ||
+					findKeywordIndexInput(userInput,"tomorrow",0) >= 0){
+				hasSamedate = true;
+			}
 			
 			//Take the repeating param keywords out
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
@@ -79,34 +104,124 @@ public class StringParser {
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
 												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}};
 			
-			if(findKeywordIndexInput(userInput,"on",0) >= 0){
+			if(hasSamedate){
 				paramInInputEd[1] = new PARAMETER[] {PARAMETER.START_TIME};
 				paramInInputEd[2] = new PARAMETER[] {PARAMETER.END_TIME};
 			}
 			
 			addAttributesToHashTable(keywordsInInputEd, paramInInputEd, userInput.split(SPACE_CHARACTER), keywordHash);
 			
-			if(findKeywordIndexInput(userInput,"on",0) >= 0){
+			if(hasSamedate){
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
-			break;
-			
-		case DISPLAY:
-			userInput = getTaskID(userInput, keywordHash);
 			break;
 			
 		case DELETE_TASK:
 			userInput = getTaskID(userInput, keywordHash);
 			break;
+
+		case DONE:
+			userInput = getTaskID(userInput, keywordHash);
+			break;
 			
-		case SEARCH_TASK:
+		case UNDONE:
+			userInput = getTaskID(userInput, keywordHash);
+			break;
+			
+		case DISPLAY:
+			userInput = getTaskID(userInput, keywordHash);
+			//Take the "" keyword out first
+			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
+			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			
+			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
+					findKeywordIndexInput(userInput,"today",0) >= 0 ||
+					findKeywordIndexInput(userInput,"tomorrow",0) >= 0){
+				hasSamedate = true;
+			}
+			
+			//Take the repeating param keywords out
+			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
+			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
+			userInput = transferMultipleArgsToHashMap(PARAMETER.START_DATE,"today",KEYWORD,userInput,keywordHash);
+			userInput = transferMultipleArgsToHashMap(PARAMETER.START_DATE,"tomorrow",KEYWORD,userInput,keywordHash);
+			
+			String[] 	  keywordsInInputSearch	={"on","from","to","by"};
+			PARAMETER[][] paramInInputSearch	={{PARAMETER.START_DATE},
+												{PARAMETER.START_DATE, PARAMETER.START_TIME},
+												{PARAMETER.END_DATE, PARAMETER.END_TIME},
+												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}
+												};
+			if(hasSamedate){
+				paramInInputSearch[1] = new PARAMETER[] {PARAMETER.START_TIME};
+				paramInInputSearch[2] = new PARAMETER[] {PARAMETER.END_TIME};
+			}
+			
+			addAttributesToHashTable(keywordsInInputSearch, paramInInputSearch, userInput.split(SPACE_CHARACTER), keywordHash);
+			
+			if(hasSamedate){
+				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
+			}
+			break;
+
 						
 		default:
 			
 		}
-		removeInvalidInputs(Validator.validateUserInput(command, keywordHash), keywordHash);
+	}
+	
+	/**
+	 * used to obtain the keywords with multiple parameters
+	 * @param keyword The PARAMETER to be placed in the hashMap
+	 * @param keywordString The string representation of the keyword
+	 * @param typeOfArguments Used to distinguish the way arguments are read; 0 for #, 1 for remind times
+	 * @param userInput The string to be parsed
+	 * @return The parsed string without the keyword and its params
+	 */
+	private static String transferMultipleArgsToHashMap(PARAMETER keyword, String keywordString, int typeOfArguments,
+			String userInput, HashMap<PARAMETER,String> keywordHash) {
 		
-		return keywordHash;
+		int indexOfOccurance = findKeywordIndexInput(userInput,keywordString,0);
+		int indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
+		
+		if(indexOfNextSpeace < 0){
+			indexOfNextSpeace = userInput.length();
+		}
+		/*if (indexOfOccurance > 0){
+			keywordHash.put(keyword, new ArrayList<String>());
+		}
+		
+		while(typeOfArguments == WITHIN_KEYWORD && indexOfOccurance > 0){
+			keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance + HASHTAG_LENGTH,indexOfNextSpeace - 1));
+			userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace - 1);
+			indexOfOccurance = findKeywordIndexInput(userInput,keywordString,indexOfOccurance);
+		}
+		
+		if(typeOfArguments == SEPERATED_BY_SPACES && indexOfOccurance >= 0){
+			userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace);
+			indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
+			
+			//used to check for all numerical reminders after remind keyword
+			while(containsOnlyNumbers(userInput.substring(indexOfOccurance,indexOfNextSpeace))){
+				indexOfNextSpeace = userInput.indexOf(" ", indexOfOccurance);
+				if(indexOfNextSpeace < 0){
+					keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance,userInput.length()));
+					userInput = trimStringPortionOut(userInput,indexOfOccurance,userInput.length());
+					break;
+				}
+				keywordHash.get(keyword).add(getKeywordnInString(userInput,indexOfOccurance,indexOfNextSpeace - 1));
+				userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace);
+			}
+		}*/
+		
+		if(typeOfArguments == KEYWORD && indexOfOccurance >= 0){
+			keywordHash.put(keyword,getKeywordnInString(userInput,indexOfOccurance,indexOfNextSpeace - 1));
+			userInput = trimStringPortionOut(userInput,indexOfOccurance,indexOfNextSpeace - 1);
+			indexOfOccurance = findKeywordIndexInput(userInput,keywordString,indexOfOccurance);
+		}
+		
+		
+		return userInput;
 	}
 
 	/**
@@ -128,43 +243,22 @@ public class StringParser {
 		} else if(inputArray[0].equals("") && inputArray.length == 1){
 			return "";
 		}
-		
-		if(containsOnlyNumbers(inputArray[0])){
-			keywordHash.put(PARAMETER.TASKID, inputArray[0]);
-			if(inputArray.length > 1){
-				return userInput.split(SPACE_CHARACTER,2)[1];
-			}
-			else return "";
+		if(inputArray[0] == null || !containsOnlyNumbers(inputArray[0])){
+			// To prevent null exceptions in TaskHandler
+			keywordHash.put(PARAMETER.TASKID, "-1");
+			return userInput;
 		}
-		return userInput;
+		keywordHash.put(PARAMETER.TASKID, inputArray[0]);
+		if(inputArray.length > 1){
+			return userInput.split(SPACE_CHARACTER,2)[1];
+		}
+		else return "";
 	}
-
-	/**
-	 * removes invalid inputs as dictated by the validator
-	 * @param validKeywordHash Hashmap of the valid entries in the original Hashmap
-	 * @param keywordHash The original Hashmap to be cleaned for valid entries
-	 * @return The original Hashmap minus any invalid entries as dictated by the validKeywordHash
-	 */
-	private static HashMap<PARAMETER, String> removeInvalidInputs(HashMap<PARAMETER, String> validKeywordHash,
-			HashMap<PARAMETER, String> keywordHash) {
-		ArrayList<PARAMETER> toRemove = new ArrayList<PARAMETER>();
-		for(Entry<PARAMETER, String> entry : validKeywordHash.entrySet()) {
-			if(validKeywordHash.get(entry.getKey()) != "VALID"){
-				 toRemove.add(entry.getKey());
-			}
-		}
-		for(int i = 0; i < toRemove.size(); i++){
-			keywordHash.remove(toRemove.get(i));
-		}
-		
-		return keywordHash;
-		
-	}
-
+	
 	/**
 	 * Used to check if the contents of a string are numerical
 	 * @param numString The string to be checked for all numbers
-	 * @return A boolean representation of wheather the string provided is all numbers
+	 * @return A boolean representation of whether the string provided is all numbers
 	 */
 	public static boolean containsOnlyNumbers(String numString) {
 		return numString.matches("^[0-9 ]+$");
