@@ -95,7 +95,6 @@ public class Validator {
 		}
 		// end date
 		if (endDate != null) {
-			isEndDate = true;
 			end_Date = validDateFormat(endDate);
 			if (end_Date != null) {
 				objectHashMap.put(PARAMETER.END_DATE, end_Date);
@@ -241,7 +240,7 @@ public class Validator {
 	}
 
 	private static Date validDateFormat(String string) {
-		if (wordFormat(string) != null && isEndDate == false) {
+		if (wordFormat(string) != null) {
 			return wordFormat(string);
 		}
 
