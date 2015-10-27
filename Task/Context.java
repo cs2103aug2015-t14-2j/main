@@ -10,39 +10,50 @@ public class Context {
 	private static Context context = null;
 	private static boolean DEBUG = true;
 	
+	// ANSI escape codes for color formatting in console output
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_BLACK = "\u001B[30m";
+	public static final String ANSI_RED = "\u001B[31m";
+	public static final String ANSI_GREEN = "\u001B[32m";
+	public static final String ANSI_YELLOW = "\u001B[33m";
+	public static final String ANSI_BLUE = "\u001B[34m";
+	public static final String ANSI_PURPLE = "\u001B[35m";
+	public static final String ANSI_CYAN = "\u001B[36m";
+	public static final String ANSI_WHITE = "\u001B[37m";
+	
 	// TaskID for editing, deleting or displaying a specific task
 	private static int taskId = 0;
 
 	// Define success messages here
-	private static Pair MESSAGE_WELCOME        = new Pair("Welcome to TaskBuddy!");
-	private static Pair MESSAGE_ADD_TASK       = new Pair("Successfully added task.");
-	private static Pair MESSAGE_GET_TASK       = new Pair("Task %d returned");
-	private static Pair MESSAGE_DISPLAY_ALL    = new Pair("All tasks displayed.");
-	private static Pair MESSAGE_DISPLAY		   = new Pair("Search results:");
-	private static Pair MESSAGE_SEARCH_TASK    = new Pair("Here are tasks matching your keywords:");
-	private static Pair MESSAGE_DELETE_TASK    = new Pair("Task %d has been deleted");
-	private static Pair MESSAGE_EDIT_TASK      = new Pair("Task %d has been updated!");
-	private static Pair MESSAGE_UNDO_TASK      = new Pair("Successfully undoed change(s) to Task %d.");
-	private static Pair MESSAGE_REDO_TASK      = new Pair("Successfully redoed change(s) to Task %d.");
-	private static Pair MESSAGE_DONE_TASK      = new Pair("Successfully updated Task %d to completed.");
-	private static Pair MESSAGE_UNDONE_TASK    = new Pair("Successfully updated Task %d to uncompleted.");
-	private static Pair MESSAGE_EXIT           = new Pair("Thanks for using TaskBuddy! Changes saved to disk.");
+	private static Pair MESSAGE_WELCOME        = new Pair(ANSI_GREEN + "Welcome to TaskBuddy!" + ANSI_RESET);
+	private static Pair MESSAGE_ADD_TASK       = new Pair(ANSI_GREEN + "Successfully added task." + ANSI_RESET);
+	private static Pair MESSAGE_GET_TASK       = new Pair(ANSI_GREEN + "Task %d returned" + ANSI_RESET);
+	private static Pair MESSAGE_DISPLAY_ALL    = new Pair(ANSI_GREEN + "All tasks displayed." + ANSI_RESET);
+	private static Pair MESSAGE_DISPLAY		   = new Pair(ANSI_GREEN + "Search results:" + ANSI_RESET);
+	private static Pair MESSAGE_SEARCH_TASK    = new Pair(ANSI_GREEN + "Here are tasks matching your keywords:" + ANSI_RESET);
+	private static Pair MESSAGE_DELETE_TASK    = new Pair(ANSI_GREEN + "Task %d has been deleted" + ANSI_RESET);
+	private static Pair MESSAGE_EDIT_TASK      = new Pair(ANSI_GREEN + "Task %d has been updated!" + ANSI_RESET);
+	private static Pair MESSAGE_UNDO_TASK      = new Pair(ANSI_GREEN + "Successfully undoed change(s) to Task %d." + ANSI_RESET);
+	private static Pair MESSAGE_REDO_TASK      = new Pair(ANSI_GREEN + "Successfully redoed change(s) to Task %d." + ANSI_RESET);
+	private static Pair MESSAGE_DONE_TASK      = new Pair(ANSI_GREEN + "Successfully updated Task %d to completed." + ANSI_RESET);
+	private static Pair MESSAGE_UNDONE_TASK    = new Pair(ANSI_GREEN + "Successfully updated Task %d to uncompleted." + ANSI_RESET);
+	private static Pair MESSAGE_EXIT           = new Pair(ANSI_GREEN + "Thanks for using TaskBuddy! Changes saved to disk." + ANSI_RESET);
 	
 	// Define warning messages here
-	private static Pair WARNING_DEADLINE_BEFORE_NOW = new Pair("WARNING: You have specified a deadline that is before the current time");
-	private static Pair WARNING_TASK_NOT_EDITED     = new Pair("Task %d was not edited.");
+	private static Pair WARNING_DEADLINE_BEFORE_NOW = new Pair(ANSI_YELLOW + "WARNING: You have specified a deadline that is before the current time" + ANSI_RESET);
+	private static Pair WARNING_TASK_NOT_EDITED     = new Pair(ANSI_YELLOW + "Task %d was not edited." + ANSI_RESET);
 
 	// Define error messages here
-	private static Pair ERROR_INVALID_COMMAND  = new Pair("Invalid Command.");
-	private static Pair ERROR_EMPTY_TASKLIST   = new Pair("You have no tasks!");
-	private static Pair ERROR_TASK_NOT_FOUND   = new Pair("The task was not found!");
-	private static Pair ERROR_NO_RESUlTS_FOUND = new Pair("No results were found!");
-	private static Pair ERROR_IO_TASK   	   = new Pair("The task could not be changed!");
-	private static Pair ERROR_NO_DESC   	   = new Pair("You must have a description for your task!");
-	private static Pair ERROR_CANNOT_UNDO      = new Pair("No more changes to undo.");
-	private static Pair ERROR_CANNOT_REDO      = new Pair("No more changes to redo.");
-	private static Pair ERROR_START_BEFORE_END = new Pair("You have entered an end time that is before start time!");
-	private static Pair ERROR_DATEFORMAT       = new Pair("The date and/or time you have entered is invalid. Date format is 'dd/M/yyyy' while time is 24 hrs 'HHmm e.g. 2359");
+	private static Pair ERROR_INVALID_COMMAND  = new Pair(ANSI_RED + "Invalid Command." + ANSI_RESET);
+	private static Pair ERROR_EMPTY_TASKLIST   = new Pair(ANSI_RED + "You have no tasks!" + ANSI_RESET);
+	private static Pair ERROR_TASK_NOT_FOUND   = new Pair(ANSI_RED + "The task was not found!" + ANSI_RESET);
+	private static Pair ERROR_NO_RESUlTS_FOUND = new Pair(ANSI_RED + "No results were found!" + ANSI_RESET);
+	private static Pair ERROR_IO_TASK   	   = new Pair(ANSI_RED + "The task could not be changed!" + ANSI_RESET);
+	private static Pair ERROR_NO_DESC   	   = new Pair(ANSI_RED + "You must have a description for your task!" + ANSI_RESET);
+	private static Pair ERROR_CANNOT_UNDO      = new Pair(ANSI_RED + "No more changes to undo." + ANSI_RESET);
+	private static Pair ERROR_CANNOT_REDO      = new Pair(ANSI_RED + "No more changes to redo." + ANSI_RESET);
+	private static Pair ERROR_START_BEFORE_END = new Pair(ANSI_RED + "You have entered an end time that is before start time!" + ANSI_RESET);
+	private static Pair ERROR_DATEFORMAT       = new Pair(ANSI_RED + "The date and/or time you have entered is invalid. Date format is 'dd/M/yyyy' while time is 24 hrs 'HHmm e.g. 2359" + ANSI_RESET);
 	
 	// Define help messages here
 	private static Pair HELP_TITLE             = new Pair("****************************************************************************Help menu for TaskBuddy!*********************************************************************************************");
@@ -61,17 +72,17 @@ public class Context {
 	private static Pair HELP_EXIT              = new Pair("  EXIT      : exit                                                                                                                                      | Terminate program                      ");
 	
 	// Parameter specific errors	
-	private static Pair PARAM_SUBTITLE      = new Pair("There are errors in the following parameters:");
-	private static Pair PARAM_TASKID_NUM    = new Pair("TaskID          : Invalid number. Please enter a number greater than 1.");
-	private static Pair PARAM_TASKID_NULL   = new Pair("TaskID          : Missing value. Please enter a number.");
-	private static Pair PARAM_DESC          = new Pair("Description     : Invalid value. Please try again.");
-	private static Pair PARAM_VENUE         = new Pair("Venue           : Invalid value. Please try again");
-	private static Pair PARAM_START_DATE    = new Pair("Start Date      : Invalid date format.");
-	private static Pair PARAM_END_DATE      = new Pair("End Date        : Invaild date format.");
-	private static Pair PARAM_START_TIME    = new Pair("Start Time      : Invalid time format. Use 24hr notation e.g. 0000-2359.");
-	private static Pair PARAM_END_TIME      = new Pair("End Time        : Invalid time format. Use 24hr notation e.g. 0000-2359.");
-	private static Pair PARAM_DEADLINE_DATE = new Pair("Deadline Date   : Invalid date format.");
-	private static Pair PARAM_DEADLINE_TIME = new Pair("Deadline Time   : Invalid time format. Use 24hr notation e.g. 0000-2359.");
+	private static Pair PARAM_SUBTITLE      = new Pair(ANSI_PURPLE + "There are errors in the following parameters:" + ANSI_RESET);
+	private static Pair PARAM_TASKID_NUM    = new Pair(ANSI_PURPLE + "TaskID          : Invalid number. Please enter a number greater than 1." + ANSI_RESET);
+	private static Pair PARAM_TASKID_NULL   = new Pair(ANSI_PURPLE + "TaskID          : Missing value. Please enter a number." + ANSI_RESET);
+	private static Pair PARAM_DESC          = new Pair(ANSI_PURPLE + "Description     : Invalid value. Please try again." + ANSI_RESET);
+	private static Pair PARAM_VENUE         = new Pair(ANSI_PURPLE + "Venue           : Invalid value. Please try again" + ANSI_RESET);
+	private static Pair PARAM_START_DATE    = new Pair(ANSI_PURPLE + "Start Date      : Invalid date format." + ANSI_RESET);
+	private static Pair PARAM_END_DATE      = new Pair(ANSI_PURPLE + "End Date        : Invaild date format." + ANSI_RESET);
+	private static Pair PARAM_START_TIME    = new Pair(ANSI_PURPLE + "Start Time      : Invalid time format. Use 24hr notation e.g. 0000-2359." + ANSI_RESET);
+	private static Pair PARAM_END_TIME      = new Pair(ANSI_PURPLE + "End Time        : Invalid time format. Use 24hr notation e.g. 0000-2359." + ANSI_RESET);
+	private static Pair PARAM_DEADLINE_DATE = new Pair(ANSI_PURPLE + "Deadline Date   : Invalid date format." + ANSI_RESET);
+	private static Pair PARAM_DEADLINE_TIME = new Pair(ANSI_PURPLE + "Deadline Time   : Invalid time format. Use 24hr notation e.g. 0000-2359." + ANSI_RESET);
 
 	// TaskList
 	private static ArrayList<Task> displayTaskSet = new ArrayList<Task>();
