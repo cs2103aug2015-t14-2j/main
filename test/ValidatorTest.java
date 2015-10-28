@@ -94,6 +94,32 @@ public class ValidatorTest {
 		String returnedDeadlineTime = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_TIME));
 		assertEquals(returnedDeadlineTime, "25-05-2016 1000");
 	}
+	
+	@Test
+	// This is to test getObjectHashMap() and see whether it returns the correct
+	// stuff.
+	public void testgetObjectHashMap3() throws ParseException {
+		// DESC, VENUE, START_DATE, END_DATE, START_TIME, END_TIME,
+		// DEADLINE,REMIND_TIME
+		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
+		testHashMap.put(PARAMETER.DESC, "Eat Apple");
+		testHashMap.put(PARAMETER.START_DATE, "toDay");
+		testHashMap.put(PARAMETER.END_DATE, "ToDAY");
+
+
+		//SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
+
+		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
+		Calendar cal = Calendar.getInstance();
+		returnedHashMap = Validator.getObjectHashMap(testHashMap);
+		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
+		//String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.START_DATE));
+		assertEquals(returnedHashMap.get(PARAMETER.START_DATE), cal.getTime());
+		//String returnedEndDate = dateFormat.format(returnedHashMap.get(PARAMETER.END_DATE));
+		assertEquals(returnedHashMap.get(PARAMETER.END_DATE),cal.getTime());
+	}
+	
+	
 
 	@Test
 	// Test Correct dates in this format: DD/MMM(WORD)

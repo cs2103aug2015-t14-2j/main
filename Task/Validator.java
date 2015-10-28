@@ -246,8 +246,12 @@ public class Validator {
 	}
 
 	private static Date validDateFormat(String string) {
+<<<<<<< HEAD
+		if (wordFormat(string) != null) {
+=======
 		if (wordFormat(string) != null && isEndDate == false) {
 		
+>>>>>>> origin/staging
 			return wordFormat(string);
 			
 		}
