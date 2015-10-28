@@ -47,7 +47,7 @@ import java.util.Locale;
 
 public class Validator {
 	private static Context context = Context.getInstance();
-	static boolean isEndDate = false;
+	//static boolean isEndDate = false;
 	
 	public Validator() {
 	}
@@ -77,7 +77,7 @@ public class Validator {
 		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
-		isEndDate = false;
+		//isEndDate = false;
 		//System.out.println(hashmap.get(PARAMETER.DEADLINE_DATE));
 		//System.out.println(hashmap.get(PARAMETER.START_DATE));
 		//System.out.println(hashmap.get(PARAMETER.END_DATE));
@@ -101,6 +101,7 @@ public class Validator {
 		// end date
 		if (endDate != null) {
 			end_Date = validDateFormat(endDate);
+			
 			if (end_Date != null) {
 				objectHashMap.put(PARAMETER.END_DATE, end_Date);
 				//System.out.println(objectHashMap.get(PARAMETER.END_DATE));
@@ -246,16 +247,9 @@ public class Validator {
 	}
 
 	private static Date validDateFormat(String string) {
-<<<<<<< HEAD
-		if (wordFormat(string) != null) {
-=======
-		if (wordFormat(string) != null && isEndDate == false) {
-		
->>>>>>> origin/staging
-			return wordFormat(string);
-			
+		if (wordFormat(string) != null ) {		
+			return wordFormat(string);			
 		}
-
 		else if (numberDateFormat(string) != null) {
 			return numberDateFormat(string);
 		}
@@ -341,11 +335,14 @@ public class Validator {
 			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
 			    cal.add(Calendar.DATE, 1);
 			}
-			date = cal.getTime();
+			cal.set(Calendar.HOUR_OF_DAY,23);
+			cal.set(Calendar.MINUTE,59);
+			date = cal.getTime();			
 			break;			
 		default : 
 			date = null;
 		}
+
 
 		return date;
 	}
