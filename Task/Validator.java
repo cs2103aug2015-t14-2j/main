@@ -78,6 +78,10 @@ public class Validator {
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
 		isEndDate = false;
+		//System.out.println(hashmap.get(PARAMETER.DEADLINE_DATE));
+		//System.out.println(hashmap.get(PARAMETER.START_DATE));
+		//System.out.println(hashmap.get(PARAMETER.END_DATE));
+		
 		
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
@@ -85,6 +89,7 @@ public class Validator {
 			start_Date = validDateFormat(startDate);
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
+				//System.out.println(objectHashMap.get(PARAMETER.START_DATE));
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_START_DATE");
@@ -95,10 +100,10 @@ public class Validator {
 		}
 		// end date
 		if (endDate != null) {
-			isEndDate = true;
 			end_Date = validDateFormat(endDate);
 			if (end_Date != null) {
 				objectHashMap.put(PARAMETER.END_DATE, end_Date);
+				//System.out.println(objectHashMap.get(PARAMETER.END_DATE));
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_END_DATE");
@@ -242,13 +247,15 @@ public class Validator {
 
 	private static Date validDateFormat(String string) {
 		if (wordFormat(string) != null && isEndDate == false) {
+		
 			return wordFormat(string);
+			
 		}
 
-		if (numberDateFormat(string) != null) {
+		else if (numberDateFormat(string) != null) {
 			return numberDateFormat(string);
 		}
-		if (wordMonthFormat(string) != null) {
+		else if (wordMonthFormat(string) != null) {
 			return wordMonthFormat(string);
 		}
 		return null;
@@ -431,6 +438,8 @@ public class Validator {
 			return date;
 		} catch (ParseException e) {
 			return null;
+		}catch (NullPointerException p){
+			return null;
 		}
 	}
 
@@ -598,7 +607,7 @@ public class Validator {
 						int year = Calendar.getInstance().get(Calendar.YEAR);
 						string = string + " " + year;
 					}
-					System.out.println(string);
+			
 					dateFormat = new SimpleDateFormat("MMMM dd yyyy", Locale.ENGLISH);
 				}
 				// Deals with 3 letters word month
@@ -638,6 +647,8 @@ public class Validator {
 			date = dateFormat.parse(string);
 			return date;
 		} catch (ParseException e) {
+			return null;
+		} catch (NullPointerException p){
 			return null;
 		}
 
