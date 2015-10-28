@@ -76,19 +76,14 @@ public class Validator {
 		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
-
-		System.out.println(startDate);
-		System.out.println(endDate);
-		System.out.println(startTime);
-		System.out.println(endTime);
-		System.out.println(deadlineDate);
-		System.out.println(deadlineTime);
+		
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 		if (startDate != null) {
 			start_Date = validDateFormat(startDate);
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
+				
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_START_DATE");
@@ -130,6 +125,8 @@ public class Validator {
 				context.displayMessage("PARAM_START_TIME");
 				// throw new ParseException("PARAMETER.START_TIME", 0);
 			}
+		}else {
+			objectHashMap.put(PARAMETER.START_TIME, objectHashMap.get(PARAMETER.START_DATE));
 		}
 		// End time
 		if (endTime != null) {
@@ -155,6 +152,8 @@ public class Validator {
 				context.displayMessage("PARAM_END_TIME");
 				// throw new ParseException("PARAMETER.END_TIME", 0);
 			}
+		}else {
+			objectHashMap.put(PARAMETER.END_TIME, objectHashMap.get(PARAMETER.END_DATE));
 		}
 		// DEADLINE DATE
 		Date dateOfDeadline = null;
@@ -168,6 +167,11 @@ public class Validator {
 					// throw new IllegalArgumentException("DEADLINE_DATE before
 					// CURRENTDATE");
 				} else {
+					Calendar cal2 = Calendar.getInstance();
+					cal2.setTime(dateOfDeadline);
+					cal2.set(Calendar.HOUR_OF_DAY,23);
+					cal2.set(Calendar.MINUTE,59);
+					dateOfDeadline = cal2.getTime();
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 				}
 			} else {
@@ -199,12 +203,13 @@ public class Validator {
 				}
 				objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
 				objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
-				System.out.println(dateOfDeadline);
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_DEADLINE_TIME");
 				// throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
+		}else {
+			objectHashMap.put(PARAMETER.DEADLINE_TIME, objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		}
 
 		if (taskID != null) {
@@ -217,7 +222,6 @@ public class Validator {
 				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
 		}
-
 		return objectHashMap;
 	}
 
@@ -265,7 +269,8 @@ public class Validator {
 		string = string.trim();
 		string = string.toLowerCase();
 		Calendar cal = Calendar.getInstance();
-		
+		cal.set(Calendar.HOUR_OF_DAY,00);
+		cal.set(Calendar.MINUTE,00);
 		Date date;
 		switch (string) {
 		case "today":
