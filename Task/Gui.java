@@ -12,6 +12,7 @@ import java.awt.geom.RoundRectangle2D;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -24,6 +25,7 @@ import static java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 
 import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
@@ -55,8 +57,8 @@ public class Gui extends JFrame {
 	private static JPanel 		textInputFeedback 	= null;
 	private static JPanel 		textTasks		 	= null;
 	private static JTextField 	inputField 			= null;
-	private static JTextField 	feedbackField 		= null;
-	private static JTextArea 	TaskField 			= null;
+	private static JEditorPane 	feedbackField 		= null;
+	private static JTextArea 	taskField 			= null;
 	
     public Gui(final Controller c) {
         super("ShapedWindow");
@@ -82,7 +84,7 @@ public class Gui extends JFrame {
         
         Font inputFont = new Font(FONT_NAME, Font.BOLD, INPUT_FONT_SIZE);
         inputField.setFont(inputFont);
-        inputField.setForeground(Color.LIGHT_GRAY);
+        inputField.setForeground(Color.GRAY);
         
         inputField.setHorizontalAlignment(SwingConstants.LEFT);
         
@@ -99,41 +101,34 @@ public class Gui extends JFrame {
         };
         inputField.addActionListener(action);
         
-        inputField.setText("hello world 1");
-        
         //FEEDBACK
         
-        feedbackField = new JTextField(TEXT_WIDTH);
+        feedbackField = new JEditorPane();
+        feedbackField.setContentType("text/html");
+        
         Font feedbackFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
         feedbackField.setFont(feedbackFont);
-        feedbackField.setForeground(Color.ORANGE);
         
         feedbackField.setEditable(false);
         feedbackField.setBorder(null);
         feedbackField.setBackground(getBackground());
         
-        feedbackField.setText("hello world 2");
-        
-        feedbackField.setHorizontalAlignment(SwingConstants.LEFT);
-        
         
         //TASKS
         
-        TaskField = new JTextArea(1,TEXT_WIDTH);
+        taskField = new JTextArea(1,TEXT_WIDTH);
         
-        TaskField.setLineWrap( true );
-        TaskField.setWrapStyleWord( true );
-        TaskField.setEditable(false);
+        taskField.setLineWrap( true );
+        taskField.setWrapStyleWord( true );
+        taskField.setEditable(false);
         
-        TaskField.setBorder(BorderFactory.createMatteBorder(0, 0, 5, 0, Color.LIGHT_GRAY));
+        taskField.setBorder(BorderFactory.createMatteBorder(0, 0, 5, 0, Color.LIGHT_GRAY));
         
         Font taskFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
-        TaskField.setFont(taskFont);
-        TaskField.setForeground(Color.BLUE);
+        taskField.setFont(taskFont);
+        taskField.setForeground(Color.BLUE);
         
-        TaskField.setText("hello world 3");
-        
-        JScrollPane scrollFeedbackField = new JScrollPane (TaskField, 
+        JScrollPane scrollFeedbackField = new JScrollPane (taskField, 
         		   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollFeedbackField.setBorder(null);
         
@@ -160,12 +155,27 @@ public class Gui extends JFrame {
 		return instance;
 	}
 	
+	 public static int getContentHeight(String content) {
+	        JEditorPane dummyEditorPane=new JEditorPane();
+	        dummyEditorPane.setSize(BOX_WIDTH,Short.MAX_VALUE);
+	        feedbackField.setContentType("text/html");
+	        dummyEditorPane.setText(content);
+	        
+	        return dummyEditorPane.getPreferredSize().height;
+	    }
+
+	
 	public void setFeedbackText(String feedback){
+		feedback = "<html>" + feedback + "</html>";
 		feedbackField.setText(feedback);
+		
+		textTasks.setSize(new Dimension(BOX_WIDTH,getContentHeight(feedback) + inputField.getSize().height));
+		
+		feedbackField.setSize(new Dimension(BOX_WIDTH,getContentHeight(feedback)));
 	}
 	
 	public void setTaskText(String feedback){
-		TaskField.setText(feedback);
+		taskField.setText(feedback);
 	}
     
     public static void switchViewWindow(Gui guiObject) throws InterruptedException{
@@ -174,8 +184,11 @@ public class Gui extends JFrame {
     			guiObject.setOpacity(guiObject.getOpacity()-FADE_OUT_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
-    		inputField.setText("");
+    		
     	} else {
+    		guiObject.setFeedbackText("<font color=\"green\">Welcome to TextBuddy! Input a command above to get started!</font>");
+    		inputField.setText("");
+    		taskField.setText("");
     		while(guiObject.getOpacity() < FADED_IN){
     			guiObject.setOpacity(guiObject.getOpacity()+FADE_IN_VAL);
     			Thread.sleep(FADE_DURATION_MS);

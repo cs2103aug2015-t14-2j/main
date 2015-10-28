@@ -61,7 +61,6 @@ public class TaskHandler {
 	public static void startTasks(String[] args) {
 		String localFilePath = determineFilePath(args);
 		init(localFilePath);
-		context.displayMessage("MESSAGE_WELCOME");
 	}
 	
 	public static void inputFeedBack(String input){

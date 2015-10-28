@@ -1,7 +1,8 @@
 package Task;
 
 import Task.Pair;
-import java.lang.reflect.*;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -11,15 +12,15 @@ public class Context {
 	private static boolean DEBUG = true;
 	
 	// ANSI escape codes for color formatting in console output
-	public static final String ANSI_RESET = "\u001B[0m";
-	public static final String ANSI_BLACK = "\u001B[30m";
-	public static final String ANSI_RED = "\u001B[31m";
-	public static final String ANSI_GREEN = "\u001B[32m";
-	public static final String ANSI_YELLOW = "\u001B[33m";
-	public static final String ANSI_BLUE = "\u001B[34m";
-	public static final String ANSI_PURPLE = "\u001B[35m";
-	public static final String ANSI_CYAN = "\u001B[36m";
-	public static final String ANSI_WHITE = "\u001B[37m";
+	public static final String ANSI_RESET = "</font>";
+	public static final String ANSI_BLACK = "<font color=\"black\">";
+	public static final String ANSI_RED = "<font color=\"red\">";
+	public static final String ANSI_GREEN = "<font color=\"green\">";
+	public static final String ANSI_YELLOW = "<font color=\"yellow\">";
+	public static final String ANSI_BLUE = "<font color=\"blue\">";
+	public static final String ANSI_PURPLE = "<font color=\"purple\">";
+	public static final String ANSI_CYAN = "<font color=\"cyan\">";
+	public static final String ANSI_WHITE = "<font color=\"white\">";
 	
 	// TaskID for editing, deleting or displaying a specific task
 	private static int taskId = 0;
@@ -190,7 +191,7 @@ public class Context {
 						} else {
 							output = pair.getKey();
 						}
-						message.append(output+ "\n");
+						message.append(output+ "<br>");
 						
 						//System.out.format(output + "\n", taskId);
 					}
@@ -200,10 +201,11 @@ public class Context {
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			}
-			Gui.getCurrentInstance().setFeedbackText(message.toString());
+			
 			
 		}
 		
+		Gui.getCurrentInstance().setFeedbackText(message.toString());
 		message = new StringBuilder();
 
 		// Print tasks
