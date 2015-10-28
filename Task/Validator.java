@@ -148,6 +148,7 @@ public class Validator {
 				} else {
 					end_Date = cal.getTime();
 					objectHashMap.put(PARAMETER.END_TIME, end_Date);
+					objectHashMap.put(PARAMETER.END_DATE, end_Date);
 				}
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
@@ -197,6 +198,8 @@ public class Validator {
 					// CURRENT");
 				}
 				objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
+				objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
+				System.out.println(dateOfDeadline);
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_DEADLINE_TIME");
@@ -604,7 +607,6 @@ public class Validator {
 						int year = Calendar.getInstance().get(Calendar.YEAR);
 						string = string + " " + year;
 					}
-					System.out.println(string);
 					dateFormat = new SimpleDateFormat("MMMM dd yyyy", Locale.ENGLISH);
 				}
 				// Deals with 3 letters word month
