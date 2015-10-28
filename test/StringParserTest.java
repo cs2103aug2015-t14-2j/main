@@ -80,13 +80,11 @@ public class StringParserTest {
 				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" today",keywordHash);
 		
 		assertEquals("today",
-				keywordHash.get(PARAMETER.START_DATE));
-		assertEquals("today",
-				keywordHash.get(PARAMETER.END_DATE));
-		assertEquals("1100",
-				keywordHash.get(PARAMETER.START_TIME));
-		assertEquals("1500",
 				keywordHash.get(PARAMETER.END_TIME));
+		assertEquals("1100",
+				keywordHash.get(PARAMETER.START_DATE));
+		assertEquals("1500",
+				keywordHash.get(PARAMETER.END_DATE));
 		
 		//Using tomrrow keyword
 		
@@ -94,13 +92,11 @@ public class StringParserTest {
 						"from 1100 at \"hong kong\" to 1500 do \"to be or not\" tomorrow",keywordHash);
 				
 				assertEquals("tomorrow",
-						keywordHash.get(PARAMETER.START_DATE));
-				assertEquals("tomorrow",
-						keywordHash.get(PARAMETER.END_DATE));
-				assertEquals("1100",
-						keywordHash.get(PARAMETER.START_TIME));
-				assertEquals("1500",
 						keywordHash.get(PARAMETER.END_TIME));
+				assertEquals("1100",
+						keywordHash.get(PARAMETER.START_DATE));
+				assertEquals("1500",
+						keywordHash.get(PARAMETER.END_DATE));
 	}
 	
 	@Test
