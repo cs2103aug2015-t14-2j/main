@@ -24,7 +24,7 @@ public class Gui extends JFrame {
 	static Gui instance = null;
 	static JTextField tb = null;
 	
-    public Gui(Controller c) {
+    public Gui(final Controller c) {
         super("ShapedWindow");
         setLayout(new GridBagLayout());
         setAlwaysOnTop (true);
