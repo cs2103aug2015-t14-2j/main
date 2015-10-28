@@ -1,10 +1,32 @@
 package Task;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import java.awt.geom.Ellipse2D;
-import static java.awt.GraphicsDevice.WindowTranslucency.*;
+
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.geom.RoundRectangle2D;
+
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+
+import static java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+
+import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
 
 public class Gui extends JFrame {
 	
@@ -14,15 +36,27 @@ public class Gui extends JFrame {
 	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
 	private static final float 	FADED_IN 			= .9f - FADE_IN_VAL;
 	
-	private static final int 	TEXTBOX_SIZE		= 20;
+	private static final int 	BOX_WIDTH			= 500;
+	private static final int 	BOX_HEIGHT			= 400;
+	private static final int 	BOX_ARC_WIDTH		= 15;
+	private static final int 	BOX_ARC_HEIGHT		= BOX_ARC_WIDTH;
+	
+	private static final int 	TEXT_WIDTH			= 380;
+	private static final int 	INPUT_FONT_SIZE		= 36;
+	private static final int 	FEEDBACK_FONT_SIZE	= 14;
+	private static final String FONT_NAME			= "SimSun";
 	
 	private static final String ERROR_NO_TRANSLUCENCY 		= "Translucency could not be enabled";
 	private static final String ERROR_NO_SHAPED_WINDOWS  	= "Shaped windows are not supported";
 	
 
 	
-	static Gui instance = null;
-	static JTextField tb = null;
+	private static Gui 			instance 			= null;
+	private static JPanel 		textInputFeedback 	= null;
+	private static JPanel 		textTasks		 	= null;
+	private static JTextField 	inputField 			= null;
+	private static JTextField 	feedbackField 		= null;
+	private static JTextArea 	TaskField 			= null;
 	
     public Gui(Controller c) {
         super("ShapedWindow");
@@ -33,16 +67,28 @@ public class Gui extends JFrame {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                setShape(new Ellipse2D.Double(0,0,getWidth(),getHeight()));
+                setShape(new RoundRectangle2D.Double(0,0,getWidth(),getHeight(),BOX_ARC_WIDTH,BOX_ARC_HEIGHT));
             }
         });
 
         setUndecorated(true);
-        setSize(300,100);
+        setSize(BOX_WIDTH,BOX_HEIGHT);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        tb = new JTextField("", TEXTBOX_SIZE);
+        //INPUT
+        
+        inputField = new JTextField(TEXT_WIDTH);
+        
+        Font inputFont = new Font(FONT_NAME, Font.BOLD, INPUT_FONT_SIZE);
+        inputField.setFont(inputFont);
+        inputField.setForeground(Color.LIGHT_GRAY);
+        
+        inputField.setHorizontalAlignment(SwingConstants.LEFT);
+        
+        inputField.setBorder(null);
+        inputField.setBackground(getBackground());
+        
         Action action = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e)
@@ -51,9 +97,60 @@ public class Gui extends JFrame {
                 c.executeGUIInput(input);
             }
         };
+        inputField.addActionListener(action);
+        
+        inputField.setText("hello world 1");
+        
+        //FEEDBACK
+        
+        feedbackField = new JTextField(TEXT_WIDTH);
+        Font feedbackFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
+        feedbackField.setFont(feedbackFont);
+        feedbackField.setForeground(Color.ORANGE);
+        
+        feedbackField.setEditable(false);
+        feedbackField.setBorder(null);
+        feedbackField.setBackground(getBackground());
+        
+        feedbackField.setText("hello world 2");
+        
+        feedbackField.setHorizontalAlignment(SwingConstants.LEFT);
+        
+        
+        //TASKS
+        
+        TaskField = new JTextArea(1,TEXT_WIDTH);
+        
+        TaskField.setLineWrap( true );
+        TaskField.setWrapStyleWord( true );
+        TaskField.setEditable(false);
+        
+        TaskField.setBorder(BorderFactory.createMatteBorder(0, 0, 5, 0, Color.LIGHT_GRAY));
+        
+        Font taskFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
+        TaskField.setFont(taskFont);
+        TaskField.setForeground(Color.BLUE);
+        
+        TaskField.setText("hello world 3");
+        
+        JScrollPane scrollFeedbackField = new JScrollPane (TaskField, 
+        		   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollFeedbackField.setBorder(null);
+        
+        //POSITIONING
+        
+        textInputFeedback = new JPanel(new BorderLayout());
+        textTasks = new JPanel(new BorderLayout());
 
-        tb.addActionListener(action);
-        add(tb);
+        textTasks.add(inputField,BorderLayout.PAGE_START);
+        textTasks.add(feedbackField,BorderLayout.PAGE_END);
+        textInputFeedback.add(textTasks,BorderLayout.PAGE_START);
+        textInputFeedback.add(scrollFeedbackField,BorderLayout.CENTER);
+        
+        textInputFeedback.setPreferredSize(getSize());
+        
+        add(textInputFeedback);
+        
     }
     
 	protected static Gui getCurrentInstance() {
@@ -62,6 +159,14 @@ public class Gui extends JFrame {
 		}
 		return instance;
 	}
+	
+	public void setFeedbackText(String feedback){
+		feedbackField.setText(feedback);
+	}
+	
+	public void setTaskText(String feedback){
+		TaskField.setText(feedback);
+	}
     
     public static void switchViewWindow(Gui guiObject) throws InterruptedException{
     	if(guiObject.getOpacity() > FADED_OUT){
@@ -69,13 +174,13 @@ public class Gui extends JFrame {
     			guiObject.setOpacity(guiObject.getOpacity()-FADE_OUT_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
-    		tb.setText("");
+    		inputField.setText("");
     	} else {
     		while(guiObject.getOpacity() < FADED_IN){
     			guiObject.setOpacity(guiObject.getOpacity()+FADE_IN_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
-    		tb.requestFocusInWindow();
+    		inputField.requestFocusInWindow();
     	}
     }
 
@@ -108,12 +213,6 @@ public class Gui extends JFrame {
                 // Display the window.
                 sw.setVisible(true);
                 
-                try {
-					Thread.sleep(FADE_DURATION_MS * FADE_DURATION_MS);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-                
                 // Switch the view of the window
                 try {
 					switchViewWindow(sw);
@@ -127,8 +226,8 @@ public class Gui extends JFrame {
 
 	public String getUserInput() {
 		String userInput = "";
-	    userInput = tb.getText();
-	    tb.setText("");
+	    userInput = inputField.getText();
+	    inputField.setText("");
 	    return userInput;
 	}
     
