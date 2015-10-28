@@ -223,12 +223,6 @@ public class Validator {
 				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
 		}
-		System.out.println(startDate);
-		System.out.println(startTime);
-		System.out.println(endDate);
-		System.out.println(endTime);
-		System.out.println(objectHashMap.get(PARAMETER.START_TIME));
-		System.out.println(objectHashMap.get(PARAMETER.END_TIME));
 		
 		return objectHashMap;
 	}
