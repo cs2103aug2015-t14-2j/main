@@ -172,6 +172,7 @@ public class Context {
 
 	public void printToTerminal() {
 		Class thisClass = Context.class;
+		StringBuilder message = new StringBuilder();
 
 		// Print messages
 		Field[] fields = thisClass.getDeclaredFields();
@@ -189,7 +190,9 @@ public class Context {
 						} else {
 							output = pair.getKey();
 						}
-						System.out.format(output + "\n", taskId);
+						message.append(output+ "\n");
+						
+						//System.out.format(output + "\n", taskId);
 					}
 				}
 			} catch (IllegalArgumentException e) {
@@ -197,18 +200,25 @@ public class Context {
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			}
+			Gui.getCurrentInstance().setFeedbackText(message.toString());
+			
 		}
+		
+		message = new StringBuilder();
 
 		// Print tasks
 		if (!displayTaskSet.isEmpty()) {
 			Iterator<Task> iterator = displayTaskSet.iterator();
 			while (iterator.hasNext()) {
 				Task task = iterator.next();
-				System.out.println(task.toString());
+				message.append(task.toString()+"\n");
+				//System.out.println(task.toString());
 			}
 		}
 
 		// Newline
-		System.out.println();
+		message.append("\n");
+		Gui.getCurrentInstance().setTaskText(message.toString());
+		//System.out.println();
 	}
 }
