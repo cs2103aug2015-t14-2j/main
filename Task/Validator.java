@@ -5,7 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+
+import com.joestelmach.natty.*;
 
 /**
  * 
@@ -43,8 +46,24 @@ import java.util.Locale;
 
 public class Validator {
 	private static Context context = Context.getInstance();
+	private static Parser parser = new Parser();
 
 	public Validator() {}
+
+	private static Date parseNatty(String dateString) {
+		List<DateGroup> dateGroup = parser.parse(dateString);
+		if (dateGroup.size()==1) {
+			List<Date> dateList = dateGroup.get(0).getDates();
+			if (dateList.size()==1) {
+				System.out.println(dateList.get(0).toString());
+				return dateList.get(0);
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
 
 	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap) {
 		
@@ -62,20 +81,22 @@ public class Validator {
 		// DO DATE
 		// START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE_DATE,
 		// DEADLINE_TIME, REMIND_TIMES
-		String startDate = hashmap.get(PARAMETER.START_DATE);
-		Date start_Date = null;
-		String endDate = hashmap.get(PARAMETER.END_DATE);
-		Date end_Date = null;
-		String startTime = hashmap.get(PARAMETER.START_TIME);
-		String endTime = hashmap.get(PARAMETER.END_TIME);
+		String startDate    = hashmap.get(PARAMETER.START_DATE);
+		Date start_Date     = null;
+		String endDate      = hashmap.get(PARAMETER.END_DATE);
+		Date end_Date       = null;
+		String startTime    = hashmap.get(PARAMETER.START_TIME);
+		String endTime      = hashmap.get(PARAMETER.END_TIME);
 		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
-		String taskID = hashmap.get(PARAMETER.TASKID);
+		String taskID       = hashmap.get(PARAMETER.TASKID);
 
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 		if (startDate != null) {
-			start_Date = validDateFormat(startDate);
+			if ((start_Date = parseNatty(startDate))==null) {
+				start_Date = validDateFormat(startDate);
+			}
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			} else {
@@ -85,10 +106,12 @@ public class Validator {
 																	// format
 			}
 		}
+		
 		// end date
-
 		if (endDate != null) {
-			end_Date = validDateFormat(endDate);
+			if((end_Date = parseNatty(endDate))==null) {
+				end_Date = validDateFormat(endDate);
+			}
 			if (end_Date != null) {
 				objectHashMap.put(PARAMETER.END_DATE, end_Date);
 			} else {
@@ -111,7 +134,9 @@ public class Validator {
 				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
 
-				start_Date = cal.getTime();
+				if ((start_Date = parseNatty(startDate + " " + startTime))==null) {
+					start_Date = cal.getTime();
+				}
 				objectHashMap.put(PARAMETER.START_TIME, start_Date);
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
@@ -134,7 +159,9 @@ public class Validator {
 				if (cal.getTime().before(start_Date)) {
 					throw new IllegalArgumentException("END_DATE before START_DATE");
 				} else {
-					end_Date = cal.getTime();
+					if ((end_Date = parseNatty(endDate + " " + endTime))==null) {
+						end_Date = cal.getTime();
+					}
 					objectHashMap.put(PARAMETER.END_TIME, end_Date);
 				}
 			} else {
@@ -146,7 +173,9 @@ public class Validator {
 		// DEADLINE DATE
 		Date dateOfDeadline = null;
 		if (deadlineDate != null) {
-			dateOfDeadline = validDateFormat(deadlineDate);
+			if((dateOfDeadline = parseNatty(deadlineDate))==null) {
+				dateOfDeadline = validDateFormat(deadlineDate);
+			}
 			if (dateOfDeadline != null) {
 				Calendar cal = Calendar.getInstance();
 				if (dateOfDeadline.before(cal.getTime())) {
@@ -164,8 +193,11 @@ public class Validator {
 		}
 
 		// Deadline time
+		Date timeOfDeadline = null;
 		if (deadlineTime != null) {
-			Date timeOfDeadline = validTimeFormat(deadlineTime);
+			if ((timeOfDeadline = parseNatty(deadlineDate + " " + deadlineTime))==null) {
+				timeOfDeadline = validTimeFormat(deadlineTime);
+			}
 			if (timeOfDeadline != null) {
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(dateOfDeadline);
