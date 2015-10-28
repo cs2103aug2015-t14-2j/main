@@ -180,6 +180,7 @@ public class Context {
 							output = pair.getKey();
 						}
 						message.append(output+ "\n");
+						
 						//System.out.format(output + "\n", taskId);
 					}
 				}
@@ -188,8 +189,11 @@ public class Context {
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			}
+			Gui.getCurrentInstance().setFeedbackText(message.toString());
 			
 		}
+		
+		message = new StringBuilder();
 
 		// Print tasks
 		if (!displayTaskSet.isEmpty()) {
@@ -203,7 +207,7 @@ public class Context {
 
 		// Newline
 		message.append("\n");
-		Gui.getCurrentInstance().setFeedbackText(message.toString());
+		Gui.getCurrentInstance().setTaskText(message.toString());
 		//System.out.println();
 	}
 }

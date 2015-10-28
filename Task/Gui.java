@@ -53,8 +53,10 @@ public class Gui extends JFrame {
 	
 	private static Gui 			instance 			= null;
 	private static JPanel 		textInputFeedback 	= null;
+	private static JPanel 		textTasks		 	= null;
 	private static JTextField 	inputField 			= null;
-	private static JTextArea 	feedbackField 		= null;
+	private static JTextField 	feedbackField 		= null;
+	private static JTextArea 	TaskField 			= null;
 	
     public Gui(Controller c) {
         super("ShapedWindow");
@@ -82,7 +84,7 @@ public class Gui extends JFrame {
         inputField.setFont(inputFont);
         inputField.setForeground(Color.LIGHT_GRAY);
         
-        inputField.setHorizontalAlignment(SwingConstants.CENTER);
+        inputField.setHorizontalAlignment(SwingConstants.LEFT);
         
         inputField.setBorder(null);
         inputField.setBackground(getBackground());
@@ -97,30 +99,53 @@ public class Gui extends JFrame {
         };
         inputField.addActionListener(action);
         
+        inputField.setText("hello world 1");
+        
         //FEEDBACK
         
-        feedbackField = new JTextArea(1,TEXT_WIDTH);
-        
-        feedbackField.setLineWrap( true );
-        feedbackField.setWrapStyleWord( true );
-        feedbackField.setEditable(false);
-        
-        feedbackField.setBorder(BorderFactory.createMatteBorder(0, 0, 5, 0, Color.LIGHT_GRAY));
-        
+        feedbackField = new JTextField(TEXT_WIDTH);
         Font feedbackFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
         feedbackField.setFont(feedbackFont);
-        feedbackField.setForeground(Color.BLUE);
+        feedbackField.setForeground(Color.ORANGE);
         
-        JScrollPane scrollFeedbackField = new JScrollPane (feedbackField, 
+        feedbackField.setEditable(false);
+        feedbackField.setBorder(null);
+        feedbackField.setBackground(getBackground());
+        
+        feedbackField.setText("hello world 2");
+        
+        feedbackField.setHorizontalAlignment(SwingConstants.LEFT);
+        
+        
+        //TASKS
+        
+        TaskField = new JTextArea(1,TEXT_WIDTH);
+        
+        TaskField.setLineWrap( true );
+        TaskField.setWrapStyleWord( true );
+        TaskField.setEditable(false);
+        
+        TaskField.setBorder(BorderFactory.createMatteBorder(0, 0, 5, 0, Color.LIGHT_GRAY));
+        
+        Font taskFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
+        TaskField.setFont(taskFont);
+        TaskField.setForeground(Color.BLUE);
+        
+        TaskField.setText("hello world 3");
+        
+        JScrollPane scrollFeedbackField = new JScrollPane (TaskField, 
         		   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollFeedbackField.setBorder(null);
         
         //POSITIONING
         
         textInputFeedback = new JPanel(new BorderLayout());
+        textTasks = new JPanel(new BorderLayout());
 
-        textInputFeedback.add(inputField,BorderLayout.PAGE_START);
-        textInputFeedback.add(scrollFeedbackField,BorderLayout.LINE_START);
+        textTasks.add(inputField,BorderLayout.PAGE_START);
+        textTasks.add(feedbackField,BorderLayout.PAGE_END);
+        textInputFeedback.add(textTasks,BorderLayout.PAGE_START);
+        textInputFeedback.add(scrollFeedbackField,BorderLayout.CENTER);
         
         textInputFeedback.setPreferredSize(getSize());
         
@@ -137,6 +162,10 @@ public class Gui extends JFrame {
 	
 	public void setFeedbackText(String feedback){
 		feedbackField.setText(feedback);
+	}
+	
+	public void setTaskText(String feedback){
+		TaskField.setText(feedback);
 	}
     
     public static void switchViewWindow(Gui guiObject) throws InterruptedException{
