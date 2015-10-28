@@ -60,7 +60,7 @@ public class Gui extends JFrame {
 	private static JEditorPane 	feedbackField 		= null;
 	private static JTextArea 	taskField 			= null;
 	
-    public Gui(Controller c) {
+    public Gui(final Controller c) {
         super("ShapedWindow");
         setLayout(new GridBagLayout());
         setAlwaysOnTop (true);
