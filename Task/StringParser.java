@@ -50,14 +50,11 @@ public class StringParser {
 			//Take the "" keyword out first
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
-			if(keywordHash.get(PARAMETER.DESC)==null){
-				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
-			}
 			
-			if(findKeywordIndexInput(userInput,"on",0) >= 0 //||
-					//findKeywordIndexInput(userInput,"today",0) >= 0 ||
-					//findKeywordIndexInput(userInput,"tomorrow",0) >= 0
-					){
+		
+			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
+					findKeywordIndexInput(userInput,"today",0) >= 0 ||
+					findKeywordIndexInput(userInput,"tomorrow",0) >= 0){
 				hasSamedate = true;
 			}
 			
@@ -65,8 +62,8 @@ public class StringParser {
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
 			if(!userInput.contains("from")&&!userInput.contains("by") ){
-			userInput = transferMultipleArgsToHashMap(PARAMETER.DEADLINE_DATE,"today",KEYWORD,userInput,keywordHash);
-			userInput = transferMultipleArgsToHashMap(PARAMETER.DEADLINE_DATE,"tomorrow",KEYWORD,userInput,keywordHash);
+			userInput = transferMultipleArgsToHashMap(PARAMETER.START_DATE,"today",KEYWORD,userInput,keywordHash);
+			userInput = transferMultipleArgsToHashMap(PARAMETER.START_DATE,"tomorrow",KEYWORD,userInput,keywordHash);
 			}
 			String[] 	  keywordsInInputAdd	={"on","from","to","by"};
 			PARAMETER[][] paramInInputAdd		={{PARAMETER.START_DATE},
@@ -78,7 +75,7 @@ public class StringParser {
 				paramInInputAdd[1] = new PARAMETER[] {PARAMETER.START_TIME};
 				paramInInputAdd[2] = new PARAMETER[] {PARAMETER.END_TIME};
 			}
-			
+	
 			addAttributesToHashTable(keywordsInInputAdd, paramInInputAdd, userInput.split(SPACE_CHARACTER), keywordHash);
 			
 			if(hasSamedate){
@@ -92,14 +89,10 @@ public class StringParser {
 			
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
-			if(keywordHash.get(PARAMETER.DESC)==null){
-				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
-			}
 			
-			if(findKeywordIndexInput(userInput,"on",0) >= 0 //||
-					//findKeywordIndexInput(userInput,"today",0) >= 0 ||
-					//findKeywordIndexInput(userInput,"tomorrow",0) >= 0
-					){
+			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
+					findKeywordIndexInput(userInput,"today",0) >= 0 ||
+					findKeywordIndexInput(userInput,"tomorrow",0) >= 0){
 				hasSamedate = true;
 			}
 			
@@ -120,11 +113,9 @@ public class StringParser {
 			
 			addAttributesToHashTable(keywordsInInputEd, paramInInputEd, userInput.split(SPACE_CHARACTER), keywordHash);
 			
-			
 			if(hasSamedate){
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
-			
 			break;
 			
 		case DELETE_TASK:
@@ -144,14 +135,10 @@ public class StringParser {
 			//Take the "" keyword out first
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
-			if(keywordHash.get(PARAMETER.DESC)==null){
-				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
-			}
-
-			if(findKeywordIndexInput(userInput,"on",0) >= 0 //||
-					//findKeywordIndexInput(userInput,"today",0) >= 0 ||
-					//findKeywordIndexInput(userInput,"tomorrow",0) >= 0
-					){
+			
+			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
+					findKeywordIndexInput(userInput,"today",0) >= 0 ||
+					findKeywordIndexInput(userInput,"tomorrow",0) >= 0){
 				hasSamedate = true;
 			}
 			
@@ -167,7 +154,6 @@ public class StringParser {
 												{PARAMETER.END_DATE, PARAMETER.END_TIME},
 												{PARAMETER.DEADLINE_DATE, PARAMETER.DEADLINE_TIME}
 												};
-			
 			if(hasSamedate){
 				paramInInputSearch[1] = new PARAMETER[] {PARAMETER.START_TIME};
 				paramInInputSearch[2] = new PARAMETER[] {PARAMETER.END_TIME};
@@ -178,7 +164,6 @@ public class StringParser {
 			if(hasSamedate){
 				keywordHash.put(PARAMETER.END_DATE, keywordHash.get(PARAMETER.START_DATE));
 			}
-			
 			break;
 
 						
@@ -290,18 +275,13 @@ public class StringParser {
 	 * @return The trimmed string without the 
 	 */
 	public static String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput, HashMap<PARAMETER, String> keywordHash) {
-		int positionOfKeyword;
-		if(keywordString.equals("")){
-			positionOfKeyword = 0;
-		} else {
-			positionOfKeyword = findKeywordIndexInput(userInput, keywordString,0);
-		}
+		int positionOfKeyword = findKeywordIndexInput(userInput, keywordString,0);
 		if(positionOfKeyword == -1){
 			return userInput;
 		}
 		int startOfQuote = userInput.indexOf(QUOTE_INTEGER, positionOfKeyword);
 		int endOfQuote = userInput.indexOf(QUOTE_INTEGER, startOfQuote + 1);
-		if(startOfQuote >= 0 && endOfQuote > 0){
+		if(startOfQuote > 0 && endOfQuote > 0){
 			keywordHash.put(keyword, (getKeywordnInString(userInput, startOfQuote + 1, endOfQuote - 1))); //Ignore the quote delimeters
 			return trimStringPortionOut(userInput, positionOfKeyword, endOfQuote + 1);
 		} else{

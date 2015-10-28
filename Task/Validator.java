@@ -32,11 +32,11 @@ import java.util.Locale;
  * 
  *         4) Word Month Format with Month first accepted. Etc: August 8
  * 
- * 		   5) Words : Today, tomorrow, tdy , tmr
+ *         5) Words : Today, tomorrow, tdy , tmr
  * 
- * 		   6) Monday to SUNDAY also supported	
- * 			HOWEVER : ONLY WORK ON : START_DATES, DEADLINE_DEADS.
- * 			Does not support "from monday to friday" , only "on monday", "by monday" etc. 		
+ *         6) Monday to SUNDAY also supported HOWEVER : ONLY WORK ON :
+ *         START_DATES, DEADLINE_DEADS. Does not support "from monday to friday"
+ *         , only "on monday", "by monday" etc.
  * 
  *         Todo: Today, tday, tomorrow, tmr, mon tues etc,
  * 
@@ -47,7 +47,7 @@ import java.util.Locale;
 
 public class Validator {
 	private static Context context = Context.getInstance();
-	
+
 	public Validator() {
 	}
 
@@ -76,14 +76,14 @@ public class Validator {
 		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
-		
+
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 		if (startDate != null) {
 			start_Date = validDateFormat(startDate);
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
-				
+
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_START_DATE");
@@ -108,52 +108,67 @@ public class Validator {
 		// start TIME
 		// time handling either (24hr(1235) or 12hr (845pm) format.
 		if (startTime != null) {
-			Date time = validTimeFormat(startTime);
-			if (time != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(start_Date);
-				Calendar timePortion = Calendar.getInstance();
-				timePortion.setTime(time);
-
-				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
-				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-
-				start_Date = cal.getTime();
-				objectHashMap.put(PARAMETER.START_TIME, start_Date);
-				objectHashMap.put(PARAMETER.START_DATE, objectHashMap.get(PARAMETER.START_TIME));
+			Date time;
+			if (validDateFormat(startTime) != null) {
+				time = validDateFormat(startTime);
+				objectHashMap.put(PARAMETER.START_TIME, time);
+				objectHashMap.put(PARAMETER.START_DATE, time);
 			} else {
-				context.displayMessage("PARAM_SUBTITLE");
-				context.displayMessage("PARAM_START_TIME");
-				// throw new ParseException("PARAMETER.START_TIME", 0);
+				time = validTimeFormat(startTime);
+
+				if (time != null) {
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(start_Date);
+					Calendar timePortion = Calendar.getInstance();
+					timePortion.setTime(time);
+
+					cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+					cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
+
+					start_Date = cal.getTime();
+					objectHashMap.put(PARAMETER.START_TIME, start_Date);
+					objectHashMap.put(PARAMETER.START_DATE, objectHashMap.get(PARAMETER.START_TIME));
+				} else {
+					context.displayMessage("PARAM_SUBTITLE");
+					context.displayMessage("PARAM_START_TIME");
+					// throw new ParseException("PARAMETER.START_TIME", 0);
+				}
 			}
-		}else {
+		} else {
 			objectHashMap.put(PARAMETER.START_TIME, objectHashMap.get(PARAMETER.START_DATE));
 		}
 		// End time
 		if (endTime != null) {
-			Date time = validTimeFormat(endTime);
-			if (time != null) {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(end_Date);
-				Calendar timePortion = Calendar.getInstance();
-				timePortion.setTime(time);
-
-				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
-				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-
-				if (cal.getTime().before(start_Date)) {
-					throw new IllegalArgumentException("END_DATE before START_DATE");
-				} else {
-					end_Date = cal.getTime();
-					objectHashMap.put(PARAMETER.END_TIME, end_Date);
-					objectHashMap.put(PARAMETER.END_DATE, end_Date);
-				}
+			Date time;
+			if (validDateFormat(startTime) != null) {
+				time = validDateFormat(endTime);
+				objectHashMap.put(PARAMETER.END_TIME, time);
+				objectHashMap.put(PARAMETER.END_DATE, time);
 			} else {
-				context.displayMessage("PARAM_SUBTITLE");
-				context.displayMessage("PARAM_END_TIME");
-				// throw new ParseException("PARAMETER.END_TIME", 0);
+				time = validTimeFormat(endTime);
+				if (time != null) {
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(end_Date);
+					Calendar timePortion = Calendar.getInstance();
+					timePortion.setTime(time);
+
+					cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+					cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
+
+					if (cal.getTime().before(start_Date)) {
+						throw new IllegalArgumentException("END_DATE before START_DATE");
+					} else {
+						end_Date = cal.getTime();
+						objectHashMap.put(PARAMETER.END_TIME, end_Date);
+						objectHashMap.put(PARAMETER.END_DATE, end_Date);
+					}
+				} else {
+					context.displayMessage("PARAM_SUBTITLE");
+					context.displayMessage("PARAM_END_TIME");
+					// throw new ParseException("PARAMETER.END_TIME", 0);
+				}
 			}
-		}else {
+		} else {
 			objectHashMap.put(PARAMETER.END_TIME, objectHashMap.get(PARAMETER.END_DATE));
 		}
 		// DEADLINE DATE
@@ -170,8 +185,8 @@ public class Validator {
 				} else {
 					Calendar cal2 = Calendar.getInstance();
 					cal2.setTime(dateOfDeadline);
-					cal2.set(Calendar.HOUR_OF_DAY,23);
-					cal2.set(Calendar.MINUTE,59);
+					cal2.set(Calendar.HOUR_OF_DAY, 23);
+					cal2.set(Calendar.MINUTE, 59);
 					dateOfDeadline = cal2.getTime();
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 				}
@@ -209,7 +224,7 @@ public class Validator {
 				context.displayMessage("PARAM_DEADLINE_TIME");
 				// throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
-		}else {
+		} else {
 			objectHashMap.put(PARAMETER.DEADLINE_TIME, objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		}
 
@@ -223,7 +238,21 @@ public class Validator {
 				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
 		}
-		
+		/*
+		System.out.println(startDate);
+		System.out.println(endDate);
+		System.out.println(startTime);
+		System.out.println(endTime);
+		System.out.println(deadlineDate);
+		System.out.println(deadlineTime);
+
+		System.out.println(objectHashMap.get(PARAMETER.START_DATE));
+		System.out.println(objectHashMap.get(PARAMETER.START_TIME));
+		System.out.println(objectHashMap.get(PARAMETER.END_DATE));
+		System.out.println(objectHashMap.get(PARAMETER.END_TIME));
+		System.out.println(objectHashMap.get(PARAMETER.DEADLINE_DATE));
+		System.out.println(objectHashMap.get(PARAMETER.DEADLINE_TIME));
+		*/
 		return objectHashMap;
 	}
 
@@ -271,8 +300,8 @@ public class Validator {
 		string = string.trim();
 		string = string.toLowerCase();
 		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.HOUR_OF_DAY,00);
-		cal.set(Calendar.MINUTE,00);
+		cal.set(Calendar.HOUR_OF_DAY, 00);
+		cal.set(Calendar.MINUTE, 00);
 		Date date;
 		switch (string) {
 		case "today":
@@ -293,7 +322,7 @@ public class Validator {
 		case "mon":
 			cal.add(Calendar.DATE, 1);
 			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
-			    cal.add(Calendar.DATE, 1);
+				cal.add(Calendar.DATE, 1);
 			}
 			date = cal.getTime();
 			break;
@@ -301,7 +330,7 @@ public class Validator {
 		case "tues":
 			cal.add(Calendar.DATE, 1);
 			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.TUESDAY) {
-			    cal.add(Calendar.DATE, 1);
+				cal.add(Calendar.DATE, 1);
 			}
 			date = cal.getTime();
 			break;
@@ -310,15 +339,15 @@ public class Validator {
 		case "wednes":
 			cal.add(Calendar.DATE, 1);
 			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.WEDNESDAY) {
-			    cal.add(Calendar.DATE, 1);
+				cal.add(Calendar.DATE, 1);
 			}
 			date = cal.getTime();
-			break;		
+			break;
 		case "thursday":
 		case "thurs":
 			cal.add(Calendar.DATE, 1);
 			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.THURSDAY) {
-			    cal.add(Calendar.DATE, 1);
+				cal.add(Calendar.DATE, 1);
 			}
 			date = cal.getTime();
 			break;
@@ -326,7 +355,7 @@ public class Validator {
 		case "fri":
 			cal.add(Calendar.DATE, 1);
 			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.FRIDAY) {
-			    cal.add(Calendar.DATE, 1);
+				cal.add(Calendar.DATE, 1);
 			}
 			date = cal.getTime();
 			break;
@@ -334,7 +363,7 @@ public class Validator {
 		case "sat":
 			cal.add(Calendar.DATE, 1);
 			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY) {
-			    cal.add(Calendar.DATE, 1);
+				cal.add(Calendar.DATE, 1);
 			}
 			date = cal.getTime();
 			break;
@@ -342,11 +371,11 @@ public class Validator {
 		case "sun":
 			cal.add(Calendar.DATE, 1);
 			while (cal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
-			    cal.add(Calendar.DATE, 1);
+				cal.add(Calendar.DATE, 1);
 			}
 			date = cal.getTime();
-			break;			
-		default : 
+			break;
+		default:
 			date = null;
 		}
 
@@ -445,7 +474,7 @@ public class Validator {
 			return date;
 		} catch (ParseException e) {
 			return null;
-		}catch (NullPointerException p){
+		} catch (NullPointerException p) {
 			return null;
 		}
 	}
@@ -654,7 +683,7 @@ public class Validator {
 			return date;
 		} catch (ParseException e) {
 			return null;
-		}catch (NullPointerException p){
+		} catch (NullPointerException p) {
 			return null;
 		}
 
@@ -718,7 +747,7 @@ public class Validator {
 			}
 		} catch (ParseException e) {
 			return null;
-		}catch (NullPointerException p){
+		} catch (NullPointerException p) {
 			return null;
 		}
 
@@ -731,10 +760,10 @@ public class Validator {
 		SimpleDateFormat timeFormat = null;
 		Date time;
 		try {
-			if(string.length() == 4){
-			timeFormat = new SimpleDateFormat("HHmm");
-			timeFormat.setLenient(false);
-			}else if(string.length()==3){
+			if (string.length() == 4) {
+				timeFormat = new SimpleDateFormat("HHmm");
+				timeFormat.setLenient(false);
+			} else if (string.length() == 3) {
 				timeFormat = new SimpleDateFormat("Hmm");
 				timeFormat.setLenient(false);
 			}
@@ -742,12 +771,10 @@ public class Validator {
 			return time;
 		} catch (ParseException e) {
 			return null;
-		}catch (NullPointerException p){
+		} catch (NullPointerException p) {
 			return null;
 		}
 
 	}
-	
-	
 
 }
