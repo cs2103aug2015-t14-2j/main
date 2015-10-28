@@ -61,7 +61,6 @@ public class StringParser {
 			//Take the repeating param keywords out
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
 			//userInput = transferMultipleArgsToHashMap(PARAMETER.HASHTAGS,"#",WITHIN_KEYWORD,userInput);
-			System.out.println(userInput);
 			if(!userInput.contains("from")&&!userInput.contains("by") ){
 			userInput = transferMultipleArgsToHashMap(PARAMETER.DEADLINE_DATE,"today",KEYWORD,userInput,keywordHash);
 			userInput = transferMultipleArgsToHashMap(PARAMETER.DEADLINE_DATE,"tomorrow",KEYWORD,userInput,keywordHash);

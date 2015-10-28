@@ -120,6 +120,7 @@ public class Validator {
 
 				start_Date = cal.getTime();
 				objectHashMap.put(PARAMETER.START_TIME, start_Date);
+				objectHashMap.put(PARAMETER.START_DATE, objectHashMap.get(PARAMETER.START_TIME));
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_START_TIME");
@@ -222,6 +223,13 @@ public class Validator {
 				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
 		}
+		System.out.println(startDate);
+		System.out.println(startTime);
+		System.out.println(endDate);
+		System.out.println(endTime);
+		System.out.println(objectHashMap.get(PARAMETER.START_TIME));
+		System.out.println(objectHashMap.get(PARAMETER.END_TIME));
+		
 		return objectHashMap;
 	}
 
