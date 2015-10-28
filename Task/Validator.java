@@ -47,7 +47,10 @@ import java.util.Locale;
 
 public class Validator {
 	private static Context context = Context.getInstance();
+<<<<<<< HEAD
 	//static boolean isEndDate = false;
+=======
+>>>>>>> refs/remotes/origin/feature-validator-class2
 	
 	public Validator() {
 	}
@@ -77,11 +80,14 @@ public class Validator {
 		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
+<<<<<<< HEAD
 		//isEndDate = false;
 		//System.out.println(hashmap.get(PARAMETER.DEADLINE_DATE));
 		//System.out.println(hashmap.get(PARAMETER.START_DATE));
 		//System.out.println(hashmap.get(PARAMETER.END_DATE));
 		
+=======
+>>>>>>> refs/remotes/origin/feature-validator-class2
 		
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
@@ -89,7 +95,11 @@ public class Validator {
 			start_Date = validDateFormat(startDate);
 			if (start_Date != null) {
 				objectHashMap.put(PARAMETER.START_DATE, start_Date);
+<<<<<<< HEAD
 				//System.out.println(objectHashMap.get(PARAMETER.START_DATE));
+=======
+				
+>>>>>>> refs/remotes/origin/feature-validator-class2
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_START_DATE");
@@ -100,6 +110,10 @@ public class Validator {
 		}
 		// end date
 		if (endDate != null) {
+<<<<<<< HEAD
+=======
+
+>>>>>>> refs/remotes/origin/feature-validator-class2
 			end_Date = validDateFormat(endDate);
 			
 			if (end_Date != null) {
@@ -132,6 +146,8 @@ public class Validator {
 				context.displayMessage("PARAM_START_TIME");
 				// throw new ParseException("PARAMETER.START_TIME", 0);
 			}
+		}else {
+			objectHashMap.put(PARAMETER.START_TIME, objectHashMap.get(PARAMETER.START_DATE));
 		}
 		// End time
 		if (endTime != null) {
@@ -150,12 +166,15 @@ public class Validator {
 				} else {
 					end_Date = cal.getTime();
 					objectHashMap.put(PARAMETER.END_TIME, end_Date);
+					objectHashMap.put(PARAMETER.END_DATE, end_Date);
 				}
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_END_TIME");
 				// throw new ParseException("PARAMETER.END_TIME", 0);
 			}
+		}else {
+			objectHashMap.put(PARAMETER.END_TIME, objectHashMap.get(PARAMETER.END_DATE));
 		}
 		// DEADLINE DATE
 		Date dateOfDeadline = null;
@@ -169,6 +188,11 @@ public class Validator {
 					// throw new IllegalArgumentException("DEADLINE_DATE before
 					// CURRENTDATE");
 				} else {
+					Calendar cal2 = Calendar.getInstance();
+					cal2.setTime(dateOfDeadline);
+					cal2.set(Calendar.HOUR_OF_DAY,23);
+					cal2.set(Calendar.MINUTE,59);
+					dateOfDeadline = cal2.getTime();
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 				}
 			} else {
@@ -199,11 +223,14 @@ public class Validator {
 					// CURRENT");
 				}
 				objectHashMap.put(PARAMETER.DEADLINE_TIME, dateOfDeadline);
+				objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 			} else {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_DEADLINE_TIME");
 				// throw new ParseException("PARAMETER.DEADLINE_TIME", 0);
 			}
+		}else {
+			objectHashMap.put(PARAMETER.DEADLINE_TIME, objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		}
 
 		if (taskID != null) {
@@ -216,7 +243,6 @@ public class Validator {
 				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
 		}
-
 		return objectHashMap;
 	}
 
@@ -247,8 +273,13 @@ public class Validator {
 	}
 
 	private static Date validDateFormat(String string) {
+<<<<<<< HEAD
 		if (wordFormat(string) != null ) {		
 			return wordFormat(string);			
+=======
+		if (wordFormat(string) != null) {
+			return wordFormat(string);
+>>>>>>> refs/remotes/origin/feature-validator-class2
 		}
 		else if (numberDateFormat(string) != null) {
 			return numberDateFormat(string);
@@ -263,7 +294,8 @@ public class Validator {
 		string = string.trim();
 		string = string.toLowerCase();
 		Calendar cal = Calendar.getInstance();
-		
+		cal.set(Calendar.HOUR_OF_DAY,00);
+		cal.set(Calendar.MINUTE,00);
 		Date date;
 		switch (string) {
 		case "today":
@@ -608,7 +640,10 @@ public class Validator {
 						int year = Calendar.getInstance().get(Calendar.YEAR);
 						string = string + " " + year;
 					}
+<<<<<<< HEAD
 			
+=======
+>>>>>>> refs/remotes/origin/feature-validator-class2
 					dateFormat = new SimpleDateFormat("MMMM dd yyyy", Locale.ENGLISH);
 				}
 				// Deals with 3 letters word month
@@ -649,7 +684,11 @@ public class Validator {
 			return date;
 		} catch (ParseException e) {
 			return null;
+<<<<<<< HEAD
 		} catch (NullPointerException p){
+=======
+		}catch (NullPointerException p){
+>>>>>>> refs/remotes/origin/feature-validator-class2
 			return null;
 		}
 
@@ -713,6 +752,8 @@ public class Validator {
 			}
 		} catch (ParseException e) {
 			return null;
+		}catch (NullPointerException p){
+			return null;
 		}
 
 	}
@@ -734,6 +775,8 @@ public class Validator {
 			time = timeFormat.parse(string);
 			return time;
 		} catch (ParseException e) {
+			return null;
+		}catch (NullPointerException p){
 			return null;
 		}
 
