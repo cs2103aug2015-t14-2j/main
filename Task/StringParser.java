@@ -50,6 +50,9 @@ public class StringParser {
 			//Take the "" keyword out first
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			if(keywordHash.get(PARAMETER.DESC)==null){
+				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
+			}
 			
 			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
 					findKeywordIndexInput(userInput,"today",0) >= 0 ||
@@ -87,6 +90,9 @@ public class StringParser {
 			
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			if(keywordHash.get(PARAMETER.DESC)==null){
+				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
+			}
 			
 			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
 					findKeywordIndexInput(userInput,"today",0) >= 0 ||
@@ -133,6 +139,9 @@ public class StringParser {
 			//Take the "" keyword out first
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			if(keywordHash.get(PARAMETER.DESC)==null){
+				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
+			}
 			
 			if(findKeywordIndexInput(userInput,"on",0) >= 0 ||
 					findKeywordIndexInput(userInput,"today",0) >= 0 ||
@@ -273,13 +282,18 @@ public class StringParser {
 	 * @return The trimmed string without the 
 	 */
 	public static String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput, HashMap<PARAMETER, String> keywordHash) {
-		int positionOfKeyword = findKeywordIndexInput(userInput, keywordString,0);
+		int positionOfKeyword;
+		if(keywordString.equals("")){
+			positionOfKeyword = 0;
+		} else {
+			positionOfKeyword = findKeywordIndexInput(userInput, keywordString,0);
+		}
 		if(positionOfKeyword == -1){
 			return userInput;
 		}
 		int startOfQuote = userInput.indexOf(QUOTE_INTEGER, positionOfKeyword);
 		int endOfQuote = userInput.indexOf(QUOTE_INTEGER, startOfQuote + 1);
-		if(startOfQuote > 0 && endOfQuote > 0){
+		if(startOfQuote >= 0 && endOfQuote > 0){
 			keywordHash.put(keyword, (getKeywordnInString(userInput, startOfQuote + 1, endOfQuote - 1))); //Ignore the quote delimeters
 			return trimStringPortionOut(userInput, positionOfKeyword, endOfQuote + 1);
 		} else{

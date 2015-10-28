@@ -185,6 +185,12 @@ public class StringParserTest {
 						keywordHash.get(PARAMETER.DESC));
 		assertEquals("hong kong",
 						keywordHash.get(PARAMETER.VENUE));
+		//at beginning
+		assertEquals("by 12/11 1100",
+						StringParser.transferQuoteToHashMap(PARAMETER.DESC,"",
+								"\"do sth\" by 12/11 1100", keywordHash));
+		assertEquals("do sth",
+				keywordHash.get(PARAMETER.DESC));
 	}
 
 	@Test
