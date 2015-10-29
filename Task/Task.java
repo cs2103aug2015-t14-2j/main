@@ -354,13 +354,15 @@ public class Task {
 
 	public boolean isEmpty() {
 		return
-			taskId			== -1 		&&
-			period          == null		&&
-			deadline   		== null		&&
-			venue           == null		&&
-			description     == null		&&
-			isDone         	== false	&&
-			isPastDeadline 	== false	&&
+			taskId			== -1 				&&
+			(period          == null			||
+			(period.getEndDateTime() == null && 
+			period.getStartDateTime() == null))	&&
+			deadline   		== null				&&
+			venue           == null				&&
+			description     == null				&&
+			isDone         	== false			&&
+			isPastDeadline 	== false			&&
 			hasEnded       	== false;
 	}
 }
