@@ -21,8 +21,8 @@ import org.jnativehook.keyboard.NativeKeyListener;
  */
 
 public class Controller implements NativeKeyListener {
-	
-	static Controller instance = null;
+	private static Context context = Context.getInstance();
+	private static Controller instance = null;
 	//private static Scanner scanner = new Scanner(System.in);
 	private static int[] myArray = new int[]{NativeKeyEvent.VC_SHIFT_L,			//Left shift
 											 	NativeKeyEvent.VC_SHIFT_R		//Right shift
@@ -33,19 +33,13 @@ public class Controller implements NativeKeyListener {
 	
 	private final static Logger LOGGER = Logger.getLogger(StringParser.class.getName());
 	
-	protected Controller() {
-      // Exists only to defeat instantiation.
-	}
-	
+	protected Controller() {}
+
 	public static Controller getInstance() {
       if(instance == null) {
          instance = new Controller();
       }
       return instance;
-	}
-	
-	public void printToScreen(String print){
-		System.out.println(print);
 	}
 	
     public void nativeKeyPressed(NativeKeyEvent e) {
@@ -122,28 +116,22 @@ public class Controller implements NativeKeyListener {
         //Construct the example object and initialze native hook.
         GlobalScreen.addNativeKeyListener(Controller.getInstance());
         
-      //start the GUI
+        //start the GUI
         Gui.initGUI();
         
         //start the task handler
-        showToUser(TaskHandler.startTasks(args));
+        TaskHandler.startTasks(args);
 	    
 	    while(true) {
 	    	//listen for line
 	    	//showToUser(TaskHandler.inputFeedBack(scanner.nextLine()));
-	    	showToUser(TaskHandler.inputFeedBack(Gui.getCurrentInstance().getUserInput()));
+	    	// showToUser(TaskHandler.inputFeedBack(Gui.getCurrentInstance().getUserInput()));
 		}
     }
 	
-	/**
-	 * Displays text to user, do not print if empty string
-	 * @param text Text to show the user
-	 */
-	private static void showToUser(String text) {
-		if(text == null || text.isEmpty()) {
-			return;
-		}
-		
-		Controller.getInstance().printToScreen(text);
-	}
+    public void executeGUIInput(String text) {
+        TaskHandler.inputFeedBack(text);
+		context.printToTerminal();
+        context.clearAllMessages();
+    }
 }

@@ -3,7 +3,6 @@ package Task;
 import java.util.Date;
 import java.lang.IllegalArgumentException;
 import java.text.SimpleDateFormat;
-import java.text.SimpleDateFormat;
 
 public class Period {
 	private Date startDateTime;
@@ -12,13 +11,15 @@ public class Period {
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/YY HHmm");
 	
 	public Period (Date startDateTime, Date endDateTime) throws IllegalArgumentException {
-		if(startDateTime.after(endDateTime)) {
+		
+		if(startDateTime != null && endDateTime != null && startDateTime.after(endDateTime)) {
 			throw new IllegalArgumentException("Start time is after end time!");
-			
 		}
 		this.startDateTime = startDateTime;
 		this.endDateTime   = endDateTime;
 	}
+	
+	
 	
 	@Override
 	public boolean equals(Object obj) {
