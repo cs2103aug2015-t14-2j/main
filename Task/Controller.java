@@ -1,15 +1,32 @@
 package Task;
 
 import java.util.ArrayList;
+
 import java.util.List;
 //import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Locale;
+import java.util.HashMap;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
+
+import freemarker.core.ParseException;
+import freemarker.template.Configuration;
+import freemarker.template.MalformedTemplateNameException;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
+import freemarker.template.TemplateNotFoundException;
+import freemarker.template.Version;
 
 /**
  *  Represents the control module that is in charge of initialization and GUI
@@ -21,6 +38,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
  */
 
 public class Controller implements NativeKeyListener {
+	private static Configuration cfg;
 	private static Context context = Context.getInstance();
 	private static Controller instance = null;
 	//private static Scanner scanner = new Scanner(System.in);
@@ -33,7 +51,24 @@ public class Controller implements NativeKeyListener {
 	
 	private final static Logger LOGGER = Logger.getLogger(StringParser.class.getName());
 	
-	protected Controller() {}
+	protected Controller() {
+		// Configure Freemarker
+		cfg = new Configuration(Configuration.VERSION_2_3_22);
+		
+		// Where do we load the templates from:
+	    try {
+			cfg.setDirectoryForTemplateLoading(new File("./templates/html"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    
+	    // Some other recommended settings:
+	    cfg.setIncompatibleImprovements(new Version(2, 3, 20));
+	    cfg.setDefaultEncoding("UTF-8");
+	    cfg.setLocale(Locale.US);
+	    cfg.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+	}
 
 	public static Controller getInstance() {
       if(instance == null) {
@@ -115,6 +150,7 @@ public class Controller implements NativeKeyListener {
 
         //Construct the example object and initialze native hook.
         GlobalScreen.addNativeKeyListener(Controller.getInstance());
+	    
         
         //start the GUI
         Gui.initGUI();
@@ -131,7 +167,46 @@ public class Controller implements NativeKeyListener {
 	
     public void executeGUIInput(String text) {
         TaskHandler.inputFeedBack(text);
-		context.printToTerminal();
+		// context.printToTerminal();
+        renderView();
         context.clearAllMessages();
+		Gui.update();
+    }
+
+    private void renderView() {
+        HashMap<String, Object> dataModel = context.getDataModel();
+        
+        Template template;
+		try {
+			Writer consoleWriter = new OutputStreamWriter(System.out);
+			template = cfg.getTemplate("index.ftl");
+			template.process(dataModel,consoleWriter);
+		} catch (TemplateNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MalformedTemplateNameException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TemplateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}    
+		
+		Writer fileWriter;
+	    try {
+	    	fileWriter = new FileWriter(new File("./templates/html/output.html"));
+			template = cfg.getTemplate("index.ftl");
+	        template.process(dataModel, fileWriter);
+	        fileWriter.close();
+	    } catch (TemplateException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }

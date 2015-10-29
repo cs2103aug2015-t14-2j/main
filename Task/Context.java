@@ -6,6 +6,14 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import java.util.Locale;
+import java.util.HashMap;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+
 public class Context {
 	// Display settings
 	private static Context context = null;
@@ -17,7 +25,7 @@ public class Context {
 	public static final String ANSI_RED = "<font color=\"red\">";
 	public static final String ANSI_GREEN = "<font color=\"green\">";
 	public static final String ANSI_YELLOW = "<font color=\"yellow\">";
-	public static final String ANSI_BLUE = "<font color=\"blue\">";
+	public static final String ANSI_BLUE = "<font color=\"green\">";
 	public static final String ANSI_PURPLE = "<font color=\"purple\">";
 	public static final String ANSI_CYAN = "<font color=\"cyan\">";
 	public static final String ANSI_WHITE = "<font color=\"white\">";
@@ -222,5 +230,67 @@ public class Context {
 		message.append("\n");
 		Gui.getCurrentInstance().setTaskText(message.toString());
 		//System.out.println();
+	}
+
+	public HashMap<String, Object> getDataModel() {
+		Class thisClass = Context.class;
+		HashMap<String, Object> dataModel = new HashMap<String, Object>();
+		ArrayList<String> success_messages  = new ArrayList<String>();
+		ArrayList<String> warning_messages  = new ArrayList<String>();
+		ArrayList<String> help_messages     = new ArrayList<String>();
+		ArrayList<String> 
+		param_messages    = new ArrayList<String>();
+		ArrayList<String> error_messages    = new ArrayList<String>();
+		ArrayList<Task>   taskList          = new ArrayList<Task>();
+
+		Field[] fields = thisClass.getDeclaredFields();
+		for(Field field:fields) {
+			Object o;
+			try {
+				o = field.get(context);
+				if (field.getType().equals(Pair.class)) {
+					field.setAccessible(true);
+					Pair pair = (Pair) o;
+					if (pair.getValue()) {
+						if (field.getName().contains("SUCCESS")) {
+							success_messages.add(pair.getKey());
+						}
+						if (field.getName().contains("WARNING")) {
+							warning_messages.add(pair.getKey());
+						}
+						if (field.getName().contains("HELP")) {
+							help_messages.add(pair.getKey());
+						}
+						if (field.getName().contains("PARAM")) {
+							success_messages.add(pair.getKey());
+						}
+						if (field.getName().contains("ERROR")) {
+							error_messages.add(pair.getKey());
+						}
+					}
+				}
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		// Print tasks
+		if (!displayTaskSet.isEmpty()) {
+			Iterator<Task> iterator = displayTaskSet.iterator();
+			while (iterator.hasNext()) {
+				Task task = iterator.next();
+				taskList.add(task);
+			}
+		}
+
+		dataModel.put("success_messages", success_messages);
+		dataModel.put("warning_messages", warning_messages);
+		dataModel.put("help_messages", help_messages);
+		dataModel.put("param_messages", param_messages);
+		dataModel.put("error_messages", error_messages);
+		dataModel.put("taskList", taskList);
+		return dataModel;
 	}
 }

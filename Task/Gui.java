@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -22,21 +23,26 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import static java.awt.GraphicsDevice.WindowTranslucency.TRANSLUCENT;
+import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
-import static java.awt.GraphicsDevice.WindowTranslucency.PERPIXEL_TRANSPARENT;
+import javax.swing.text.html.*;
+import javax.swing.text.*;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class Gui extends JFrame {
 	
 	private static final int 	FADE_DURATION_MS 	= 10;
 	private static final float 	FADE_OUT_VAL		= .02f;
-	private static final float 	FADE_IN_VAL 		= .08f;
+	private static final float 	FADE_IN_VAL 		= 0.10f;
 	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
-	private static final float 	FADED_IN 			= .9f - FADE_IN_VAL;
+	private static final float 	FADED_IN 			= 1.0f - FADE_IN_VAL;
 	
 	private static final int 	BOX_WIDTH			= 500;
 	private static final int 	BOX_HEIGHT			= 400;
@@ -44,14 +50,12 @@ public class Gui extends JFrame {
 	private static final int 	BOX_ARC_HEIGHT		= BOX_ARC_WIDTH;
 	
 	private static final int 	TEXT_WIDTH			= 380;
-	private static final int 	INPUT_FONT_SIZE		= 36;
+	private static final int 	INPUT_FONT_SIZE		= 28;
 	private static final int 	FEEDBACK_FONT_SIZE	= 14;
-	private static final String FONT_NAME			= "SimSun";
+	private static final String FONT_NAME			= "HelveticaNeue";
 	
 	private static final String ERROR_NO_TRANSLUCENCY 		= "Translucency could not be enabled";
 	private static final String ERROR_NO_SHAPED_WINDOWS  	= "Shaped windows are not supported";
-	
-
 	
 	private static Gui 			instance 			= null;
 	private static JPanel 		textInputFeedback 	= null;
@@ -82,7 +86,7 @@ public class Gui extends JFrame {
         
         inputField = new JTextField(TEXT_WIDTH);
         
-        Font inputFont = new Font(FONT_NAME, Font.BOLD, INPUT_FONT_SIZE);
+        Font inputFont = new Font(FONT_NAME, Font.PLAIN, INPUT_FONT_SIZE);
         inputField.setFont(inputFont);
         inputField.setForeground(Color.GRAY);
         
@@ -102,17 +106,27 @@ public class Gui extends JFrame {
         inputField.addActionListener(action);
         
         //FEEDBACK
-        
+
         feedbackField = new JEditorPane();
         feedbackField.setContentType("text/html");
+        HTMLEditorKit kit = (HTMLEditorKit) feedbackField.getEditorKit();
+        StyleSheet ss = new StyleSheet();
+        URL ss_url;
+        try {
+            ss_url = new URL(new URL("file:"), "./templates/css/bootstrap.min.css");
+            ss.importStyleSheet(ss_url);
+        } catch (MalformedURLException e2) {
+            // TODO Auto-generated catch block
+            e2.printStackTrace();
+        }
+        kit.setStyleSheet(ss);
         
         Font feedbackFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
         feedbackField.setFont(feedbackFont);
         
         feedbackField.setEditable(false);
         feedbackField.setBorder(null);
-        feedbackField.setBackground(getBackground());
-        
+        // feedbackField.setBackground(getBackground());
         
         //TASKS
         
@@ -126,13 +140,13 @@ public class Gui extends JFrame {
         
         Font taskFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
         taskField.setFont(taskFont);
-        taskField.setForeground(Color.BLUE);
+        // taskField.setForeground(Color.GREEN);
         
         JScrollPane scrollFeedbackField = new JScrollPane (taskField, 
         		   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollFeedbackField.setBorder(null);
         
-        //POSITIONING
+        // //POSITIONING
         
         textInputFeedback = new JPanel(new BorderLayout());
         textTasks = new JPanel(new BorderLayout());
@@ -156,13 +170,13 @@ public class Gui extends JFrame {
 	}
 	
 	 public static int getContentHeight(String content) {
-	        JEditorPane dummyEditorPane=new JEditorPane();
-	        dummyEditorPane.setSize(BOX_WIDTH,Short.MAX_VALUE);
-	        feedbackField.setContentType("text/html");
-	        dummyEditorPane.setText(content);
-	        
-	        return dummyEditorPane.getPreferredSize().height;
-	    }
+        JEditorPane dummyEditorPane=new JEditorPane();
+        dummyEditorPane.setSize(BOX_WIDTH,Short.MAX_VALUE);
+        feedbackField.setContentType("text/html");
+        dummyEditorPane.setText(content);
+        
+        return dummyEditorPane.getPreferredSize().height;
+    }
 
 	
 	public void setFeedbackText(String feedback){
@@ -243,5 +257,16 @@ public class Gui extends JFrame {
 	    inputField.setText("");
 	    return userInput;
 	}
-    
+
+    public static void update() {
+        try {
+            Document doc = feedbackField.getDocument();
+            doc.putProperty(Document.StreamDescriptionProperty, null);
+            URL url = new URL(new URL("file:"), "./templates/html/output.html");
+            feedbackField.setPage(url);
+        } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        }
+    }
 }

@@ -1,19 +1,6 @@
 {
     "Tasks": [
         {
-            "taskId": 1,
-            "createdTime": "Thu, 10 Sep, 2015 1356",
-            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
-            "startTime": "Thu, 21 May, 2015 2000",
-            "endTime": "Thu, 21 May, 2015 2100",
-            "deadline": "Sat, 12 Sep, 2015 1200",
-            "venue": "NUS",
-            "description": "kfow",
-            "isDone": true,
-            "isPastDeadline": false,
-            "hasEnded": false
-        },
-        {
             "taskId": 2,
             "createdTime": "Thu, 10 Sep, 2015 1356",
             "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
@@ -147,27 +134,14 @@
             "taskId": 12,
             "createdTime": "Thu, 29 Oct, 2015 0325",
             "lastModifiedTime": "Thu, 29 Oct, 2015 0325",
-            "startTime": "Thu, 29 Oct, 2015 1200",
-            "endTime": "Thu, 29 Oct, 2015 1300",
-            "deadline": null,
+            "startTime": "Sun, 01 Nov, 2015 1200",
+            "endTime": "Sun, 01 Nov, 2015 1300",
+            "deadline": "Thu, 29 Oct, 2015 1200",
             "venue": null,
             "description": "jfwoj",
             "isDone": false,
             "isPastDeadline": false,
             "hasEnded": true
-        },
-        {
-            "taskId": 13,
-            "createdTime": "Thu, 29 Oct, 2015 0326",
-            "lastModifiedTime": "Thu, 29 Oct, 2015 0326",
-            "startTime": "Sat, 31 Oct, 2015 1200",
-            "endTime": "Sat, 31 Oct, 2015 1330",
-            "deadline": "Thu, 29 Oct, 2015 1326",
-            "venue": null,
-            "description": "fwjowj",
-            "isDone": false,
-            "isPastDeadline": true,
-            "hasEnded": false
         }
     ]
 }
