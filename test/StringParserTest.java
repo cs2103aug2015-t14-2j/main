@@ -122,7 +122,7 @@ public class StringParserTest {
 		//Empty Case
 		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"",keywordHash);
-		assertEquals(0,
+		assertEquals(1,
 				keywordHash.size());
 		
 		//Basic case
@@ -138,7 +138,7 @@ public class StringParserTest {
 		//Empty Case
 		StringParser.getStringHashMap(COMMAND_TYPE.DELETE_TASK,
 				"",keywordHash);
-		assertEquals(0,
+		assertEquals(1,
 				keywordHash.size());
 		
 		//Basic case
@@ -200,9 +200,9 @@ public class StringParserTest {
 		assertEquals(0,StringParser.findKeywordIndexInput("on 15/11 from 1100 to 1500","on",0));
 		assertEquals(11,StringParser.findKeywordIndexInput("by 11/12   #hello","#",0));
 		assertEquals(18,StringParser.findKeywordIndexInput("by 11/12   #hello #waffles","#",16));
-		assertEquals(-1,StringParser.findKeywordIndexInput("   #hello","",0));
+		assertEquals(0,StringParser.findKeywordIndexInput("   #hello","",0));
 		assertEquals(-1,StringParser.findKeywordIndexInput(null,"",0));
-		assertEquals(-1,StringParser.findKeywordIndexInput("   #hello",null,0));
+		assertEquals(0,StringParser.findKeywordIndexInput("   #hello",null,0));
 		
 	}
 
