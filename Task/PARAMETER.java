@@ -11,6 +11,7 @@ package Task;
 public enum PARAMETER {
 	DESC,
 	VENUE,
+	DATE,
 	START_DATE,
 	END_DATE,
 	START_TIME,

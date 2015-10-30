@@ -4,6 +4,7 @@ package Task;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -34,12 +35,12 @@ public class Gui extends JFrame {
 	
 	private static final int 	FADE_DURATION_MS 	= 10;
 	private static final float 	FADE_OUT_VAL		= .02f;
-	private static final float 	FADE_IN_VAL 		= .08f;
+	private static final float 	FADE_IN_VAL 		= .04f;
 	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
-	private static final float 	FADED_IN 			= .9f - FADE_IN_VAL;
+	private static final float 	FADED_IN 			= .96f - FADE_IN_VAL;
 	
-	private static final int 	BOX_WIDTH			= 500;
-	private static final int 	BOX_HEIGHT			= 400;
+	private static final int 	BOX_WIDTH			= (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2;
+	private static final int 	BOX_HEIGHT			= (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 3 / 4;;
 	private static final int 	BOX_ARC_WIDTH		= 15;
 	private static final int 	BOX_ARC_HEIGHT		= BOX_ARC_WIDTH;
 	
@@ -88,7 +89,7 @@ public class Gui extends JFrame {
         
         inputField.setHorizontalAlignment(SwingConstants.LEFT);
         
-        inputField.setBorder(null);
+        inputField.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
         inputField.setBackground(getBackground());
         
         Action action = new AbstractAction() {
@@ -122,7 +123,7 @@ public class Gui extends JFrame {
         taskField.setWrapStyleWord( true );
         taskField.setEditable(false);
         
-        taskField.setBorder(BorderFactory.createMatteBorder(0, 0, 5, 0, Color.LIGHT_GRAY));
+        taskField.setBorder(BorderFactory.createMatteBorder(0, 0, 5, 0, Color.GRAY));
         
         Font taskFont = new Font(FONT_NAME, Font.BOLD, FEEDBACK_FONT_SIZE);
         taskField.setFont(taskFont);
@@ -138,9 +139,17 @@ public class Gui extends JFrame {
         textTasks = new JPanel(new BorderLayout());
 
         textTasks.add(inputField,BorderLayout.PAGE_START);
-        textTasks.add(feedbackField,BorderLayout.PAGE_END);
+        
+        JPanel containerPanel = new JPanel();
+        containerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        containerPanel.setLayout(new BorderLayout());
+        containerPanel.add(feedbackField);
+        
+        textTasks.add(containerPanel,BorderLayout.PAGE_END);
         textInputFeedback.add(textTasks,BorderLayout.PAGE_START);
         textInputFeedback.add(scrollFeedbackField,BorderLayout.CENTER);
+        
+        textInputFeedback.setBorder(BorderFactory.createMatteBorder(0, 0, 4, 4, Color.GRAY));
         
         textInputFeedback.setPreferredSize(getSize());
         
@@ -184,11 +193,15 @@ public class Gui extends JFrame {
     			guiObject.setOpacity(guiObject.getOpacity()-FADE_OUT_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
+    		guiObject.setVisible(false);
     		
     	} else {
     		guiObject.setFeedbackText("<font color=\"green\">Welcome to TextBuddy! Input a command above to get started!</font>");
     		inputField.setText("");
     		taskField.setText("");
+    		
+    		guiObject.setVisible(true);
+    		
     		while(guiObject.getOpacity() < FADED_IN){
     			guiObject.setOpacity(guiObject.getOpacity()+FADE_IN_VAL);
     			Thread.sleep(FADE_DURATION_MS);

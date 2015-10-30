@@ -36,9 +36,7 @@ public class StringParserTest {
 				keywordHash.get(PARAMETER.DESC));
 		assertEquals("hong kong",
 				keywordHash.get(PARAMETER.VENUE));
-		assertEquals("12/11",
-				keywordHash.get(PARAMETER.DEADLINE_DATE));
-		assertEquals("1100",
+		assertEquals("12/11 1100   ",
 				keywordHash.get(PARAMETER.DEADLINE_TIME));
 		
 		keywordHash =  new HashMap<PARAMETER, String>(0);
@@ -48,13 +46,11 @@ public class StringParserTest {
 				"at \"hong kong\" do \"to be or not\" on 15/11 from 1100 to 1500",keywordHash);
 		
 		assertEquals("15/11",
-				keywordHash.get(PARAMETER.START_DATE));
-		assertEquals("15/11",
-				keywordHash.get(PARAMETER.END_DATE));
-		assertEquals("1100",
-				keywordHash.get(PARAMETER.START_TIME));
+				keywordHash.get(PARAMETER.DATE));
 		assertEquals("1500",
 				keywordHash.get(PARAMETER.END_TIME));
+		assertEquals("1100",
+				keywordHash.get(PARAMETER.START_TIME));
 		
 		keywordHash =  new HashMap<PARAMETER, String>(0);
 		
@@ -64,39 +60,41 @@ public class StringParserTest {
 				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" on 15/11",keywordHash);
 		
 		assertEquals("15/11",
-				keywordHash.get(PARAMETER.START_DATE));
-		assertEquals("15/11",
-				keywordHash.get(PARAMETER.END_DATE));
-		assertEquals("1100",
-				keywordHash.get(PARAMETER.START_TIME));
-		assertEquals("1500",
+				keywordHash.get(PARAMETER.DATE));
+		assertEquals("1500 ",
 				keywordHash.get(PARAMETER.END_TIME));
+		assertEquals("1100 ",
+				keywordHash.get(PARAMETER.START_TIME));
 		
 		keywordHash =  new HashMap<PARAMETER, String>(0);
 		
 		//Using today keyword
 		
 		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
-				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" today",keywordHash);
+				"at \"hong kong\" do \"to be or not\" today",keywordHash);
 		
-		assertEquals("today",
-				keywordHash.get(PARAMETER.END_TIME));
-		assertEquals("1100",
-				keywordHash.get(PARAMETER.START_DATE));
-		assertEquals("1500",
-				keywordHash.get(PARAMETER.END_DATE));
+		assertEquals(" today",
+				keywordHash.get(PARAMETER.DATE));
 		
-		//Using tomrrow keyword
+		//Using tomorrow keyword
 		
-				StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
-						"from 1100 at \"hong kong\" to 1500 do \"to be or not\" tomorrow",keywordHash);
-				
-				assertEquals("tomorrow",
-						keywordHash.get(PARAMETER.END_TIME));
-				assertEquals("1100",
-						keywordHash.get(PARAMETER.START_DATE));
-				assertEquals("1500",
-						keywordHash.get(PARAMETER.END_DATE));
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
+				"at \"hong kong\" tomorrow 5pm do \"to be or not\"",keywordHash);
+		
+		assertEquals(" tomorrow 5pm ",
+				keywordHash.get(PARAMETER.DATE));
+		
+		//Using tmr keyword
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,
+				"at \"hong kong\" tmr 5pm do \"to be or not\"",keywordHash);
+		
+		assertEquals(" tmr 5pm ",
+				keywordHash.get(PARAMETER.DATE));
 	}
 	
 	@Test
@@ -111,9 +109,7 @@ public class StringParserTest {
 				keywordHash.get(PARAMETER.DESC));
 		assertEquals("hong kong",
 				keywordHash.get(PARAMETER.VENUE));
-		assertEquals("12/11",
-				keywordHash.get(PARAMETER.DEADLINE_DATE));
-		assertEquals("1100",
+		assertEquals("12/11 1100   ",
 				keywordHash.get(PARAMETER.DEADLINE_TIME));
 	}
 	
@@ -147,12 +143,16 @@ public class StringParserTest {
 		assertEquals("10",
 				keywordHash.get(PARAMETER.TASKID));
 		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
 		//Basic case space before
 		
 		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				" 10",keywordHash);
 		assertEquals("10",
 				keywordHash.get(PARAMETER.TASKID));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
 		
 		//Basic case space after
 		
@@ -170,19 +170,39 @@ public class StringParserTest {
 		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,"",keywordHash); //Initialize
 		
 		//Basic case do
-		assertEquals("at \"hong kong\" by 12/11 1100",
+		assertEquals(" at \"hong kong\" by 12/11 1100",
 						StringParser.transferQuoteToHashMap(PARAMETER.DESC,"do",
 								"do \"to be or not\" at \"hong kong\" by 12/11 1100", keywordHash));
+		
+		assertEquals("to be or not",
+				keywordHash.get(PARAMETER.DESC));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
 		//Basic case at
-		assertEquals(" by 12/11 1100",
+		
+		assertEquals("  by 12/11 1100",
 						StringParser.transferQuoteToHashMap(PARAMETER.VENUE,"at",
 								" at \"hong kong\" by 12/11 1100", keywordHash));
-		assertEquals("to be or not",
-						keywordHash.get(PARAMETER.DESC));
+		
 		assertEquals("hong kong",
 						keywordHash.get(PARAMETER.VENUE));
-		//at beginning
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		//No space in between quotes
+		
 		assertEquals("by 12/11 1100",
+						StringParser.transferQuoteToHashMap(PARAMETER.VENUE,"at",
+								"at\"hong kong\"by 12/11 1100", keywordHash));
+		
+		assertEquals("hong kong",
+						keywordHash.get(PARAMETER.VENUE));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		//at beginning
+		assertEquals(" by 12/11 1100",
 						StringParser.transferQuoteToHashMap(PARAMETER.DESC,"",
 								"\"do sth\" by 12/11 1100", keywordHash));
 		assertEquals("do sth",
@@ -220,24 +240,24 @@ public class StringParserTest {
 	@Test
 	public void testGetKeywordnInString() {
 		
-		assertEquals("hello",StringParser.getKeywordnInString("hello",0,5));
-		assertEquals("hello",StringParser.getKeywordnInString("hello",-1,7));
-		assertEquals("",StringParser.getKeywordnInString("hello",7,9));
-		assertEquals("ell",StringParser.getKeywordnInString("hello",1,3));
-		assertEquals("",StringParser.getKeywordnInString("",1,3));
-		assertEquals(null,StringParser.getKeywordnInString(null,1,3));
+		assertEquals("hello",StringParser.getKeywordInString("hello",0,5));
+		assertEquals("hello",StringParser.getKeywordInString("hello",-1,7));
+		assertEquals("",StringParser.getKeywordInString("hello",7,9));
+		assertEquals("ell",StringParser.getKeywordInString("hello",1,3));
+		assertEquals("",StringParser.getKeywordInString("",1,3));
+		assertEquals(null,StringParser.getKeywordInString(null,1,3));
 	}
 
 	@Test
 	public void testStringCompareToList() {
 		
-		assertEquals(-1,StringParser.stringCompareToList("hello",new String[]{"tiger","heelo","hell"}));
-		assertEquals(1,StringParser.stringCompareToList("hello",new String[]{"tiger","hello","hell"}));
-		assertEquals(-1,StringParser.stringCompareToList("hello",new String[]{"tiger","hello2","hell"}));
-		assertEquals(-1,StringParser.stringCompareToList("",new String[]{"tiger","hello2","hell"}));
-		assertEquals(-1,StringParser.stringCompareToList("hello",new String[]{}));
-		assertEquals(-1,StringParser.stringCompareToList("hello",null));
-		assertEquals(-1,StringParser.stringCompareToList(null,null));
+		assertEquals(2,StringParser.indexKeywordInString("hello",new String[]{"tiger","heelo","hell"}));
+		assertEquals(1,StringParser.indexKeywordInString("hello",new String[]{"tiger","hello","hell"}));
+		assertEquals(2,StringParser.indexKeywordInString("hello",new String[]{"tiger","hello2","hell"}));
+		assertEquals(-1,StringParser.indexKeywordInString("",new String[]{"tiger","hello2","hell"}));
+		assertEquals(-1,StringParser.indexKeywordInString("hello",new String[]{}));
+		assertEquals(-1,StringParser.indexKeywordInString("hello",null));
+		assertEquals(-1,StringParser.indexKeywordInString(null,null));
 		
 	}
 
