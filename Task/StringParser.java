@@ -20,6 +20,7 @@ public class StringParser {
 	//Define int constants here
 	private static final int QUOTE_INTEGER = 34;
 	private static final int PARAM_NOT_FOUND = -1;
+	private static final String ALL_TASKS = "-2";
 	
 	private static String[] 	keywordsInInput		={"on ","from ","to ","by "};
 	private static String[] 	daysInInput			={"monday","tuesday","wednesday","thursday","friday","saturday","sunday",
@@ -116,24 +117,17 @@ public class StringParser {
 	 * @return The string after the ID has been taken out
 	 */
 	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) {
-		String[] inputArray = userInput.split(SPACE_CHARACTER,2);
-		if(inputArray[0].equals("") && inputArray.length > 1){			//Check for variations in the number
-			inputArray[0] = userInput.split(SPACE_CHARACTER,3)[1];
-			if(userInput.split(SPACE_CHARACTER,3).length > 2){
-				inputArray[1] = userInput.split(SPACE_CHARACTER,3)[2];
-			} else {
-				inputArray[1] = "";
-			}
-		} else if(inputArray[0].equals("") && inputArray.length == 1){
-			keywordHash.put(PARAMETER.TASKID, "-1");
-			return "";
-		}
-		if(inputArray[0] == null || !containsOnlyNumbers(inputArray[0])){
+		String[] inputArray = userInput.trim().split(SPACE_CHARACTER,2);
+		if(inputArray[0].toLowerCase().equals("all")){
+			keywordHash.put(PARAMETER.TASKID, ALL_TASKS);
+		} else if(inputArray[0] == null || !containsOnlyPositiveNumbers(inputArray[0])){
 			// To prevent null exceptions in TaskHandler
 			keywordHash.put(PARAMETER.TASKID, "-1");
 			return userInput;
+		} else {
+			keywordHash.put(PARAMETER.TASKID, inputArray[0]);
 		}
-		keywordHash.put(PARAMETER.TASKID, inputArray[0]);
+		
 		if(inputArray.length > 1){
 			return userInput.split(SPACE_CHARACTER,2)[1];
 		}
@@ -145,7 +139,7 @@ public class StringParser {
 	 * @param numString The string to be checked for all numbers
 	 * @return A boolean representation of whether the string provided is all numbers
 	 */
-	public static boolean containsOnlyNumbers(String numString) {
+	public static boolean containsOnlyPositiveNumbers(String numString) {
 		return numString.matches("^[0-9 ]+$");
 	}
 
@@ -166,7 +160,7 @@ public class StringParser {
 		int endOfQuote = userInput.indexOf(QUOTE_INTEGER, startOfQuote + 1);
 		if(startOfQuote >= 0 && endOfQuote > 0){
 			keywordHash.put(keyword, (getKeywordInString(userInput, startOfQuote + 1, endOfQuote - 1))); //Ignore the quote delimeters
-			return trimStringPortionOut(userInput, positionOfKeyword, endOfQuote);
+			return trimStringPortionOut(userInput, positionOfKeyword, endOfQuote).trim();
 		} else{
 			return userInput;
 		}
@@ -297,7 +291,7 @@ public class StringParser {
 		for(int currentPhrase = 0; currentPhrase < stringsToParse.length; currentPhrase++){
 			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase], keywordsInInput);
 			if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) ==  null){
-				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase]); //Ignore the quote delimeters
+				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase].trim()); //Ignore the quote delimeters
 			} else if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) !=  null){
 				//TODO: throw exception for double keyword
 			}
@@ -317,7 +311,7 @@ public class StringParser {
 		for(int currentPhrase = 0; currentPhrase < stringsToParse.length; currentPhrase++){
 			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase], keywordsInInput);
 			if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) ==  null){
-				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase].split(keywordsInInput[commandFromKeywordIndex])[1]); //Ignore the quote delimeters
+				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase].split(keywordsInInput[commandFromKeywordIndex])[1].trim()); //Ignore the quote delimeters
 			} else if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) !=  null){
 				//TODO: throw exception for double keyword
 			}

@@ -6,5 +6,9 @@
 	<classpathentry kind="lib" path="lib/gson-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="lib/jnativehook-2.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/antlr-runtime-3.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/ical4j-1.0.2.jar"/>
+	<classpathentry kind="lib" path="lib/natty-0.12.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.7.10.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
