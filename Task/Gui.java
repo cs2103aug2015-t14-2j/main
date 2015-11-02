@@ -263,7 +263,7 @@ public class Gui extends JFrame {
             Document doc = feedbackField.getDocument();
             doc.putProperty(Document.StreamDescriptionProperty, null);
             URL url = new URL(new URL("file:"), "./templates/html/output.html");
-            feedbackField.setPage(url);
+            feedbackField.setPage("http://www.google.com");
         } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();

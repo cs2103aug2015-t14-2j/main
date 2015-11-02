@@ -2,6 +2,8 @@ package Task;
 
 import java.util.ArrayList;
 
+import javafx.application.Application;
+import javafx.stage.Stage;
 import java.util.List;
 //import java.util.Scanner;
 import java.util.logging.Level;
@@ -137,40 +139,39 @@ public class Controller implements NativeKeyListener {
 		LOGGER.setLevel(Level.SEVERE);
 		
         try {
-                Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-                logger.setLevel(Level.OFF);
-                GlobalScreen.registerNativeHook();
+            Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+            logger.setLevel(Level.OFF);
+            GlobalScreen.registerNativeHook();
         }
         
         catch (NativeHookException ex) {
-                System.err.println("There was a problem enableing the shortcut functionality, ensure no instances are running");
-                LOGGER.severe(ex.getMessage());
-                System.exit(1);
+            System.err.println("There was a problem enableing the shortcut functionality, ensure no instances are running");
+            LOGGER.severe(ex.getMessage());
+            System.exit(1);
         }
 
-        //Construct the example object and initialze native hook.
+        // Construct the example object and initialze native hook.
         GlobalScreen.addNativeKeyListener(Controller.getInstance());
 	    
-        
-        //start the GUI
-        Gui.initGUI();
-        
-        //start the task handler
+        // Start the task handler before launching GUI so JavaFX application thread
+        // still has TaskHandler info before forking
         TaskHandler.startTasks(args);
+
+        // Start the GUI
+        Application.launch(JavaFXGUI.class);
 	    
-	    while(true) {
-	    	//listen for line
-	    	//showToUser(TaskHandler.inputFeedBack(scanner.nextLine()));
-	    	// showToUser(TaskHandler.inputFeedBack(Gui.getCurrentInstance().getUserInput()));
-		}
     }
 	
     public void executeGUIInput(String text) {
         TaskHandler.inputFeedBack(text);
-		// context.printToTerminal();
         renderView();
         context.clearAllMessages();
-		Gui.update();
+		JavaFXGUI.update();
+    }
+
+    public void prepareStartUpScreen() {
+    	context.displayMessage("MESSAGE_WELCOME");
+    	executeGUIInput("display");
     }
 
     private void renderView() {

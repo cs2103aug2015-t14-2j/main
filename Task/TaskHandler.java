@@ -26,6 +26,7 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
+import javafx.application.Platform;
 
 /**
  *  Represents the handler for tasks
@@ -200,6 +201,7 @@ public class TaskHandler {
 				context.displayMessage("MESSAGE_EXIT");
 				context.printToTerminal(); 				// Only call print here just before program exits
 				fileIO.writeToFile(taskList);
+				Platform.exit();
 				System.exit(0);
 			default:
 				parsedParamTable = StringParser.getValuesFromInput(COMMAND_TYPE.ADD_TASK, userInput);

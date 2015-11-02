@@ -9,7 +9,7 @@
             "deadline": "Mon, 12 Oct, 2015 1200",
             "venue": "NUS",
             "description": "ASDF",
-            "isDone": false,
+            "isDone": true,
             "isPastDeadline": false,
             "hasEnded": false
         },
@@ -48,7 +48,7 @@
             "deadline": "Wed, 21 Oct, 2015 1350",
             "venue": null,
             "description": "fjwojw",
-            "isDone": false,
+            "isDone": true,
             "isPastDeadline": true,
             "hasEnded": false
         },
@@ -139,6 +139,19 @@
             "deadline": "Thu, 29 Oct, 2015 1200",
             "venue": null,
             "description": "jfwoj",
+            "isDone": false,
+            "isPastDeadline": false,
+            "hasEnded": true
+        },
+        {
+            "taskId": 13,
+            "createdTime": "Tue, 03 Nov, 2015 0450",
+            "lastModifiedTime": "Tue, 03 Nov, 2015 0450",
+            "startTime": "Wed, 04 Nov, 2015 1200",
+            "endTime": "Wed, 04 Nov, 2015 1300",
+            "deadline": "Mon, 12 Oct, 2015 0451",
+            "venue": null,
+            "description": "today",
             "isDone": false,
             "isPastDeadline": false,
             "hasEnded": true
