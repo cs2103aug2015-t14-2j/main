@@ -61,7 +61,6 @@ public class TaskHandler {
 	public static void startTasks(String[] args) {
 		String localFilePath = determineFilePath(args);
 		init(localFilePath);
-		context.displayMessage("MESSAGE_WELCOME");
 	}
 	
 	public static void inputFeedBack(String input){
@@ -197,15 +196,29 @@ public class TaskHandler {
 			case HELP:
 				showHelpMenu();
 				break;
-			case INVALID_COMMAND:
-				context.displayMessage("ERROR_INVALID_COMMAND");
-				break;
 			case EXIT:
 				context.displayMessage("MESSAGE_EXIT");
 				context.printToTerminal(); 				// Only call print here just before program exits
 				fileIO.writeToFile(taskList);
 				System.exit(0);
 			default:
+				parsedParamTable = StringParser.getValuesFromInput(COMMAND_TYPE.ADD_TASK, userInput);
+				//TODO: shouldn't it be if it has a description?
+				if (parsedParamTable.get(PARAMETER.DESC) != null) {
+					addTask((String)parsedParamTable.get(PARAMETER.DESC),
+						(String)parsedParamTable.get(PARAMETER.VENUE), 
+						(Date)parsedParamTable.get(PARAMETER.START_DATE),
+						(Date)parsedParamTable.get(PARAMETER.END_DATE), 
+						(Date)parsedParamTable.get(PARAMETER.START_TIME),
+						(Date)parsedParamTable.get(PARAMETER.END_TIME),
+						(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
+						(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME));
+	
+					fileIO.writeToFile(taskList);
+				} else {
+					context.displayMessage("ERROR_INVALID_COMMAND");
+					context.displayMessage("HELP_ADD_TASK");
+				}
 				break;
 		
 		}

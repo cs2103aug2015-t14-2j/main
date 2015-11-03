@@ -80,13 +80,11 @@ public class StringParserTest {
 				"from 1100 at \"hong kong\" to 1500 do \"to be or not\" today",keywordHash);
 		
 		assertEquals("today",
-				keywordHash.get(PARAMETER.START_DATE));
-		assertEquals("today",
-				keywordHash.get(PARAMETER.END_DATE));
-		assertEquals("1100",
-				keywordHash.get(PARAMETER.START_TIME));
-		assertEquals("1500",
 				keywordHash.get(PARAMETER.END_TIME));
+		assertEquals("1100",
+				keywordHash.get(PARAMETER.START_DATE));
+		assertEquals("1500",
+				keywordHash.get(PARAMETER.END_DATE));
 		
 		//Using tomrrow keyword
 		
@@ -94,13 +92,11 @@ public class StringParserTest {
 						"from 1100 at \"hong kong\" to 1500 do \"to be or not\" tomorrow",keywordHash);
 				
 				assertEquals("tomorrow",
-						keywordHash.get(PARAMETER.START_DATE));
-				assertEquals("tomorrow",
-						keywordHash.get(PARAMETER.END_DATE));
-				assertEquals("1100",
-						keywordHash.get(PARAMETER.START_TIME));
-				assertEquals("1500",
 						keywordHash.get(PARAMETER.END_TIME));
+				assertEquals("1100",
+						keywordHash.get(PARAMETER.START_DATE));
+				assertEquals("1500",
+						keywordHash.get(PARAMETER.END_DATE));
 	}
 	
 	@Test
@@ -126,7 +122,7 @@ public class StringParserTest {
 		//Empty Case
 		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"",keywordHash);
-		assertEquals(0,
+		assertEquals(1,
 				keywordHash.size());
 		
 		//Basic case
@@ -142,7 +138,7 @@ public class StringParserTest {
 		//Empty Case
 		StringParser.getStringHashMap(COMMAND_TYPE.DELETE_TASK,
 				"",keywordHash);
-		assertEquals(0,
+		assertEquals(1,
 				keywordHash.size());
 		
 		//Basic case
@@ -185,6 +181,12 @@ public class StringParserTest {
 						keywordHash.get(PARAMETER.DESC));
 		assertEquals("hong kong",
 						keywordHash.get(PARAMETER.VENUE));
+		//at beginning
+		assertEquals("by 12/11 1100",
+						StringParser.transferQuoteToHashMap(PARAMETER.DESC,"",
+								"\"do sth\" by 12/11 1100", keywordHash));
+		assertEquals("do sth",
+				keywordHash.get(PARAMETER.DESC));
 	}
 
 	@Test
@@ -198,9 +200,9 @@ public class StringParserTest {
 		assertEquals(0,StringParser.findKeywordIndexInput("on 15/11 from 1100 to 1500","on",0));
 		assertEquals(11,StringParser.findKeywordIndexInput("by 11/12   #hello","#",0));
 		assertEquals(18,StringParser.findKeywordIndexInput("by 11/12   #hello #waffles","#",16));
-		assertEquals(-1,StringParser.findKeywordIndexInput("   #hello","",0));
+		assertEquals(0,StringParser.findKeywordIndexInput("   #hello","",0));
 		assertEquals(-1,StringParser.findKeywordIndexInput(null,"",0));
-		assertEquals(-1,StringParser.findKeywordIndexInput("   #hello",null,0));
+		assertEquals(0,StringParser.findKeywordIndexInput("   #hello",null,0));
 		
 	}
 
