@@ -672,11 +672,11 @@ public class TaskHandler {
 			(compareTask.getTaskId()		== -1 	|| 
 				compareTask.getTaskId() == taskListTask.getTaskId() 						)&&
 			(compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
-				compareTask.getStartDateTime().before(taskListTask.getStartDateTime()) 				))&&
+				compareTask.getStartDateTime().after(taskListTask.getStartDateTime()) 				))&&
 			(compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   &&
-				compareTask.getEndDateTime().after(taskListTask.getEndDateTime()) 					))&&
+				compareTask.getEndDateTime().before(taskListTask.getEndDateTime()) 					))&&
 			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
-				compareTask.getDeadline().before(taskListTask.getDeadline()) 						))&&
+				compareTask.getDeadline().after(taskListTask.getDeadline()) 						))&&
 			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
 					taskListTask.getVenue().toLowerCase().contains(
 							compareTask.getVenue().toLowerCase())									))&&

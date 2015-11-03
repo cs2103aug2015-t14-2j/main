@@ -1,15 +1,15 @@
+/**
+ *  @@author A0009586
+ *  
+ *  Represents the parser for strings
+ * 
+ */
+
 package Task;
 
 import java.text.ParseException;
 import java.util.HashMap;
 
-/**
- *  Represents the parser for strings
- * 
- *  @author A0097689 Tan Si Kai
- *  @author A0009586 Jean Pierre Castillo
- *  @author A0118772 Audrey Tiah
- */
 
 public class StringParser {
 	private static final Context context = Context.getInstance();
@@ -22,10 +22,13 @@ public class StringParser {
 	private static final int PARAM_NOT_FOUND = -1;
 	private static final String ALL_TASKS = "-2";
 	
+	private static String[] 	AllKeywordsInInput	={"on","from","to","by","do","at"};
 	private static String[] 	keywordsInInput		={"on ","from ","to ","by "};
 	private static String[] 	daysInInput			={"monday","tuesday","wednesday","thursday","friday","saturday","sunday",
-														"today","tomorrow"};
-	private static String[] 	ShorthandDaysInput	={"mon","tues","wed","thurs","fri","sat","sun","tmr"};
+														"today","tomorrow","mon","tues","wed","thurs","fri","sat","sun","tmr"};
+	private static String[] 	taskTypes			={"deadline","floating","event"};
+	private static String[]		taskTypeDel			={"from to","from to by","by"};
+	
 	
 	private static PARAMETER[] 	paramInInput		={PARAMETER.DATE,
 														PARAMETER.START_TIME,
@@ -52,37 +55,12 @@ public class StringParser {
 	}
 
 	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
+		boolean isDeleteParams = false;
+		
+		userInput = userInput.trim();
 		
 		switch (command) {
-		case EDIT_TASK:
-			
-		case DISPLAY:
-			userInput = getTaskID(userInput, keywordHash);
-			
-		case ADD_TASK:
-			//Take the "" keyword out first
-			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
-			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
-			
-			if(keywordHash.get(PARAMETER.DESC) == null){
-				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
-			}
-			
-			//Take the repeating param keywords out for remind
-			//userInput = transferMultipleArgsToHashMap(PARAMETER.REMIND_TIMES,"remind",SEPERATED_BY_SPACES,userInput);
-	
-			addAttributesToHashTableWithoutKeyword(keywordsInInput, paramInInput, userInput.split(obtainOrFromStringList(keywordsInInput)), keywordHash);
-			
-			if(keywordHash.get(PARAMETER.START_TIME) == null && keywordHash.get(PARAMETER.END_TIME) == null && keywordHash.get(PARAMETER.DEADLINE_TIME) == null){
-				addAttributesToHashTable(daysInInput, PARAMETER.DATE, userInput.split(obtainOrFromStringList(daysInInput)), keywordHash);
-			}
-			
-			if(keywordHash.get(PARAMETER.START_TIME) == null && keywordHash.get(PARAMETER.END_TIME) == null && keywordHash.get(PARAMETER.DEADLINE_TIME) == null){
-				addAttributesToHashTable(ShorthandDaysInput, PARAMETER.DATE, userInput.split(obtainOrFromStringList(ShorthandDaysInput)), keywordHash);
-			}
-			
-			break;
-			
+		
 		case DELETE_TASK:
 			
 		case DONE:
@@ -90,10 +68,136 @@ public class StringParser {
 		case UNDONE:
 			userInput = getTaskID(userInput, keywordHash);
 			break;
+			
+		case EDIT_TASK:
+			isDeleteParams = findKeywordIndexInput(userInput.trim(),"no", 0) != PARAM_NOT_FOUND;
+			//Take the no keywords out
+			if(isDeleteParams){
+				userInput = obtainTrailingKeywordsToHashmap(userInput, findKeywordIndexInput(userInput.trim(),"no ", 0),
+								"no ".length(),AllKeywordsInInput,PARAMETER.DELETEPARAMS,keywordHash);
+			}
+			
+			addStringToParamFromList(userInput,taskTypes,taskTypeDel,PARAMETER.DELETEPARAMS,keywordHash);
+			removeRepeatedWordsParam(PARAMETER.DELETEPARAMS,keywordHash);
+			
+		case DISPLAY:
+			userInput = getTaskID(userInput, keywordHash);
+			
+		case ADD_TASK:
 		
 		default:
+			//Take the "" keywords out
+			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
+			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			
+			if(keywordHash.get(PARAMETER.DESC) == null){
+				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
+			}
+			
+			addAttributesWithoutKeyword(keywordsInInput, paramInInput, userInput.split(obtainDelimiterStringList(keywordsInInput)), keywordHash);
+			
+			if(keywordHash.get(PARAMETER.START_TIME) == null && keywordHash.get(PARAMETER.END_TIME) == null && keywordHash.get(PARAMETER.DEADLINE_TIME) == null){
+				addAttributesWithOneParamKeyword(daysInInput, PARAMETER.DATE, userInput.split(obtainDelimiterStringList(daysInInput)), keywordHash);
+			}
+			
+			break;
 			
 		}
+	}
+
+	/**
+	 * 
+	 * @param deleteparams
+	 * @param keywordHash
+	 */
+	private static void removeRepeatedWordsParam(PARAMETER deleteparams, HashMap<PARAMETER, String> keywordHash) {
+		String wordList = keywordHash.get(deleteparams);
+		if(wordList != null && wordList.length() > 0){
+			wordList.replaceAll("(\\b\\w+\\b) (?=.*\\b\\1\\b)", "");
+			keywordHash.put(deleteparams, wordList);
+		}
+	}
+
+	/**
+	 * TODO:
+	 * @param userInput
+	 * @param keywords
+	 * @param paramEqv
+	 * @param paramToUse
+	 * @param keywordHash
+	 */
+	private static void addStringToParamFromList(String userInput, String[] keywords, String[] paramEqv,
+			PARAMETER paramToUse, HashMap<PARAMETER, String> keywordHash) {
+		for(int i = 0;i < keywords.length;i++){
+			if(userInput.contains(keywords[i])){
+				if(keywordHash.get(paramToUse) == null){
+					keywordHash.put(paramToUse, paramEqv[i]);
+				}
+				else {
+					keywordHash.put(paramToUse, keywordHash.get(paramToUse) + 
+										" " + 
+										paramEqv[i]);
+				}
+			}
+		}
+	}
+
+	/**
+	 * TODO:
+	 * @param inputString 
+	 * @param startingPostion
+	 * @param keywords
+	 * @param keywordHash
+	 * @return
+	 */
+	public static String obtainTrailingKeywordsToHashmap(String inputString, int startingPosition, int offset, String[] keywords,
+			PARAMETER param, HashMap<PARAMETER, String> keywordHash) {
+		int endPosition = startingPosition + offset;
+		String[] trimedKeywords = trimStringList(keywords);
+		while(indexKeywordInString(nextWordFromIndex(inputString,endPosition),trimedKeywords) != PARAM_NOT_FOUND){
+			if(keywordHash.get(param) == null){
+				keywordHash.put(param, nextWordFromIndex(inputString,endPosition));
+			}
+			else {
+				keywordHash.put(param, keywordHash.get(param) + 
+									" " + 
+									nextWordFromIndex(inputString,endPosition));
+			}
+			endPosition = endPosition +	nextWordFromIndex(inputString,endPosition).length() + 1;
+		}
+		if(endPosition == startingPosition + offset){
+			return trimStringPortionOut(inputString, startingPosition, endPosition - 1);
+		} else {
+			return trimStringPortionOut(inputString, startingPosition, endPosition);
+		}
+		
+	}
+
+	/**
+	 * TODO:
+	 * @param keywords
+	 * @return
+	 */
+	private static String[] trimStringList(String[] keywords) {
+		String[] trimedKeywords = new String[keywords.length];
+		for(int i =0;i < keywords.length;i++){
+			trimedKeywords[i] = keywords[i].trim();
+		}
+		return trimedKeywords;
+	}
+
+	/**
+	 * TODO:
+	 * @param inputString
+	 * @param startingPostion
+	 * @return
+	 */
+	public static String nextWordFromIndex(String inputString, int startingPostion) {
+		if(inputString.length()>startingPostion){
+			String remainingString = inputString.substring(startingPostion);
+			return remainingString.trim().split(" ")[0];
+		}
+		return null;
 	}
 
 	/**
@@ -101,7 +205,7 @@ public class StringParser {
 	 * @param keywordsInInputAdd Array of strings to parse
 	 * @return Delimiter string to use
 	 */
-	private static String obtainOrFromStringList(String[] keywordsInInputAdd) {
+	private static String obtainDelimiterStringList(String[] keywordsInInputAdd) {
 		StringBuilder result = new StringBuilder();
 		for(String s:keywordsInInputAdd){
 			result.append("(?= \\b"+ s + ")|");
@@ -269,13 +373,13 @@ public class StringParser {
 	 * @param stringsToParse The strings that need to be placed in the appropriate parameters
 	 * @param keywordHash The hashtable to be updated
 	 */
-	private static void addAttributesToHashTable(String[] keywordsInInput, PARAMETER paramInInput, String[] stringsToParse,
+	private static void addAttributesWithOneParamKeyword(String[] keywordsInInput, PARAMETER paramInInput, String[] stringsToParse,
 			HashMap<PARAMETER, String> keywordHash) {
 		PARAMETER[] paramInInputs = new PARAMETER[keywordsInInput.length];
 		for(int i =0; i < keywordsInInput.length;i++){
 			paramInInputs[i] = paramInInput;
 		}
-		addAttributesToHashTableWithKeyword(keywordsInInput,paramInInputs,stringsToParse,keywordHash);
+		addAttributesWithKeyword(keywordsInInput,paramInInputs,stringsToParse,keywordHash);
 	}
 	
 	/**
@@ -286,7 +390,7 @@ public class StringParser {
 	 * @param stringsToParse The strings that need to be placed in the appropriate parameters
 	 * @param keywordHash The hashtable to be updated
 	 */
-	private static void addAttributesToHashTableWithKeyword(String[] keywordsInInput,PARAMETER[] paramInInputs, String[] stringsToParse, HashMap<PARAMETER, String> keywordHash) {
+	private static void addAttributesWithKeyword(String[] keywordsInInput,PARAMETER[] paramInInputs, String[] stringsToParse, HashMap<PARAMETER, String> keywordHash) {
 		//Traverses the string word by word
 		for(int currentPhrase = 0; currentPhrase < stringsToParse.length; currentPhrase++){
 			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase], keywordsInInput);
@@ -306,7 +410,7 @@ public class StringParser {
 	 * @param stringsToParse The strings that need to be placed in the appropriate parameters
 	 * @param keywordHash The hashtable to be updated
 	 */
-	private static void addAttributesToHashTableWithoutKeyword(String[] keywordsInInput,PARAMETER[] paramInInputs, String[] stringsToParse, HashMap<PARAMETER, String> keywordHash) {
+	private static void addAttributesWithoutKeyword(String[] keywordsInInput,PARAMETER[] paramInInputs, String[] stringsToParse, HashMap<PARAMETER, String> keywordHash) {
 		//Traverses the string word by word
 		for(int currentPhrase = 0; currentPhrase < stringsToParse.length; currentPhrase++){
 			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase], keywordsInInput);

@@ -1,3 +1,10 @@
+/**
+ *  @@author A0009586
+ *  
+ *  Represents the test for the String Parser class
+ * 
+ */
+
 package test;
 
 import static org.junit.Assert.*;
@@ -95,6 +102,24 @@ public class StringParserTest {
 		
 		assertEquals("tmr 5pm",
 				keywordHash.get(PARAMETER.DATE));
+		
+		//Use no keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
+				"at \"hong kong\" tmr 5pm do \"to be or not\" no from",keywordHash);
+		
+		assertEquals("from",
+				keywordHash.get(PARAMETER.DELETEPARAMS));
+		
+		//Use no keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
+				"at \"hong kong\" tmr 5pm do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("from to",
+				keywordHash.get(PARAMETER.DELETEPARAMS));
 	}
 	
 	@Test
@@ -174,7 +199,7 @@ public class StringParserTest {
 	@Test
 	public void testTransferQuoteToHashMap() throws ParseException {
 		
-		StringParser.getStringHashMap(COMMAND_TYPE.ADD_TASK,"",keywordHash); //Initialize
+		keywordHash =  new HashMap<PARAMETER, String>(0); //Initialize
 		
 		//Basic case do
 		assertEquals("at \"hong kong\" by 12/11 1100",
@@ -214,6 +239,54 @@ public class StringParserTest {
 								"\"do sth\" by 12/11 1100", keywordHash));
 		assertEquals("do sth",
 				keywordHash.get(PARAMETER.DESC));
+	}
+	
+	@Test
+	public void testObtainTrailingKeywordsToHashmap(){
+		
+		String[] 	keywordsInInput		={"on","from","to","by","do","at"};
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0); //Initialize
+		
+		//Basic case no
+		assertEquals("at \"hong kong\" by 12/11 1100 ",
+						StringParser.obtainTrailingKeywordsToHashmap("at \"hong kong\" by 12/11 1100 no from",
+						29,"no ".length(),keywordsInInput,PARAMETER.DELETEPARAMS, keywordHash));
+		
+		assertEquals("from",
+				keywordHash.get(PARAMETER.DELETEPARAMS));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		//Many case no
+		assertEquals("at \"hong kong\" by 12/11 1100 ",
+						StringParser.obtainTrailingKeywordsToHashmap("at \"hong kong\" by 12/11 1100 no from by at",
+						29,"no ".length(),keywordsInInput,PARAMETER.DELETEPARAMS, keywordHash));
+		
+		assertEquals("from by at",
+				keywordHash.get(PARAMETER.DELETEPARAMS));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		//Not recognized case
+		assertEquals("at \"hong kong\" by 12/11 1100 buy from",
+						StringParser.obtainTrailingKeywordsToHashmap("at \"hong kong\" by 12/11 1100 no buy from",
+						29,"no ".length(),keywordsInInput,PARAMETER.DELETEPARAMS, keywordHash));
+		
+		assertEquals(null,
+				keywordHash.get(PARAMETER.DELETEPARAMS));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		//no with no keywords
+		assertEquals("at \"hong kong\" by 12/11 1100 ",
+						StringParser.obtainTrailingKeywordsToHashmap("at \"hong kong\" by 12/11 1100 no ",
+						29,"no ".length(),keywordsInInput,PARAMETER.DELETEPARAMS, keywordHash));
+		
+		assertEquals(null,
+				keywordHash.get(PARAMETER.DELETEPARAMS));
+		
+		keywordHash =  new HashMap<PARAMETER, String>(0);
 	}
 
 	@Test
@@ -268,4 +341,14 @@ public class StringParserTest {
 		
 	}
 
+	@Test
+	public void testNextWordFromIndex() {
+		
+		assertEquals("hello",StringParser.nextWordFromIndex("hello me mine",0));
+		assertEquals("ello",StringParser.nextWordFromIndex("hello me mine",1));
+		assertEquals("me",StringParser.nextWordFromIndex("hello me mine",5));
+		assertEquals("mine",StringParser.nextWordFromIndex("hello me mine",9));
+		assertEquals(null,StringParser.nextWordFromIndex("",0));
+		
+	}
 }
