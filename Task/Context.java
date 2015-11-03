@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.HashMap;
 import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -20,7 +22,7 @@ public class Context {
 	private static boolean DEBUG = true;
 	
 	// TaskID for editing, deleting or displaying a specific task
-	private static int taskId = 0;
+	private static int TASKID = 0;
 
 	// Define success messages here
 	private static Pair MESSAGE_WELCOME        = new Pair( "Welcome to TaskBuddy!");
@@ -165,7 +167,7 @@ public class Context {
 	}
 
 	public void setTaskId(int _taskId) {
-		taskId = _taskId;
+		TASKID = _taskId;
 	}
 
 	public void printToTerminal() {
@@ -241,19 +243,19 @@ public class Context {
 					Pair pair = (Pair) o;
 					if (pair.getValue()) {
 						if (field.getName().contains("MESSAGE")) {
-							success_messages.add(pair.getKey());
+							success_messages.add(addTaskIDToString(pair.getKey()));
 						}
 						if (field.getName().contains("WARNING")) {
-							warning_messages.add(pair.getKey());
+							warning_messages.add(addTaskIDToString(pair.getKey()));
 						}
 						if (field.getName().contains("HELP")) {
-							help_messages.add(pair.getKey());
+							help_messages.add(addTaskIDToString(pair.getKey()));
 						}
 						if (field.getName().contains("PARAM")) {
-							param_messages.add(pair.getKey());
+							param_messages.add(addTaskIDToString(pair.getKey()));
 						}
 						if (field.getName().contains("ERROR")) {
-							error_messages.add(pair.getKey());
+							error_messages.add(addTaskIDToString(pair.getKey()));
 						}
 					}
 				}
@@ -264,13 +266,31 @@ public class Context {
 			}
 			
 		}
-		// Print tasks
+		// Add tasks to dataModel
 		if (!displayTaskSet.isEmpty()) {
 			Iterator<Task> iterator = displayTaskSet.iterator();
 			while (iterator.hasNext()) {
 				Task task = iterator.next();
 				taskList.add(task);
 			}
+		}
+		// Read Json file as string
+		String jsonData = "";
+		try {
+			String read_string;
+			String filename   = "./data/calendar.json";
+			FileReader fr     = new FileReader(filename);
+			BufferedReader br = new BufferedReader(fr);
+			
+			while ((read_string = br.readLine())!= null) {
+				jsonData += read_string;
+				
+			}								
+			br.close();
+			
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			
 		}
 
 		dataModel.put("success_messages", success_messages);
@@ -279,6 +299,12 @@ public class Context {
 		dataModel.put("param_messages", param_messages);
 		dataModel.put("error_messages", error_messages);
 		dataModel.put("taskList", taskList);
+		dataModel.put("jsonData", jsonData);
 		return dataModel;
+	}
+
+	// Helper function to add TaskID to message with %d placeholder
+	private String addTaskIDToString(String original){
+		return String.format(original, TASKID);
 	}
 }

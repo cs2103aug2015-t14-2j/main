@@ -1,25 +1,283 @@
 <html>
 	<head>
 		<link href="../css/bootstrap.min.css" rel="stylesheet">
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.css' />
+		<link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.print.css" />
+		<script src="../js/jQuery_v1.11.2.js"></script>
+		<script src="../js/bootstrap.js"></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js'></script>
+		<script src="../js/calendar.js"></script>
 	</head>
-	<body style="margin-top:30px">
+	<body style="margin-top:10px">
 		<div class="container-fluid">
 			<div class="row-fluid">
-				<div class="col-md-12">
+				<div class="col-xs-12">
 										<div class="alert alert-success">
-							<p>Task %d has been updated!</p>
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<p>Welcome to TaskBuddy!</p>
+							<p>All tasks displayed.</p>
 					</div>
-					<div class="alert alert-warning">
-							<p>WARNING: You have specified a deadline that is before the current time</p>
-					</div>
-						<ul class="list-group">
-							<li class="list-group-item active"><p>ID        : 13</p></li>
-							<li class="list-group-item">Description: today</li>
-							<li class="list-group-item">Venue      : Not specified</li>
-							<li class="list-group-item">From       : NULL</li>
-							<li class="list-group-item">To         : NULL&nbsp;&nbsp;&nbsp;<span class="label label-info">Ended</span></li>
-							<li class="list-group-item">Deadline   : Oct 12, 2015 4:51:40 AM</li>
-						</ul>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="col-xs-8">
+					<div style="display:none" id="jsonData">{    "Tasks": [        {            "taskId": 2,            "createdTime": "Thu, 10 Sep, 2015 1356",            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",            "startTime": "Tue, 03 Nov, 2015 1300",            "endTime": "Tue, 03 Nov, 2015 1400",            "deadline": "Tue, 03 Nov, 2015 1200",            "venue": "NUS",            "description": "ASDF",            "isDone": true,            "isPastDeadline": false,            "hasEnded": false        },        {            "taskId": 3,            "createdTime": "Sun, 25 Oct, 2015 0050",            "lastModifiedTime": "Sun, 25 Oct, 2015 0050",            "startTime": "Tue, 03 Nov, 2015 1400",            "endTime": "Tue, 03 Nov, 2015 1500",            "deadline": null,            "venue": null,            "description": "sth",            "isDone": false,            "isPastDeadline": false,            "hasEnded": false        },        {            "taskId": 5,            "createdTime": "Thu, 29 Oct, 2015 0318",            "lastModifiedTime": "Thu, 29 Oct, 2015 0318",            "startTime": null,            "endTime": null,            "deadline": "Wed, 21 Oct, 2015 1350",            "venue": null,            "description": "fjwojw",            "isDone": true,            "isPastDeadline": true,            "hasEnded": false        },        {            "taskId": 6,            "createdTime": "Thu, 29 Oct, 2015 0319",            "lastModifiedTime": "Thu, 29 Oct, 2015 0319",            "startTime": "Thu, 29 Oct, 2015 0000",            "endTime": "Wed, 04 Nov, 2015 0000",            "deadline": null,            "venue": null,            "description": "fwoj",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 7,            "createdTime": "Thu, 29 Oct, 2015 0319",            "lastModifiedTime": "Thu, 29 Oct, 2015 0319",            "startTime": "Thu, 29 Oct, 2015 0000",            "endTime": "Wed, 04 Nov, 2015 0900",            "deadline": null,            "venue": null,            "description": "jfowj",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 8,            "createdTime": "Thu, 29 Oct, 2015 0323",            "lastModifiedTime": "Thu, 29 Oct, 2015 0323",            "startTime": "Thu, 29 Oct, 2015 0000",            "endTime": "Wed, 04 Nov, 2015 1300",            "deadline": null,            "venue": null,            "description": "fwjofj",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 9,            "createdTime": "Thu, 29 Oct, 2015 0325",            "lastModifiedTime": "Thu, 29 Oct, 2015 0325",            "startTime": "Thu, 29 Oct, 2015 1400",            "endTime": "Mon, 21 May, 2018 0200",            "deadline": null,            "venue": null,            "description": "fjwofj",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 10,            "createdTime": "Thu, 29 Oct, 2015 0325",            "lastModifiedTime": "Thu, 29 Oct, 2015 0325",            "startTime": null,            "endTime": null,            "deadline": "Fri, 30 Oct, 2015 2359",            "venue": null,            "description": "fkwo",            "isDone": false,            "isPastDeadline": true,            "hasEnded": false        },        {            "taskId": 11,            "createdTime": "Thu, 29 Oct, 2015 0325",            "lastModifiedTime": "Thu, 29 Oct, 2015 0325",            "startTime": "Thu, 29 Oct, 2015 0000",            "endTime": "Fri, 30 Oct, 2015 0000",            "deadline": null,            "venue": null,            "description": "fwo",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 12,            "createdTime": "Thu, 29 Oct, 2015 0325",            "lastModifiedTime": "Thu, 29 Oct, 2015 0325",            "startTime": "Sun, 01 Nov, 2015 1200",            "endTime": "Sun, 01 Nov, 2015 1300",            "deadline": "Thu, 29 Oct, 2015 1200",            "venue": null,            "description": "jfwoj",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 13,            "createdTime": "Tue, 03 Nov, 2015 0450",            "lastModifiedTime": "Tue, 03 Nov, 2015 0450",            "startTime": "Wed, 04 Nov, 2015 1200",            "endTime": "Wed, 04 Nov, 2015 1300",            "deadline": "Mon, 12 Oct, 2015 0451",            "venue": null,            "description": "today",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 4,            "createdTime": "Thu, 29 Oct, 2015 0317",            "lastModifiedTime": "Thu, 29 Oct, 2015 0317",            "startTime": "Thu, 29 Oct, 2015 0000",            "endTime": "Fri, 30 Oct, 2015 0000",            "deadline": null,            "venue": null,            "description": "fjowjfw",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        }    ]}</div>
+					<div id="calendar"></div>
+				</div>
+				<div class="col-xs-4">
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>ASDF&nbsp;&nbsp;&nbsp;<span class="label label-success">Completed</span><span class="badge pull-right">ID: 2</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td>NUS</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td>Nov 3, 2015 12:00:00 PM</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>sth<span class="badge pull-right">ID: 3</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>fjwojw&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label label-danger">Past due</span><span class="label label-success">Completed</span><span class="badge pull-right">ID: 5</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td>Oct 21, 2015 1:50:00 PM</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>fwoj<span class="badge pull-right">ID: 6</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>jfowj<span class="badge pull-right">ID: 7</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>fwjofj<span class="badge pull-right">ID: 8</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>fjwofj<span class="badge pull-right">ID: 9</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>fkwo<span class="badge pull-right">ID: 10</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td>Oct 30, 2015 11:59:00 PM</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>fwo<span class="badge pull-right">ID: 11</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>jfwoj<span class="badge pull-right">ID: 12</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td>Oct 29, 2015 12:00:00 PM</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>today<span class="badge pull-right">ID: 13</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td>Oct 12, 2015 4:51:00 AM</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>fjowjfw<span class="badge pull-right">ID: 4</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 				</div>
 			</div>
 		</div>

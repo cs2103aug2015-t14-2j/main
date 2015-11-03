@@ -1,13 +1,21 @@
 <html>
 	<head>
 		<link href="../css/bootstrap.min.css" rel="stylesheet">
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.css' />
+		<link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.print.css" />
+		<script src="../js/jQuery_v1.11.2.js"></script>
+		<script src="../js/bootstrap.js"></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js'></script>
+		<script src="../js/calendar.js"></script>
 	</head>
-	<body style="margin-top:30px">
+	<body style="margin-top:10px">
 		<div class="container-fluid">
 			<div class="row-fluid">
-				<div class="col-md-12">
+				<div class="col-xs-12">
 					<#if success_messages?has_content>
 					<div class="alert alert-success">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<#list success_messages as message>
 							<p>${message}</p>
 						</#list>
@@ -15,6 +23,7 @@
 					</#if>
 					<#if warning_messages?has_content>
 					<div class="alert alert-warning">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<#list warning_messages as message>
 							<p>${message}</p>
 						</#list>
@@ -22,6 +31,7 @@
 					</#if>
 					<#if error_messages?has_content>
 					<div class="alert alert-danger">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<#list error_messages as message>
 							<p>${message}</p>
 						</#list>
@@ -29,6 +39,7 @@
 					</#if>
 					<#if help_messages?has_content>
 					<div class="alert alert-info">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<#list help_messages as message>
 							<p>${message}</p>
 						</#list>
@@ -36,20 +47,42 @@
 					</#if>
 					<#if param_messages?has_content>
 					<div class="alert alert-warning">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<#list param_messages as message>
 							<p>${message}</p>
 						</#list>
 					</div>
 					</#if>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="col-xs-8">
+					<div style="display:none" id="jsonData">${jsonData}</div>
+					<div id="calendar"></div>
+				</div>
+				<div class="col-xs-4">
 					<#list taskList as task>
-						<ul class="list-group">
-							<li class="list-group-item active"><p>ID        : ${task.taskId}</p></li>
-							<li class="list-group-item">Description: ${task.description}<#if task.isDone()>&nbsp;&nbsp;&nbsp;<span class="label label-success">Completed</span></#if></li>
-							<li class="list-group-item">Venue      : ${task.venue!"Not specified"}</li>
-							<li class="list-group-item">From       : ${(task.period.startTime)!"NULL"}</li>
-							<li class="list-group-item">To         : ${(task.period.endTime)!"NULL"}<#if task.isHasEnded()>&nbsp;&nbsp;&nbsp;<span class="label label-info">Ended</span></#if></li>
-							<li class="list-group-item">Deadline   : ${(task.deadline?datetime)!"NULL"}<#if task.isPastDeadline()>&nbsp;&nbsp;&nbsp;<span class="label label-danger">Past due</span></#if></li>
-						</ul>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>${task.description}<#if task.isDone()>&nbsp;&nbsp;&nbsp;<#if task.isPastDeadline()>&nbsp;&nbsp;&nbsp;<span class="label label-danger">Past due</span></#if><span class="label label-success">Completed</span></#if><span class="badge pull-right">ID: ${task.taskId}</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><#if task.venue??>${task.venue}<#else><span class="label label-default">Empty</span></#if></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><#if (task.period.getStartDateTime())??>${(task.period.startDateTime)} - ${(task.period.endDateTime)}<#else><span class="label label-default">Empty</#if></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td><#if task.deadline??>${(task.deadline?datetime)}<#else><span class="label label-default">Empty</span></#if></td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					</#list>
 				</div>
 			</div>
