@@ -110,7 +110,7 @@ public class StringParserTest {
 				"at \"hong kong\" tmr 5pm do \"to be or not\" no from",keywordHash);
 		
 		assertEquals("from",
-				keywordHash.get(PARAMETER.DELETEPARAMS));
+				keywordHash.get(PARAMETER.DELETE_PARAMS));
 		
 		//Use no keyword
 		keywordHash =  new HashMap<PARAMETER, String>(0);
@@ -119,7 +119,7 @@ public class StringParserTest {
 				"at \"hong kong\" tmr 5pm do \"to be or not\" deadline",keywordHash);
 		
 		assertEquals("from to",
-				keywordHash.get(PARAMETER.DELETEPARAMS));
+				keywordHash.get(PARAMETER.DELETE_PARAMS));
 	}
 	
 	@Test
@@ -251,40 +251,40 @@ public class StringParserTest {
 		//Basic case no
 		assertEquals("at \"hong kong\" by 12/11 1100 ",
 						StringParser.obtainTrailingKeywordsToHashmap("at \"hong kong\" by 12/11 1100 no from",
-						29,"no ".length(),keywordsInInput,PARAMETER.DELETEPARAMS, keywordHash));
+						29,"no ".length(),keywordsInInput,PARAMETER.DELETE_PARAMS, keywordHash));
 		
 		assertEquals("from",
-				keywordHash.get(PARAMETER.DELETEPARAMS));
+				keywordHash.get(PARAMETER.DELETE_PARAMS));
 		
 		keywordHash =  new HashMap<PARAMETER, String>(0);
 		
 		//Many case no
 		assertEquals("at \"hong kong\" by 12/11 1100 ",
 						StringParser.obtainTrailingKeywordsToHashmap("at \"hong kong\" by 12/11 1100 no from by at",
-						29,"no ".length(),keywordsInInput,PARAMETER.DELETEPARAMS, keywordHash));
+						29,"no ".length(),keywordsInInput,PARAMETER.DELETE_PARAMS, keywordHash));
 		
 		assertEquals("from by at",
-				keywordHash.get(PARAMETER.DELETEPARAMS));
+				keywordHash.get(PARAMETER.DELETE_PARAMS));
 		
 		keywordHash =  new HashMap<PARAMETER, String>(0);
 		
 		//Not recognized case
 		assertEquals("at \"hong kong\" by 12/11 1100 buy from",
 						StringParser.obtainTrailingKeywordsToHashmap("at \"hong kong\" by 12/11 1100 no buy from",
-						29,"no ".length(),keywordsInInput,PARAMETER.DELETEPARAMS, keywordHash));
+						29,"no ".length(),keywordsInInput,PARAMETER.DELETE_PARAMS, keywordHash));
 		
 		assertEquals(null,
-				keywordHash.get(PARAMETER.DELETEPARAMS));
+				keywordHash.get(PARAMETER.DELETE_PARAMS));
 		
 		keywordHash =  new HashMap<PARAMETER, String>(0);
 		
 		//no with no keywords
 		assertEquals("at \"hong kong\" by 12/11 1100 ",
 						StringParser.obtainTrailingKeywordsToHashmap("at \"hong kong\" by 12/11 1100 no ",
-						29,"no ".length(),keywordsInInput,PARAMETER.DELETEPARAMS, keywordHash));
+						29,"no ".length(),keywordsInInput,PARAMETER.DELETE_PARAMS, keywordHash));
 		
 		assertEquals(null,
-				keywordHash.get(PARAMETER.DELETEPARAMS));
+				keywordHash.get(PARAMETER.DELETE_PARAMS));
 		
 		keywordHash =  new HashMap<PARAMETER, String>(0);
 	}

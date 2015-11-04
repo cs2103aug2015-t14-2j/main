@@ -33,6 +33,7 @@ public class Context {
 	private static Pair MESSAGE_DISPLAY_ALL    = new Pair(HTML_GREEN + "All tasks displayed." + HTML_RESET);
 	private static Pair MESSAGE_DISPLAY		   = new Pair(HTML_GREEN + "Search results:" + HTML_RESET);
 	private static Pair MESSAGE_SEARCH_TASK    = new Pair(HTML_GREEN + "Here are tasks matching your keywords:" + HTML_RESET);
+	private static Pair MESSAGE_DELETE_ALL_TASK= new Pair(HTML_GREEN + "All Tasks have been deleted" + HTML_RESET);
 	private static Pair MESSAGE_DELETE_TASK    = new Pair(HTML_GREEN + "Task %d has been deleted" + HTML_RESET);
 	private static Pair MESSAGE_EDIT_TASK      = new Pair(HTML_GREEN + "Task %d has been updated!" + HTML_RESET);
 	private static Pair MESSAGE_UNDO_TASK      = new Pair(HTML_GREEN + "Successfully undoed change(s) to Task %d." + HTML_RESET);
