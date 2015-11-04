@@ -1,8 +1,16 @@
+/**
+ *  @@author A0009586
+ *  
+ *  Represents the control module that is in charge of initialization and GUI
+ *  Singleton structure
+ * 
+ */
+
 package Task;
 
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.Scanner;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -10,15 +18,6 @@ import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
-
-/**
- *  Represents the control module that is in charge of initialization and GUI
- *  Singleton structure
- * 
- *  @author A0097689 Tan Si Kai
- *  @author A0009586 Jean Pierre Castillo
- *  @author A0118772 Audrey Tiah
- */
 
 public class Controller implements NativeKeyListener {
 	private static Context context = Context.getInstance();

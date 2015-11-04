@@ -40,6 +40,8 @@ public class TaskHandler {
 	private static final boolean TASK_DONE    	= true;
 	private static final boolean TASK_NOT_DONE	= false;
 	
+	private static final int ALL_TASKS = -2;
+	
 	private static Scanner         scanner           = new Scanner(System.in);
 	private static Calendar        calendar          = Calendar.getInstance();
 	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("dd/M/yyyy HHmm");
@@ -201,7 +203,7 @@ public class TaskHandler {
 				context.printToTerminal(); 				// Only call print here just before program exits
 				fileIO.writeToFile(taskList);
 				System.exit(0);
-			default:
+			default: //Add task
 				parsedParamTable = StringParser.getValuesFromInput(COMMAND_TYPE.ADD_TASK, userInput);
 				//TODO: shouldn't it be if it has a description?
 				if (parsedParamTable.get(PARAMETER.DESC) != null) {
@@ -568,6 +570,8 @@ public class TaskHandler {
 			context.displayMessage("MESSAGE_DELETE_TASK");
 			context.setTaskId(task.getTaskId());
 
+		} else if(taskID == ALL_TASKS){
+			//TODO: Delete all tasks
 		} else {
 			context.displayMessage("ERROR_TASK_NOT_FOUND");		
 		}

@@ -341,7 +341,7 @@ public class Validator {
 	 *         numbers
 	 */
 	public static boolean containsOnlyNumbers(String numString) {
-		return (numString.matches("^[0-9 ]+$") || (numString.equals("-1")));
+		return (numString.matches("[-+]?\\d*\\.?\\d+"));
 	}
 
 	/*
