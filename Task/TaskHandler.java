@@ -668,15 +668,22 @@ public class TaskHandler {
 	}
 	
 	private static boolean isTaskSameFields(Task compareTask, Task taskListTask) {
+		System.out.println();
+		
+		System.out.println(compareTask.getStartDateTime());
+		System.out.println(taskListTask.getStartDateTime());
+		System.out.println(compareTask.getEndDateTime());
+		//System.out.println(taskListTask.getEndDateTime());
+
 		return
 			(compareTask.getTaskId()		== -1 	|| 
 				compareTask.getTaskId() == taskListTask.getTaskId() 						)&&
 			(compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
-				compareTask.getStartDateTime().before(taskListTask.getStartDateTime()) 				))&&
+				compareTask.getStartDateTime().after(taskListTask.getStartDateTime()) 				))&&
 			(compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   &&
-				compareTask.getEndDateTime().after(taskListTask.getEndDateTime()) 					))&&
+				compareTask.getEndDateTime().before(taskListTask.getEndDateTime()) 					))&&
 			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
-				compareTask.getDeadline().before(taskListTask.getDeadline()) 						))&&
+				compareTask.getDeadline().after(taskListTask.getDeadline()) 						))&&
 			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
 					taskListTask.getVenue().toLowerCase().contains(
 							compareTask.getVenue().toLowerCase())									))&&
