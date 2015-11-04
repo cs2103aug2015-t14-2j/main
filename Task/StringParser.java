@@ -74,11 +74,11 @@ public class StringParser {
 			//Take the no keywords out
 			if(isDeleteParams){
 				userInput = obtainTrailingKeywordsToHashmap(userInput, findKeywordIndexInput(userInput.trim(),"no ", 0),
-								"no ".length(),AllKeywordsInInput,PARAMETER.DELETEPARAMS,keywordHash);
+								"no ".length(),AllKeywordsInInput,PARAMETER.DELETE_PARAMS,keywordHash);
 			}
 			
-			addStringToParamFromList(userInput,taskTypes,taskTypeDel,PARAMETER.DELETEPARAMS,keywordHash);
-			removeRepeatedWordsParam(PARAMETER.DELETEPARAMS,keywordHash);
+			addStringToParamFromList(userInput,taskTypes,taskTypeDel,PARAMETER.DELETE_PARAMS,keywordHash);
+			removeRepeatedWordsParam(PARAMETER.DELETE_PARAMS,keywordHash);
 			
 		case DISPLAY:
 			userInput = getTaskID(userInput, keywordHash);
