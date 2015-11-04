@@ -102,7 +102,7 @@ public class Validator {
 		if (keyWord != null) {
 			start_Date = parseNatty(keyWord);
 			end_Date = parseNatty(keyWord);
-
+			if(!keyWord.contains(" ")){
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(start_Date);
 			cal.set(Calendar.HOUR_OF_DAY, 00);
@@ -116,7 +116,7 @@ public class Validator {
 			cal.set(Calendar.SECOND, 00);
 			cal.set(Calendar.MILLISECOND, 0);
 			end_Date = cal.getTime();
-
+			}
 			objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			objectHashMap.put(PARAMETER.START_TIME, start_Date);
 			objectHashMap.put(PARAMETER.END_DATE, end_Date);
