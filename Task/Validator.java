@@ -239,7 +239,7 @@ public class Validator {
 					// 0);
 				}	
 			}
-
+			
 			// DEADLINE DATE
 			Date dateOfDeadline = null;
 			if (deadlineDate != null) {
@@ -327,6 +327,42 @@ public class Validator {
 				objectHashMap.put(PARAMETER.TASKID, -1);
 			}
 		}
+		
+			String editString;
+			PARAMETER[] parameterArray = new PARAMETER[20];
+			if((editString =hashmap.get(PARAMETER.DELETEPARAMS)) != null){
+				int numOfSpaces = countOccurence(editString, ' ');
+				int n = 0;
+				String[] splitString = editString.split("\\s+");
+				
+				for(int i = 0 ; i< numOfSpaces+1 ; i++){
+					switch (splitString[i]){
+					case "from":
+						parameterArray[n] = PARAMETER.START_TIME;
+						n++;
+						break;
+					case "to":
+						parameterArray[n] = PARAMETER.END_TIME;
+						n++;
+						break;
+					case "by":
+						parameterArray[n] = PARAMETER.DEADLINE_TIME;
+						n++;
+						break;
+					case "on":
+						parameterArray[n] = PARAMETER.START_TIME;
+						n++;
+						parameterArray[n] = PARAMETER.END_TIME;
+						n++;
+						break;
+					default: 
+						break;
+					
+					}
+				}
+				objectHashMap.put(PARAMETER.DELETEPARAMS, parameterArray);
+			}
+		/*
 		System.out.println("startDate: " + startDate);
 		System.out.println("end date: " + endDate);
 		System.out.println("start time: " +startTime);
@@ -340,6 +376,8 @@ public class Validator {
 		System.out.println(objectHashMap.get(PARAMETER.END_TIME));
 		System.out.println(objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		System.out.println(objectHashMap.get(PARAMETER.DEADLINE_TIME));
+		*/
+		//System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
 		return objectHashMap;
 	}
 
