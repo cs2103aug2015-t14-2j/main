@@ -711,13 +711,7 @@ public class TaskHandler {
 	}
 	
 	private static boolean isTaskSameFields(Task compareTask, Task taskListTask) {
-		System.out.println();
-		
-		System.out.println(compareTask.getStartDateTime());
-		System.out.println(taskListTask.getStartDateTime());
-		System.out.println(compareTask.getEndDateTime());
-		System.out.println(taskListTask.getEndDateTime());
-
+	
 		return
 			(compareTask.getTaskId()		== -1 	|| 
 				compareTask.getTaskId() == taskListTask.getTaskId() 								)&&

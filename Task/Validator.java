@@ -102,9 +102,9 @@ public class Validator {
 		if (keyDate != null) {
 			start_Date = parseNatty(keyDate);
 			end_Date = parseNatty(keyDate);
-			if(countOccurence(keyDate,' ')!= 1){
+			if (countOccurence(keyDate, ' ') != 1) {
 				Calendar cal = Calendar.getInstance();
-				if(startTime == null && endTime == null){
+				if (startTime == null && endTime == null) {
 					cal.setTime(start_Date);
 					cal.set(Calendar.HOUR_OF_DAY, 00);
 					cal.set(Calendar.MINUTE, 00);
@@ -117,25 +117,25 @@ public class Validator {
 					cal.set(Calendar.SECOND, 00);
 					cal.set(Calendar.MILLISECOND, 0);
 					end_Date = cal.getTime();
-				}else{
-					if(startTime != null){
+				} else {
+					if (startTime != null) {
 						Date time = parseNatty(startTime);
 						cal.setTime(start_Date);
 						Calendar timePortion = Calendar.getInstance();
 						timePortion.setTime(time);
-						
+
 						cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 						cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
 						cal.set(Calendar.SECOND, 00);
 						cal.set(Calendar.MILLISECOND, 0);
 						start_Date = cal.getTime();
 					}
-					if(endTime != null){
+					if (endTime != null) {
 						Date time = parseNatty(endTime);
 						cal.setTime(end_Date);
 						Calendar timePortion = Calendar.getInstance();
 						timePortion.setTime(time);
-						
+
 						cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 						cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
 						cal.set(Calendar.SECOND, 00);
@@ -143,8 +143,8 @@ public class Validator {
 						end_Date = cal.getTime();
 					}
 				}
-			
-			}else{
+
+			} else {
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(end_Date);
 				cal.set(Calendar.HOUR_OF_DAY, 23);
@@ -217,65 +217,71 @@ public class Validator {
 			// start TIME
 			// time handling either (24hr(1235) or 12hr (845pm) format.
 			Date start_Time = null;
-			if(startTime != null){
-				if ((start_Time = parseNatty(startDate + " " + startTime)) == null){
+			if (startTime != null) {
+				if ((start_Time = parseNatty(startDate + " " + startTime)) == null) {
 					start_Time = validTimeFormat(startTime);
 				}
 				Calendar cal = Calendar.getInstance();
-				if(start_Time != null){
+				if (start_Time != null) {
 					cal.setTime(start_Time);
-				if(countOccurence(startTime,' ')!= 1){
-					cal.set(Calendar.HOUR_OF_DAY, 00);
-					cal.set(Calendar.MINUTE, 00);
-					cal.set(Calendar.SECOND, 00);
-					cal.set(Calendar.MILLISECOND, 0);
-					start_Time = cal.getTime();
-				}
-				
-				objectHashMap.put(PARAMETER.START_TIME, start_Time);
-				objectHashMap.put(PARAMETER.START_DATE, start_Time);
-				
-				
-				}else {
+					if (countOccurence(startTime, ' ') != 1) {
+						cal.set(Calendar.HOUR_OF_DAY, 00);
+						cal.set(Calendar.MINUTE, 00);
+						cal.set(Calendar.SECOND, 00);
+						cal.set(Calendar.MILLISECOND, 0);
+						start_Time = cal.getTime();
+					}
+
+					objectHashMap.put(PARAMETER.START_TIME, start_Time);
+					objectHashMap.put(PARAMETER.START_DATE, start_Time);
+
+				} else {
 					context.displayMessage("PARAM_SUBTITLE");
 					context.displayMessage("PARAM_DEADLINE_TIME");
 					// throw new ParseException("PARAMETER.DEADLINE_TIME",
 					// 0);
-				}	
+				}
 			}
 
 			// End time
 			Date end_Time;
-			if(endTime != null){
-				if ((end_Time = parseNatty(endDate + " " + endTime)) == null){
+			if (endTime != null) {
+				if ((end_Time = parseNatty(endDate + " " + endTime)) == null) {
 					end_Time = validTimeFormat(endTime);
 				}
 				Calendar cal = Calendar.getInstance();
-				if(end_Time != null){
+				if (end_Time != null) {
 					cal.setTime(end_Time);
-				if(countOccurence(endTime, ' ')!= 1){
-					cal.set(Calendar.HOUR_OF_DAY, 23);
-					cal.set(Calendar.MINUTE, 59);
-					cal.set(Calendar.SECOND, 00);
-					cal.set(Calendar.MILLISECOND, 0);
-					end_Time = cal.getTime();
-				}
-				if (end_Time.before(start_Time)) {
-					context.displayMessage("ERROR_START_BEFORE_END");
-					
-				}else{
-				objectHashMap.put(PARAMETER.END_TIME, end_Time);
-				objectHashMap.put(PARAMETER.END_DATE, end_Time);
-				}
-				
-				}else {
+					if (countOccurence(endTime, ' ') != 1) {
+						cal.set(Calendar.HOUR_OF_DAY, 23);
+						cal.set(Calendar.MINUTE, 59);
+						cal.set(Calendar.SECOND, 00);
+						cal.set(Calendar.MILLISECOND, 0);
+						end_Time = cal.getTime();
+					}
+					if (end_Time.before(start_Time)) {
+						if (isDayWord(endTime)) {
+							cal.setTime(end_Time);
+							cal.add(Calendar.DAY_OF_MONTH, 7);
+							end_Time = cal.getTime();
+							objectHashMap.put(PARAMETER.END_TIME, end_Time);
+							objectHashMap.put(PARAMETER.END_DATE, end_Time);
+						} else {
+							context.displayMessage("ERROR_START_BEFORE_END");
+						}
+					} else {
+						objectHashMap.put(PARAMETER.END_TIME, end_Time);
+						objectHashMap.put(PARAMETER.END_DATE, end_Time);
+					}
+
+				} else {
 					context.displayMessage("PARAM_SUBTITLE");
 					context.displayMessage("PARAM_DEADLINE_TIME");
 					// throw new ParseException("PARAMETER.DEADLINE_TIME",
 					// 0);
-				}	
+				}
 			}
-			
+
 			// DEADLINE DATE
 			Date dateOfDeadline = null;
 			if (deadlineDate != null) {
@@ -286,6 +292,7 @@ public class Validator {
 				if (dateOfDeadline != null) {
 					Calendar cal = Calendar.getInstance();
 					if (dateOfDeadline.before(cal.getTime())) {
+
 						context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
 						objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 						// throw new IllegalArgumentException("DEADLINE_DATE
@@ -301,8 +308,7 @@ public class Validator {
 						dateOfDeadline = cal2.getTime();
 						objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 					}
-					
-					
+
 				} else {
 					context.displayMessage("PARAM_SUBTITLE");
 					context.displayMessage("PARAM_DEADLINE_DATE");
@@ -312,44 +318,42 @@ public class Validator {
 
 			// Deadline time
 			Date timeOfDeadline = null;
-			if(deadlineTime != null){
-				
-				
-				if ((timeOfDeadline = parseNatty(deadlineTime)) == null){
-					timeOfDeadline = validTimeFormat(deadlineTime);	
+			if (deadlineTime != null) {
+
+				if ((timeOfDeadline = parseNatty(deadlineTime)) == null) {
+					timeOfDeadline = validTimeFormat(deadlineTime);
 				}
-				
+
 				Calendar cal = Calendar.getInstance();
-				if(timeOfDeadline != null){
+				if (timeOfDeadline != null) {
 					cal.setTime(timeOfDeadline);
-				if(countOccurence(deadlineTime, ' ')!= 1){
-					cal.set(Calendar.HOUR_OF_DAY, 23);
-					cal.set(Calendar.MINUTE, 59);
-					cal.set(Calendar.SECOND, 00);
-					cal.set(Calendar.MILLISECOND, 0);
-					timeOfDeadline = cal.getTime();
-				}
-				
-				Calendar current = Calendar.getInstance();
-				if (cal.getTime().before(current.getTime())) {
-					context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
-					// throw new IllegalArgumentException("DEADLINE_TIME
-					// before
-					// CURRENT");
-				}
-				objectHashMap.put(PARAMETER.DEADLINE_TIME, timeOfDeadline);
-				objectHashMap.put(PARAMETER.DEADLINE_DATE, timeOfDeadline);
-				
-				
-				}else {
+					if (countOccurence(deadlineTime, ' ') != 1) {
+						cal.set(Calendar.HOUR_OF_DAY, 23);
+						cal.set(Calendar.MINUTE, 59);
+						cal.set(Calendar.SECOND, 00);
+						cal.set(Calendar.MILLISECOND, 0);
+						timeOfDeadline = cal.getTime();
+					}
+
+					Calendar current = Calendar.getInstance();
+					if (cal.getTime().before(current.getTime())) {
+						context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
+						// throw new IllegalArgumentException("DEADLINE_TIME
+						// before
+						// CURRENT");
+					}
+					objectHashMap.put(PARAMETER.DEADLINE_TIME, timeOfDeadline);
+					objectHashMap.put(PARAMETER.DEADLINE_DATE, timeOfDeadline);
+
+				} else {
 					context.displayMessage("PARAM_SUBTITLE");
 					context.displayMessage("PARAM_DEADLINE_TIME");
 					// throw new ParseException("PARAMETER.DEADLINE_TIME",
 					// 0);
-				}	
+				}
 			}
 		}
-		
+
 		if (taskID != null) {
 			if (containsOnlyNumbers(taskID)) {
 				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
@@ -362,58 +366,59 @@ public class Validator {
 		} else {
 			objectHashMap.put(PARAMETER.TASKID, -1);
 		}
-		
-			String editString;
-			PARAMETER[] parameterArray = new PARAMETER[20];
-			if((editString =hashmap.get(PARAMETER.DELETE_PARAMS)) != null){
-				int numOfSpaces = countOccurence(editString, ' ');
-				int n = 0;
-				String[] splitString = editString.split("\\s+");
-				
-				for(int i = 0 ; i< numOfSpaces+1 ; i++){
-					switch (splitString[i]){
-					case "from":
-						parameterArray[n] = PARAMETER.START_TIME;
-						n++;
-						break;
-					case "to":
-						parameterArray[n] = PARAMETER.END_TIME;
-						n++;
-						break;
-					case "by":
-						parameterArray[n] = PARAMETER.DEADLINE_TIME;
-						n++;
-						break;
-					case "on":
-						parameterArray[n] = PARAMETER.START_TIME;
-						n++;
-						parameterArray[n] = PARAMETER.END_TIME;
-						n++;
-						break;
-					default: 
-						break;
-					
-					}
+
+		String editString;
+		PARAMETER[] parameterArray = new PARAMETER[20];
+		if ((editString = hashmap.get(PARAMETER.DELETE_PARAMS)) != null) {
+			int numOfSpaces = countOccurence(editString, ' ');
+			int n = 0;
+			String[] splitString = editString.split("\\s+");
+
+			for (int i = 0; i < numOfSpaces + 1; i++) {
+				switch (splitString[i]) {
+				case "from":
+					parameterArray[n] = PARAMETER.START_TIME;
+					n++;
+					break;
+				case "to":
+					parameterArray[n] = PARAMETER.END_TIME;
+					n++;
+					break;
+				case "by":
+					parameterArray[n] = PARAMETER.DEADLINE_TIME;
+					n++;
+					break;
+				case "on":
+					parameterArray[n] = PARAMETER.START_TIME;
+					n++;
+					parameterArray[n] = PARAMETER.END_TIME;
+					n++;
+					break;
+				default:
+					break;
+
 				}
-				objectHashMap.put(PARAMETER.DELETE_PARAMS, parameterArray);
 			}
-		
+			objectHashMap.put(PARAMETER.DELETE_PARAMS, parameterArray);
+		}
+/*
 		System.out.println("startDate: " + startDate);
 		System.out.println("end date: " + endDate);
-		System.out.println("start time: " +startTime);
+		System.out.println("start time: " + startTime);
 		System.out.println("end time: " + endTime);
 		System.out.println("deadline date: " + deadlineDate);
 		System.out.println("deadline time: " + deadlineTime);
-		System.out.println("date: "+ hashmap.get(PARAMETER.DATE));
-		
+		System.out.println("date: " + hashmap.get(PARAMETER.DATE));
+
 		System.out.println(objectHashMap.get(PARAMETER.START_DATE));
 		System.out.println(objectHashMap.get(PARAMETER.START_TIME));
 		System.out.println(objectHashMap.get(PARAMETER.END_DATE));
 		System.out.println(objectHashMap.get(PARAMETER.END_TIME));
 		System.out.println(objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		System.out.println(objectHashMap.get(PARAMETER.DEADLINE_TIME));
-		
-		//System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
+
+		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
+	*/
 		return objectHashMap;
 	}
 
@@ -936,6 +941,18 @@ public class Validator {
 			return null;
 		}
 
+	}
+
+	public static boolean isDayWord(String string) {
+		string = string.toLowerCase();
+		if (string.equals("monday") || string.equals("mon") || string.equals("tue") || string.equals("tuesday")
+				|| string.equals("tues") || string.equals("wed") || string.equals("wednes")
+				|| string.equals("wednesday") || string.equals("thur") || string.equals("thurs")
+				|| string.equals("thursday") || string.equals("fri") || string.equals("friday") || string.equals("sat")
+				|| string.equals("saturday")|| string.equals("sun")|| string.equals("sunday")) {
+			return true;
+		}
+		return false;
 	}
 
 }
