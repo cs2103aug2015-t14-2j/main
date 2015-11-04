@@ -299,6 +299,10 @@ public class Task {
 			this.period.setEndDateTime(endTime);			
 		}
 	}
+
+	public Period getPeriod() {
+		return this.period;
+	}
 	
 	public void setPeriod(Period _period) {
 		this.period = _period;

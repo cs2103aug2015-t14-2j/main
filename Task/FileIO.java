@@ -25,7 +25,8 @@ import java.util.Date;
  */
 public class FileIO {
 	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
+	// private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
+	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("yyyy-M-dd HH:mm");
 	
 	// Error messages
 	private final static String ERROR_MALFORMED_TASK = "ERROR! Corrupted task region. Task %d has been discarded.\n";

@@ -10,5 +10,6 @@
 	<classpathentry kind="lib" path="lib/ical4j-1.0.2.jar"/>
 	<classpathentry kind="lib" path="lib/natty-0.12.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.10.jar"/>
+	<classpathentry kind="lib" path="/Users/Jerry/workspace/CS2103-TaskHandler/lib/freemarker.jar"/>
 	<classpathentry kind="output" path=""/>
 </classpath>
