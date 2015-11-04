@@ -95,15 +95,16 @@ public class Validator {
 		String deadlineDate = hashmap.get(PARAMETER.DEADLINE_DATE);
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
-		String keyWord = hashmap.get(PARAMETER.DATE);
+		String keyDate = hashmap.get(PARAMETER.DATE);
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 
-		if (keyWord != null) {
-			start_Date = parseNatty(keyWord);
-			end_Date = parseNatty(keyWord);
-			if(!keyWord.contains(" ")){
+		if (keyDate != null) {
+			start_Date = parseNatty(keyDate);
+			end_Date = parseNatty(keyDate);
+			if(!keyDate.contains(" ")){
 			Calendar cal = Calendar.getInstance();
+			if(startTime == null && endTime == null){
 			cal.setTime(start_Date);
 			cal.set(Calendar.HOUR_OF_DAY, 00);
 			cal.set(Calendar.MINUTE, 00);
@@ -116,6 +117,33 @@ public class Validator {
 			cal.set(Calendar.SECOND, 00);
 			cal.set(Calendar.MILLISECOND, 0);
 			end_Date = cal.getTime();
+			}else{
+				if(startTime != null){
+				Date time = parseNatty(startTime);
+				cal.setTime(start_Date);
+				Calendar timePortion = Calendar.getInstance();
+				timePortion.setTime(time);
+				
+				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
+				cal.set(Calendar.SECOND, 00);
+				cal.set(Calendar.MILLISECOND, 0);
+				start_Date = cal.getTime();
+				}
+				if(endTime != null){
+				Date time = parseNatty(endTime);
+				cal.setTime(end_Date);
+				Calendar timePortion = Calendar.getInstance();
+				timePortion.setTime(time);
+				
+				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
+				cal.set(Calendar.SECOND, 00);
+				cal.set(Calendar.MILLISECOND, 0);
+				end_Date = cal.getTime();
+				}
+			}
+			
 			}
 			objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			objectHashMap.put(PARAMETER.START_TIME, start_Date);
@@ -369,7 +397,8 @@ public class Validator {
 		System.out.println("end time: " + endTime);
 		System.out.println("deadline date: " + deadlineDate);
 		System.out.println("deadline time: " + deadlineTime);
-
+		System.out.println("date: "+ hashmap.get(PARAMETER.DATE));
+		
 		System.out.println(objectHashMap.get(PARAMETER.START_DATE));
 		System.out.println(objectHashMap.get(PARAMETER.START_TIME));
 		System.out.println(objectHashMap.get(PARAMETER.END_DATE));
