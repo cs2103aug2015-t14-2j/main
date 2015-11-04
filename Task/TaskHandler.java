@@ -160,6 +160,7 @@ public class TaskHandler {
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 
 				editTask((int)parsedParamTable.get(PARAMETER.TASKID),
+					(PARAMETER[])parsedParamTable.get(PARAMETER.DELETE_PARAMS),
 					(String)parsedParamTable.get(PARAMETER.DESC),
 					(String)parsedParamTable.get(PARAMETER.VENUE), 
 					(Date)parsedParamTable.get(PARAMETER.START_DATE),
@@ -299,7 +300,7 @@ public class TaskHandler {
 	 * @param task The task to be added to the taskList
 	 * @return 
 	 */
-	private static void editTask(int ID, String desc,String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) {
+	private static void editTask(int ID, PARAMETER[] deleteParams, String desc,String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) {
 		// Declare local variables
 		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
 		SimpleDateFormat localDateFormat = new SimpleDateFormat("dd/M/yyyy");
@@ -478,6 +479,32 @@ public class TaskHandler {
 				task.setDeadline(_deadlineDate);
 				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
 				compoundEdit.addEdit(edit);
+				isUpdated        = true;
+			}
+			
+			//TODO: test
+			for(PARAMETER p:deleteParams){
+				if(p.equals(PARAMETER.START_TIME)||p.equals(PARAMETER.END_TIME)){
+					newPeriod = new Period(null, null);
+					edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+					compoundEdit.addEdit(edit);
+				} else if (p.equals(PARAMETER.DEADLINE_TIME)){
+					_deadlineDate = null;
+					task.setDeadline(_deadlineDate);
+					edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
+					compoundEdit.addEdit(edit);
+				} else if(p.equals(PARAMETER.VENUE)){
+					String oldVenue = task.getVenue();
+					task.setVenue(null);
+					edit = new TaskVenueEdit(task, oldVenue, venue);
+					compoundEdit.addEdit(edit);
+				} else if(p.equals(PARAMETER.DESC)){
+					String oldDesc = task.getDescription();
+					edit = new TaskDescEdit(task, oldDesc, null);
+					task.setDescription(desc);
+					compoundEdit.addEdit(edit);
+				}
+				
 				isUpdated        = true;
 			}
 
