@@ -109,10 +109,11 @@ public class Validator {
 			Calendar timePortion = Calendar.getInstance();
 			timePortion.set(Calendar.HOUR_OF_DAY, 00);
 			timePortion.set(Calendar.MINUTE, 00);
-			//timePortion.set(Calendar.SECOND, 00);
+
 			cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 			cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-			//cal.set(Calendar.SECOND, timePortion.get(Calendar.SECOND));
+			cal.set(Calendar.SECOND, 00);
+			cal.set(Calendar.MILLISECOND, 0);
 			start_Date = cal.getTime();
 
 			if (start_Date != null) {
@@ -137,10 +138,10 @@ public class Validator {
 			Calendar timePortion = Calendar.getInstance();
 			timePortion.set(Calendar.HOUR_OF_DAY, 23);
 			timePortion.set(Calendar.MINUTE, 59);
-			//timePortion.set(Calendar.SECOND, 00);
 			cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 			cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-			//cal.set(Calendar.SECOND, timePortion.get(Calendar.SECOND));
+			cal.set(Calendar.SECOND, 00);
+			cal.set(Calendar.MILLISECOND, 0);
 			end_Date = cal.getTime();
 
 			if (end_Date != null) {
@@ -168,10 +169,12 @@ public class Validator {
 					cal.setTime(start_Date);
 					Calendar timePortion = Calendar.getInstance();
 					timePortion.setTime(time);
+	
 					
 					cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 					cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-					//cal.set(Calendar.SECOND, timePortion.get(Calendar.SECOND));
+					cal.set(Calendar.SECOND, 00);
+					cal.set(Calendar.MILLISECOND, 0);
 
 					if ((start_Date = parseNatty(startDate + " " + startTime)) == null) {
 						start_Date = cal.getTime();
@@ -207,10 +210,10 @@ public class Validator {
 						cal.setTime(end_Date);
 						Calendar timePortion = Calendar.getInstance();
 						timePortion.setTime(time);
-						timePortion.set(Calendar.SECOND, 00);
 						cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 						cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-						//cal.set(Calendar.SECOND, timePortion.get(Calendar.SECOND));
+						cal.set(Calendar.SECOND, 00);
+						cal.set(Calendar.MILLISECOND, 0);
 						if (cal.getTime().before(start_Date)) {
 							throw new IllegalArgumentException("END_DATE before START_DATE");
 						} else {
@@ -248,7 +251,8 @@ public class Validator {
 					cal2.setTime(dateOfDeadline);
 					cal2.set(Calendar.HOUR_OF_DAY, 23);
 					cal2.set(Calendar.MINUTE, 59);
-					//cal2.set(Calendar.SECOND, 00);
+					cal2.set(Calendar.SECOND, 00);
+					cal2.set(Calendar.MILLISECOND, 0);
 					dateOfDeadline = cal2.getTime();
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 				}
@@ -270,10 +274,11 @@ public class Validator {
 
 					Calendar timePortion = Calendar.getInstance();
 					timePortion.setTime(timeOfDeadline);
-					//timePortion.set(Calendar.SECOND, 00);
+
 					cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 					cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-					//cal.set(Calendar.SECOND, timePortion.get(Calendar.SECOND));
+					cal.set(Calendar.SECOND, 00);
+					cal.set(Calendar.MILLISECOND, 0);
 					Calendar current = Calendar.getInstance();
 					dateOfDeadline = cal.getTime();
 					if (cal.getTime().before(current.getTime())) {
