@@ -526,7 +526,7 @@ public class TaskHandler {
 			assert(task!=null);
 
 			TaskEdit compoundEdit = new TaskEdit(task);
-			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId+1, true);
+			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId+1,true);
 			edit.setSignificant();
 			compoundEdit.addEdit(edit);
 			compoundEdit.end();
@@ -561,7 +561,7 @@ public class TaskHandler {
 
 		if (taskList.remove(task)) {
 			TaskEdit compoundEdit = new TaskEdit(task);
-			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId, false);
+			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId,false);
 			edit.setSignificant();
 			compoundEdit.addEdit(edit);
 			compoundEdit.end();
@@ -570,8 +570,19 @@ public class TaskHandler {
 			context.displayMessage("MESSAGE_DELETE_TASK");
 			context.setTaskId(task.getTaskId());
 
-		} else if(taskID == ALL_TASKS){
-			//TODO: Delete all tasks
+		} else if(taskID == ALL_TASKS && taskList.size() > 0){
+			task = taskList.get(0);
+			TaskEdit compoundEdit = new TaskEdit(task);
+			TaskListEdit edit     = new TaskListEdit(taskList, currentTaskId, currentTaskId,false);
+			edit.setSignificant();
+			while(taskList.size() != 0){
+				task = taskList.get(0);
+				taskList.remove(task);
+			}
+			compoundEdit.addEdit(edit);
+			compoundEdit.end();
+			undoManager.addEdit(compoundEdit);
+			context.displayMessage("MESSAGE_DELETE_ALL_TASK");
 		} else {
 			context.displayMessage("ERROR_TASK_NOT_FOUND");		
 		}

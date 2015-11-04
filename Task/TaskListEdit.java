@@ -2,21 +2,34 @@ package Task;
 
 import javax.swing.undo.UndoableEdit;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected int oldCurrentId;
 	protected int newCurrentId;
-	protected boolean isAdd;			// TRUE for add task, FALSE for delete task
-	protected Task task;
 	protected ArrayList<Task> taskList;
-
-	TaskListEdit(Task _task, ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId, boolean _isAdd) {
+	protected ArrayList<Task> taskListContents;
+	protected boolean isAdd;
+	
+	TaskListEdit(Task task, ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
 		super();
-		task = _task;
 		taskList = _taskList;
+		taskListContents = new ArrayList<Task>();
+		taskListContents.addAll(taskList);
+		taskListContents.add(task);
 		newCurrentId = _newCurrentId;
 		oldCurrentId = _oldCurrentId;
-		isAdd       = _isAdd;
+		isAdd = _isAdd;
+	}
+	
+	TaskListEdit(ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
+		super();
+		taskList = _taskList;
+		taskListContents = new ArrayList<Task>();
+		taskListContents.addAll(taskList);
+		newCurrentId = _newCurrentId;
+		oldCurrentId = _oldCurrentId;
+		isAdd = _isAdd;
 		
 	}
 
@@ -33,28 +46,48 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 	@Override
 	public void undo() {
 		super.undo();
-		if (isAdd) {
-			taskList.remove(task);
-			System.out.println("Task removed:");
-
+		ArrayList<Task> tempTasklist = new ArrayList<Task>(taskList);
+		if(isAdd){
+			for(Iterator<Task> iterator = taskList.iterator(); iterator.hasNext();){
+				Task k = iterator.next();
+				if(!taskListContents.contains(k)){
+					iterator.remove();
+				}
+			}
 		} else {
-			taskList.add(task);
-			System.out.println("Task added:");
+			for(Task k:taskListContents){
+				if(!taskList.contains(k)){
+					taskList.add(k);
+				}
+			}
+			
 		}
+		
+		taskListContents = new ArrayList<Task>(tempTasklist);
 		TaskHandler.setCurrentTaskId(oldCurrentId);
 	}
 	
 	@Override
 	public void redo() {
 		super.redo();
-		if (isAdd) {
-			taskList.add(task);
-			System.out.println("Task added:");
+		ArrayList<Task> tempTasklist = new ArrayList<Task>(taskList);
+		if(!isAdd){
+			for(Iterator<Task> iterator = taskList.iterator(); iterator.hasNext();){
+				Task k = iterator.next();
+				if(!taskListContents.contains(k)){
+					iterator.remove();
+				}
+			}
 		} else {
-			taskList.remove(task);
-			System.out.println("Task removed:");
+			for(Task k:taskListContents){
+				if(!taskList.contains(k)){
+					taskList.add(k);
+				}
+			}
 			
 		}
-		TaskHandler.setCurrentTaskId(newCurrentId);
+		
+		taskListContents = new ArrayList<Task>(tempTasklist);
+		TaskHandler.setCurrentTaskId(oldCurrentId);
 	}
 }
