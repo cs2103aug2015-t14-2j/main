@@ -102,7 +102,7 @@ public class Validator {
 		if (keyDate != null) {
 			start_Date = parseNatty(keyDate);
 			end_Date = parseNatty(keyDate);
-			if(!keyDate.contains(" ")){
+			if(countOccurence(keyDate,' ')!= 1){
 			Calendar cal = Calendar.getInstance();
 			if(startTime == null && endTime == null){
 			cal.setTime(start_Date);
@@ -144,6 +144,14 @@ public class Validator {
 				}
 			}
 			
+			}else{
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(end_Date);
+				cal.set(Calendar.HOUR_OF_DAY, 23);
+				cal.set(Calendar.MINUTE, 59);
+				cal.set(Calendar.SECOND, 00);
+				cal.set(Calendar.MILLISECOND, 0);
+				end_Date = cal.getTime();
 			}
 			objectHashMap.put(PARAMETER.START_DATE, start_Date);
 			objectHashMap.put(PARAMETER.START_TIME, start_Date);
@@ -216,9 +224,9 @@ public class Validator {
 				Calendar cal = Calendar.getInstance();
 				if(start_Time != null){
 					cal.setTime(start_Time);
-				if(!startTime.contains(" ")){
-					cal.set(Calendar.HOUR_OF_DAY, 23);
-					cal.set(Calendar.MINUTE, 59);
+				if(countOccurence(startTime,' ')!= 1){
+					cal.set(Calendar.HOUR_OF_DAY, 00);
+					cal.set(Calendar.MINUTE, 00);
 					cal.set(Calendar.SECOND, 00);
 					cal.set(Calendar.MILLISECOND, 0);
 					start_Time = cal.getTime();
@@ -245,7 +253,7 @@ public class Validator {
 				Calendar cal = Calendar.getInstance();
 				if(end_Time != null){
 					cal.setTime(end_Time);
-				if(!endTime.contains(" ")){
+				if(countOccurence(endTime, ' ')!= 1){
 					cal.set(Calendar.HOUR_OF_DAY, 23);
 					cal.set(Calendar.MINUTE, 59);
 					cal.set(Calendar.SECOND, 00);
@@ -314,7 +322,7 @@ public class Validator {
 				Calendar cal = Calendar.getInstance();
 				if(timeOfDeadline != null){
 					cal.setTime(timeOfDeadline);
-				if(!deadlineTime.contains(" ")){
+				if(countOccurence(deadlineTime, ' ')!= 1){
 					cal.set(Calendar.HOUR_OF_DAY, 23);
 					cal.set(Calendar.MINUTE, 59);
 					cal.set(Calendar.SECOND, 00);
@@ -390,7 +398,7 @@ public class Validator {
 				}
 				objectHashMap.put(PARAMETER.DELETE_PARAMS, parameterArray);
 			}
-		/*
+		
 		System.out.println("startDate: " + startDate);
 		System.out.println("end date: " + endDate);
 		System.out.println("start time: " +startTime);
@@ -405,7 +413,7 @@ public class Validator {
 		System.out.println(objectHashMap.get(PARAMETER.END_TIME));
 		System.out.println(objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		System.out.println(objectHashMap.get(PARAMETER.DEADLINE_TIME));
-		*/
+		
 		//System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
 		return objectHashMap;
 	}
