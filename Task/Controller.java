@@ -43,7 +43,6 @@ public class Controller implements NativeKeyListener {
 	private static Configuration cfg;
 	private static Context context = Context.getInstance();
 	private static Controller instance = null;
-	//private static Scanner scanner = new Scanner(System.in);
 	private static int[] myArray = new int[]{NativeKeyEvent.VC_SHIFT_L,			//Left shift
 											 	NativeKeyEvent.VC_SHIFT_R		//Right shift
 											 	};
@@ -176,29 +175,7 @@ public class Controller implements NativeKeyListener {
 
     private void renderView() {
         HashMap<String, Object> dataModel = context.getDataModel();
-        
-        Template template;
-		try {
-			Writer consoleWriter = new OutputStreamWriter(System.out);
-			template = cfg.getTemplate("index.ftl");
-			template.process(dataModel,consoleWriter);
-		} catch (TemplateNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MalformedTemplateNameException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TemplateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}    
-		
+        Template template;  
 		Writer fileWriter;
 	    try {
 	    	fileWriter = new FileWriter(new File("./templates/html/output.html"));

@@ -149,7 +149,6 @@ public class Context {
 		for(Field field:fields) {
 			Object o;
 			try {
-				// System.out.println(field.getName());
 				o = field.get(context);
 				if (field.getType().equals(Pair.class)) {
 					field.setAccessible(true);
@@ -272,6 +271,9 @@ public class Context {
 			while (iterator.hasNext()) {
 				Task task = iterator.next();
 				taskList.add(task);
+				if(task.getPeriod()!=null) {
+					System.out.println(task.getPeriod().toString());
+				}
 			}
 		}
 		// Read Json file as string

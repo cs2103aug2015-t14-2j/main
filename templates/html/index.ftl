@@ -2,12 +2,11 @@
 	<head>
 		<link href="../css/bootstrap.min.css" rel="stylesheet">
 		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.css' />
-		<link rel='stylesheet' href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.print.css" />
 		<script src="../js/jQuery_v1.11.2.js"></script>
 		<script src="../js/bootstrap.js"></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js'></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js'></script>
-		<script src="../js/calendar.js"></script>
+		<script src="../js/calendar.js?"+ new Date().now()></script>
 	</head>
 	<body style="margin-top:10px">
 		<div class="container-fluid">
@@ -74,7 +73,7 @@
 									</tr>
 									<tr>
 										<td style="width:20%">Period:</td>
-										<td><#if (task.period.getStartDateTime())??>${(task.period.startDateTime)} - ${(task.period.endDateTime)}<#else><span class="label label-default">Empty</#if></td>
+										<td><#if task.period??>${(task.period.startDateTime?datetime)} - ${(task.period.endDateTime?datetime)}<#else><span class="label label-default">Empty</#if></td>
 									</tr>
 									<tr>
 										<td style="width:20%">Deadline: </td>

@@ -597,7 +597,7 @@ public class TaskHandler {
 	/**
 	 * Displays all the current tasks in the taskList
 	 */
-	private static void displayAllTasks(ArrayList <Task> list) {
+	private static void displayAllTasks(ArrayList<Task> list) {
 		for(Task task:list) {
 			context.addTask(task);
 		}
