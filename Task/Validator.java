@@ -330,7 +330,7 @@ public class Validator {
 		
 			String editString;
 			PARAMETER[] parameterArray = new PARAMETER[20];
-			if((editString =hashmap.get(PARAMETER.DELETEPARAMS)) != null){
+			if((editString =hashmap.get(PARAMETER.DELETE_PARAMS)) != null){
 				int numOfSpaces = countOccurence(editString, ' ');
 				int n = 0;
 				String[] splitString = editString.split("\\s+");
@@ -360,7 +360,7 @@ public class Validator {
 					
 					}
 				}
-				objectHashMap.put(PARAMETER.DELETEPARAMS, parameterArray);
+				objectHashMap.put(PARAMETER.DELETE_PARAMS, parameterArray);
 			}
 		/*
 		System.out.println("startDate: " + startDate);
