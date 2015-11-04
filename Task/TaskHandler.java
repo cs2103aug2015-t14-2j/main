@@ -483,31 +483,36 @@ public class TaskHandler {
 			}
 			
 			//TODO: test
-			for(PARAMETER p:deleteParams){
-				if(p.equals(PARAMETER.START_TIME)||p.equals(PARAMETER.END_TIME)){
-					newPeriod = new Period(null, null);
-					edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
-					compoundEdit.addEdit(edit);
-				} else if (p.equals(PARAMETER.DEADLINE_TIME)){
-					_deadlineDate = null;
-					task.setDeadline(_deadlineDate);
-					edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
-					compoundEdit.addEdit(edit);
-				} else if(p.equals(PARAMETER.VENUE)){
-					String oldVenue = task.getVenue();
-					task.setVenue(null);
-					edit = new TaskVenueEdit(task, oldVenue, venue);
-					compoundEdit.addEdit(edit);
-				} else if(p.equals(PARAMETER.DESC)){
-					String oldDesc = task.getDescription();
-					edit = new TaskDescEdit(task, oldDesc, null);
-					task.setDescription(desc);
-					compoundEdit.addEdit(edit);
+			if(deleteParams != null){
+				for(PARAMETER p:deleteParams){
+					if(p != null){
+						if(p.equals(PARAMETER.START_TIME)||p.equals(PARAMETER.END_TIME)){
+							task.setStartDateTime(null);
+							task.setEndDateTime(null);
+							newPeriod = new Period(null, null);
+							edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+							compoundEdit.addEdit(edit);
+						} else if (p.equals(PARAMETER.DEADLINE_TIME)){
+							task.setDeadline(null);
+							edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
+							compoundEdit.addEdit(edit);
+						} else if(p.equals(PARAMETER.VENUE)){
+							String oldVenue = task.getVenue();
+							task.setVenue(null);
+							edit = new TaskVenueEdit(task, oldVenue, venue);
+							compoundEdit.addEdit(edit);
+						} else if(p.equals(PARAMETER.DESC)){
+							String oldDesc = task.getDescription();
+							edit = new TaskDescEdit(task, oldDesc, null);
+							task.setDescription(null);
+							compoundEdit.addEdit(edit);
+						}
+						
+						isUpdated        = true;
+					}
 				}
-				
-				isUpdated        = true;
 			}
-
+			
 			if(isUpdated) {
 				// Set one significant edit
 				UndoableEdit lastEdit = compoundEdit.lastEdit();
