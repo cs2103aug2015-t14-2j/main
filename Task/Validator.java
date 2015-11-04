@@ -103,46 +103,46 @@ public class Validator {
 			start_Date = parseNatty(keyDate);
 			end_Date = parseNatty(keyDate);
 			if(countOccurence(keyDate,' ')!= 1){
-			Calendar cal = Calendar.getInstance();
-			if(startTime == null && endTime == null){
-			cal.setTime(start_Date);
-			cal.set(Calendar.HOUR_OF_DAY, 00);
-			cal.set(Calendar.MINUTE, 00);
-			cal.set(Calendar.SECOND, 00);
-			cal.set(Calendar.MILLISECOND, 0);
-			start_Date = cal.getTime();
-			cal.setTime(end_Date);
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 00);
-			cal.set(Calendar.MILLISECOND, 0);
-			end_Date = cal.getTime();
-			}else{
-				if(startTime != null){
-				Date time = parseNatty(startTime);
-				cal.setTime(start_Date);
-				Calendar timePortion = Calendar.getInstance();
-				timePortion.setTime(time);
-				
-				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
-				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-				cal.set(Calendar.SECOND, 00);
-				cal.set(Calendar.MILLISECOND, 0);
-				start_Date = cal.getTime();
+				Calendar cal = Calendar.getInstance();
+				if(startTime == null && endTime == null){
+					cal.setTime(start_Date);
+					cal.set(Calendar.HOUR_OF_DAY, 00);
+					cal.set(Calendar.MINUTE, 00);
+					cal.set(Calendar.SECOND, 00);
+					cal.set(Calendar.MILLISECOND, 0);
+					start_Date = cal.getTime();
+					cal.setTime(end_Date);
+					cal.set(Calendar.HOUR_OF_DAY, 23);
+					cal.set(Calendar.MINUTE, 59);
+					cal.set(Calendar.SECOND, 00);
+					cal.set(Calendar.MILLISECOND, 0);
+					end_Date = cal.getTime();
+				}else{
+					if(startTime != null){
+						Date time = parseNatty(startTime);
+						cal.setTime(start_Date);
+						Calendar timePortion = Calendar.getInstance();
+						timePortion.setTime(time);
+						
+						cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+						cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
+						cal.set(Calendar.SECOND, 00);
+						cal.set(Calendar.MILLISECOND, 0);
+						start_Date = cal.getTime();
+					}
+					if(endTime != null){
+						Date time = parseNatty(endTime);
+						cal.setTime(end_Date);
+						Calendar timePortion = Calendar.getInstance();
+						timePortion.setTime(time);
+						
+						cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
+						cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
+						cal.set(Calendar.SECOND, 00);
+						cal.set(Calendar.MILLISECOND, 0);
+						end_Date = cal.getTime();
+					}
 				}
-				if(endTime != null){
-				Date time = parseNatty(endTime);
-				cal.setTime(end_Date);
-				Calendar timePortion = Calendar.getInstance();
-				timePortion.setTime(time);
-				
-				cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
-				cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
-				cal.set(Calendar.SECOND, 00);
-				cal.set(Calendar.MILLISECOND, 0);
-				end_Date = cal.getTime();
-				}
-			}
 			
 			}else{
 				Calendar cal = Calendar.getInstance();
@@ -348,20 +348,19 @@ public class Validator {
 					// 0);
 				}	
 			}
-
-
-			if (taskID != null) {
-				if (containsOnlyNumbers(taskID)) {
-					objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
-				} else {
-					context.displayMessage("PARAM_SUBTITLE");
-					context.displayMessage("PARAM_TASKID_NUM");
-					objectHashMap.put(PARAMETER.TASKID, 0);
-					// throw new ParseException("PARAMETER.TASKID", 0);
-				}
+		}
+		
+		if (taskID != null) {
+			if (containsOnlyNumbers(taskID)) {
+				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
 			} else {
-				objectHashMap.put(PARAMETER.TASKID, -1);
+				context.displayMessage("PARAM_SUBTITLE");
+				context.displayMessage("PARAM_TASKID_NUM");
+				objectHashMap.put(PARAMETER.TASKID, 0);
+				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
+		} else {
+			objectHashMap.put(PARAMETER.TASKID, -1);
 		}
 		
 			String editString;

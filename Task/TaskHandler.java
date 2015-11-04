@@ -716,15 +716,15 @@ public class TaskHandler {
 		System.out.println(compareTask.getStartDateTime());
 		System.out.println(taskListTask.getStartDateTime());
 		System.out.println(compareTask.getEndDateTime());
-		//System.out.println(taskListTask.getEndDateTime());
+		System.out.println(taskListTask.getEndDateTime());
 
 		return
 			(compareTask.getTaskId()		== -1 	|| 
-				compareTask.getTaskId() == taskListTask.getTaskId() 						)&&
+				compareTask.getTaskId() == taskListTask.getTaskId() 								)&&
 			(compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
-				compareTask.getStartDateTime().after(taskListTask.getStartDateTime()) 				))&&
+				compareTask.getStartDateTime().before(taskListTask.getEndDateTime()) 				))&&
 			(compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   &&
-				compareTask.getEndDateTime().before(taskListTask.getEndDateTime()) 					))&&
+				compareTask.getEndDateTime().after(taskListTask.getStartDateTime()) 				))&&
 			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
 				compareTask.getDeadline().after(taskListTask.getDeadline()) 						))&&
 			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
