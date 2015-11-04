@@ -7,11 +7,11 @@
 
 For linux filesystems:
 
-java -cp '.:./lib/*' Task.TaskHandler
+java -cp '.:./lib/*' Task.Controller
 
 For Windows filesystems:
 
-java -cp ".;./lib/*" Task.TaskHandler
+java -cp ".;./lib/*" Task.Controller
 
 2. Support for launch through keyboard shortcut will be released in v0.3.
 
