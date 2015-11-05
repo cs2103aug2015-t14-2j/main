@@ -395,6 +395,9 @@ public class Validator {
 					parameterArray[n] = PARAMETER.END_TIME;
 					n++;
 					break;
+				case "at":
+					parameterArray[n] = PARAMETER.VENUE;
+					n++;
 				default:
 					break;
 
@@ -402,7 +405,8 @@ public class Validator {
 			}
 			objectHashMap.put(PARAMETER.DELETE_PARAMS, parameterArray);
 		}
-		
+		//DISPLAYING NEXT WEEK NEXT MONTH ETC
+		/*
 		if (command.equals("DISPLAY")) {
 			Date showDate = parseNatty(keyDate);
 			Calendar cal = Calendar.getInstance();
@@ -428,7 +432,7 @@ public class Validator {
 				cal.set(Calendar.MINUTE, 59);
 				objectHashMap.put(PARAMETER.END_DATE, cal.getTime());
 			}
-		}
+		}*/
 
 		/*
 		System.out.println("startDate: " + startDate);
