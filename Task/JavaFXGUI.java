@@ -80,7 +80,7 @@ public class JavaFXGUI extends Application {
         tb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                String userInput = tb.getText();
+                final String userInput = tb.getText();
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {
