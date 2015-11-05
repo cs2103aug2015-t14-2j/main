@@ -26,6 +26,7 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
+import javafx.application.Platform;
 
 /**
  *  Represents the handler for tasks
@@ -39,6 +40,8 @@ public class TaskHandler {
 	
 	private static final boolean TASK_DONE    	= true;
 	private static final boolean TASK_NOT_DONE	= false;
+	
+	private static final int ALL_TASKS = -2;
 	
 	private static Scanner         scanner           = new Scanner(System.in);
 	private static Calendar        calendar          = Calendar.getInstance();
@@ -158,6 +161,7 @@ public class TaskHandler {
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 
 				editTask((int)parsedParamTable.get(PARAMETER.TASKID),
+					(PARAMETER[])parsedParamTable.get(PARAMETER.DELETE_PARAMS),
 					(String)parsedParamTable.get(PARAMETER.DESC),
 					(String)parsedParamTable.get(PARAMETER.VENUE), 
 					(Date)parsedParamTable.get(PARAMETER.START_DATE),
@@ -200,8 +204,9 @@ public class TaskHandler {
 				context.displayMessage("MESSAGE_EXIT");
 				context.printToTerminal(); 				// Only call print here just before program exits
 				fileIO.writeToFile(taskList);
+				Platform.exit();
 				System.exit(0);
-			default:
+			default: //Add task
 				parsedParamTable = StringParser.getValuesFromInput(COMMAND_TYPE.ADD_TASK, userInput);
 				//TODO: shouldn't it be if it has a description?
 				if (parsedParamTable.get(PARAMETER.DESC) != null) {
@@ -297,7 +302,7 @@ public class TaskHandler {
 	 * @param task The task to be added to the taskList
 	 * @return 
 	 */
-	private static void editTask(int ID, String desc,String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) {
+	private static void editTask(int ID, PARAMETER[] deleteParams, String desc,String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) {
 		// Declare local variables
 		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
 		SimpleDateFormat localDateFormat = new SimpleDateFormat("dd/M/yyyy");
@@ -478,7 +483,38 @@ public class TaskHandler {
 				compoundEdit.addEdit(edit);
 				isUpdated        = true;
 			}
-
+			
+			//TODO: test
+			if(deleteParams != null){
+				for(PARAMETER p:deleteParams){
+					if(p != null){
+						if(p.equals(PARAMETER.START_TIME)||p.equals(PARAMETER.END_TIME)){
+							task.setStartDateTime(null);
+							task.setEndDateTime(null);
+							newPeriod = new Period(null, null);
+							edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+							compoundEdit.addEdit(edit);
+						} else if (p.equals(PARAMETER.DEADLINE_TIME)){
+							task.setDeadline(null);
+							edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
+							compoundEdit.addEdit(edit);
+						} else if(p.equals(PARAMETER.VENUE)){
+							String oldVenue = task.getVenue();
+							task.setVenue(null);
+							edit = new TaskVenueEdit(task, oldVenue, venue);
+							compoundEdit.addEdit(edit);
+						} else if(p.equals(PARAMETER.DESC)){
+							String oldDesc = task.getDescription();
+							edit = new TaskDescEdit(task, oldDesc, null);
+							task.setDescription(null);
+							compoundEdit.addEdit(edit);
+						}
+						
+						isUpdated        = true;
+					}
+				}
+			}
+			
 			if(isUpdated) {
 				// Set one significant edit
 				UndoableEdit lastEdit = compoundEdit.lastEdit();
@@ -524,7 +560,7 @@ public class TaskHandler {
 			assert(task!=null);
 
 			TaskEdit compoundEdit = new TaskEdit(task);
-			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId+1, true);
+			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId+1,true);
 			edit.setSignificant();
 			compoundEdit.addEdit(edit);
 			compoundEdit.end();
@@ -559,7 +595,7 @@ public class TaskHandler {
 
 		if (taskList.remove(task)) {
 			TaskEdit compoundEdit = new TaskEdit(task);
-			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId, false);
+			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId,false);
 			edit.setSignificant();
 			compoundEdit.addEdit(edit);
 			compoundEdit.end();
@@ -568,6 +604,19 @@ public class TaskHandler {
 			context.displayMessage("MESSAGE_DELETE_TASK");
 			context.setTaskId(task.getTaskId());
 
+		} else if(taskID == ALL_TASKS && taskList.size() > 0){
+			task = taskList.get(0);
+			TaskEdit compoundEdit = new TaskEdit(task);
+			TaskListEdit edit     = new TaskListEdit(taskList, currentTaskId, currentTaskId,false);
+			edit.setSignificant();
+			while(taskList.size() != 0){
+				task = taskList.get(0);
+				taskList.remove(task);
+			}
+			compoundEdit.addEdit(edit);
+			compoundEdit.end();
+			undoManager.addEdit(compoundEdit);
+			context.displayMessage("MESSAGE_DELETE_ALL_TASK");
 		} else {
 			context.displayMessage("ERROR_TASK_NOT_FOUND");		
 		}
@@ -595,7 +644,7 @@ public class TaskHandler {
 	/**
 	 * Displays all the current tasks in the taskList
 	 */
-	private static void displayAllTasks(ArrayList <Task> list) {
+	private static void displayAllTasks(ArrayList<Task> list) {
 		for(Task task:list) {
 			context.addTask(task);
 		}
@@ -664,15 +713,16 @@ public class TaskHandler {
 	}
 	
 	private static boolean isTaskSameFields(Task compareTask, Task taskListTask) {
+	
 		return
 			(compareTask.getTaskId()		== -1 	|| 
-				compareTask.getTaskId() == taskListTask.getTaskId() 						)&&
+				compareTask.getTaskId() == taskListTask.getTaskId() 								)&&
 			(compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
-				compareTask.getStartDateTime().before(taskListTask.getStartDateTime()) 				))&&
+				compareTask.getStartDateTime().before(taskListTask.getEndDateTime()) 				))&&
 			(compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   &&
-				compareTask.getEndDateTime().after(taskListTask.getEndDateTime()) 					))&&
+				compareTask.getEndDateTime().after(taskListTask.getStartDateTime()) 				))&&
 			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
-				compareTask.getDeadline().before(taskListTask.getDeadline()) 						))&&
+				compareTask.getDeadline().after(taskListTask.getDeadline()) 						))&&
 			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
 					taskListTask.getVenue().toLowerCase().contains(
 							compareTask.getVenue().toLowerCase())									))&&
