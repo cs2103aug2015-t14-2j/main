@@ -24,10 +24,10 @@ import java.util.Date;
  * Uses GSON, see imports above
  */
 public class FileIO {
+	private static Context context = Context.getInstance();
 	private static Calendar        calendar          = Calendar.getInstance();
-	// private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
 	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("yyyy-M-dd HH:mm");
-	
+	private static FileIO fileIO = null;
 	// Error messages
 	private final static String ERROR_MALFORMED_TASK = "ERROR! Corrupted task region. Task %d has been discarded.\n";
 	private final static String ERROR_MALFORMED_FILE = "ERROR! Corrupted file region. Rest of file cannot be read.\n";
@@ -36,10 +36,19 @@ public class FileIO {
 	private int maxTaskId;
 	private String path;
 	
-	public FileIO(String path) {
+	// Private constructor for singleton class
+	private FileIO() {
 		dateFormat.setCalendar(calendar);
-		this.path = path;
 		this.maxTaskId = 0;
+	}
+
+	public static FileIO getInstance() {
+		if (fileIO == null) {
+			fileIO = new FileIO();
+			return fileIO;
+		} else {
+			return fileIO;
+		}
 	}
 	
 	/**
@@ -64,10 +73,13 @@ public class FileIO {
 								taskList.add(task);
 							}						
 						} catch (ParseException e) {
+							context.displayMessage("ERROR_MALFORMED_TASK");
 							System.out.format(ERROR_MALFORMED_TASK, maxTaskId);
 						} catch (MalformedJsonException e1) {
+							context.displayMessage("ERROR_MALFORMED_FILE");
 							System.out.format(ERROR_MALFORMED_FILE);
 						} catch (IllegalStateException e2) {
+							context.displayMessage("ERROR_MALFORMED_KEY");
 							System.out.format(ERROR_MALFORMED_KEY);
 							System.exit(0);
 						}
@@ -81,11 +93,14 @@ public class FileIO {
 			// Create an empty file if file is not found
 			createNewFile();
 		} catch (MalformedJsonException e1) {
+			context.displayMessage("ERROR_MALFORMED_FILE");
 			System.out.format(ERROR_MALFORMED_FILE);
 		} catch (IllegalStateException e2) {
+			context.displayMessage("ERROR_MALFORMED_KEY");
 			System.out.format(ERROR_MALFORMED_KEY);
 			System.exit(0);
 		} catch (IOException e3) {
+			context.displayMessage("ERROR_FILE_IO");
 			System.out.format(ERROR_FILE_IO);
 			System.exit(0);						
 		}
@@ -115,6 +130,7 @@ public class FileIO {
 			jsonWriter.endObject();
 			jsonWriter.close();
 		} catch (IOException e) {
+			context.displayMessage("ERROR_FILE_IO");
 			e.printStackTrace();
 		}
 	}
@@ -134,6 +150,7 @@ public class FileIO {
 
 			readFromFile();
 		} catch (IOException e) {
+			context.displayMessage("ERROR_FILE_IO");
 			e.printStackTrace();
 		}
 
@@ -145,6 +162,18 @@ public class FileIO {
 	
 	public String getFilePath() {
 		return path;
+	}
+
+	// Validate filepath before changing
+	// Returns false if filepath is invalid and thus not changed
+	public boolean setFilePath(String _path) {
+		if (isValidFilePath(_path)) {
+			this.path = _path;
+			context.setFilePath(_path);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -260,6 +289,18 @@ public class FileIO {
 		jsonWriter.endObject();
 	}
 	
+	// Check whether path is valid
+	private boolean isValidFilePath(String path) {
+		try {
+			FileReader fr = new FileReader(path);
+			return true;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			context.displayMessage("ERROR_FILE_IO");
+			return false;
+		}
+	}
+
 	// Utility method
 	private String parseNullOrString(JsonReader jsonReader) throws IOException {
 		if (jsonReader.peek() == JsonToken.NULL) {

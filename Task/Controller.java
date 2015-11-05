@@ -153,7 +153,7 @@ public class Controller implements NativeKeyListener {
 	    
         // Start the task handler before launching GUI so JavaFX application thread
         // still has TaskHandler info before forking
-        TaskHandler.startTasks(args);
+        TaskHandler.init(args);
 
         // Start the GUI
         Application.launch(JavaFXGUI.class);

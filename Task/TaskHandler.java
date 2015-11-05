@@ -1,14 +1,5 @@
 package Task;
 
-import Task.FileIO;
-import Task.COMMAND_TYPE;
-import Task.StringParser;
-import Task.Validator;
-import Task.TaskVenueEdit;
-//import Task.TaskDescEdit;
-//import Task.TaskPeriodEdit;
-//import Task.TaskDeadlineEdit;
-//import Task.TaskDoneEdit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -47,9 +38,8 @@ public class TaskHandler {
 	private static Calendar        calendar          = Calendar.getInstance();
 	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("dd/M/yyyy HHmm");
 	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
-	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
 	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
-	private static String 			filePath         = "./data/calendar.json";		// relative path to calendar.json 
+	private static String 			defaultFilePath         = "./data/calendar.json";		// relative path to calendar.json 
 	private static int 				currentTaskId;          
 	private static FileIO           fileIO;
 	private static Validator        validate         = new Validator();
@@ -57,13 +47,20 @@ public class TaskHandler {
 	private static Context context                   = Context.getInstance();
 	
 	/**
-	 * Starts the program
+	 * Initialize settings, search for application files etc.
 	 * @param args The file path to load the file in
 	 * @return 
 	 */
-	public static void startTasks(String[] args) {
+	public static void init(String[] args) {
 		String localFilePath = determineFilePath(args);
-		init(localFilePath);
+		LOGGER.setLevel(Level.INFO);
+		undoManager   = new TaskUndoManager();
+		dateFormat.setCalendar(calendar);
+		fileIO        = FileIO.getInstance();
+		fileIO.setFilePath(localFilePath);
+		taskList      = fileIO.readFromFile();
+		currentTaskId = fileIO.getMaxTaskId();
+		context.clearAllMessages();
 	}
 	
 	public static void inputFeedBack(String input){
@@ -71,33 +68,17 @@ public class TaskHandler {
 			executeCommand(input);
 		}
 	}
-	
-	public static void setFilePath(String localFilePath) {
-		fileIO = new FileIO(localFilePath);
-	}
 
 	private static String determineFilePath(String[] args) {
 		String localFilePath;
 		if (args.length == 1) {
 			localFilePath = args[0];
 		} else {
-			localFilePath = TaskHandler.filePath;
+			localFilePath = TaskHandler.defaultFilePath;
 		}
 		return localFilePath;
 	}
 
-	/**
-	 * Initialize settings, search for application files etc.
-	 */
-	private static void init(String localFilePath) {
-		LOGGER.setLevel(Level.INFO);
-		undoManager   = new TaskUndoManager();
-		dateFormat.setCalendar(calendar);
-		fileIO        = new FileIO(localFilePath);
-		taskList      = fileIO.readFromFile();
-		currentTaskId = fileIO.getMaxTaskId();
-		context.clearAllMessages();
-	}
 
 	/**
 	 * Pattern matching on expected command patterns to decide if it is a valid command
@@ -122,6 +103,22 @@ public class TaskHandler {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
 		HashMap<PARAMETER, Object> parsedParamTable;
 		switch (command) {
+			case PATH:
+				String filepath = removeFirstWord(userInput);
+				if (fileIO.setFilePath(filepath)) {
+					context.displayMessage("MESSAGE_PATH");
+				};
+				break;
+			case FILEOPEN:
+				taskList = fileIO.readFromFile();
+				context.displayMessage("MESSAGE_OPEN");
+				context.displayMessage("MESSAGE_DISPLAY_ALL");
+				displayAllTasks(taskList);
+				break;
+			case FILESAVE:
+				fileIO.writeToFile(taskList);
+				context.displayMessage("MESSAGE_SAVE");
+				break;
 			case ADD_TASK:
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				//TODO: shouldn't it be if it has a description?
@@ -489,9 +486,8 @@ public class TaskHandler {
 				for(PARAMETER p:deleteParams){
 					if(p != null){
 						if(p.equals(PARAMETER.START_TIME)||p.equals(PARAMETER.END_TIME)){
-							task.setStartDateTime(null);
-							task.setEndDateTime(null);
-							newPeriod = new Period(null, null);
+							task.setPeriod(null);
+							newPeriod = null;
 							edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 							compoundEdit.addEdit(edit);
 						} else if (p.equals(PARAMETER.DEADLINE_TIME)){
@@ -533,13 +529,10 @@ public class TaskHandler {
 		} catch (ParseException e) {			
 			e.printStackTrace();
 			context.displayMessage("ERROR_DATEFORMAT");
-		} 
-	}
-	
-	// Utility function
-	private static Date changeDateTime(Date date, String prevTimeString) throws ParseException {
-		String test1 = dateFormat.format(date);
-		return new SimpleDateFormat("dd/M/yyyy HHmm").parse(test1.split(" ")[0] + " " + prevTimeString);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			context.displayMessage("ERROR_START_BEFORE_END");
+		}
 	}
 
 	/**
@@ -557,7 +550,7 @@ public class TaskHandler {
 			}
 			
 			// Make sure that we are not adding a null Task
-			assert(task!=null);
+			assert(1==2);
 
 			TaskEdit compoundEdit = new TaskEdit(task);
 			TaskListEdit edit     = new TaskListEdit(task, taskList, currentTaskId, currentTaskId+1,true);
@@ -649,17 +642,6 @@ public class TaskHandler {
 			context.addTask(task);
 		}
 	}
-	
-	/**
-	 * Figure out free time slots
-	 * @param timetable The timetable to get free time slots for
-	 * @return An array of possible time slots
-	 */
-	public static ArrayList<Period> getFreeTimeSlots(ArrayList<Period> timetable) {
-		ArrayList<Period> result = new ArrayList<Period>(50);
-		
-		return result;
-	}
 		
 	/**
 	 * Given a search keyword, and startTime and endTime, return all tasks with that keyword in their description within the search space
@@ -749,7 +731,13 @@ public class TaskHandler {
 			throw new Error("command type string cannot be null!");
 		}
 		
-		if(commandTypeString.equalsIgnoreCase("add")) {
+		if (commandTypeString.equalsIgnoreCase("path")) {
+			return COMMAND_TYPE.PATH;
+		} else if (commandTypeString.equalsIgnoreCase("fileopen")) {
+			return COMMAND_TYPE.FILEOPEN;
+		} else if (commandTypeString.equalsIgnoreCase("filesave")) {
+			return COMMAND_TYPE.FILESAVE;
+		} else if (commandTypeString.equalsIgnoreCase("add")) {
 			return COMMAND_TYPE.ADD_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("get")) {
 			return COMMAND_TYPE.GET_TASK;
@@ -787,7 +775,7 @@ public class TaskHandler {
 	}
 	
 	/**
-	 * Removes the first word from a string
+	 * Removes the first word from a string and returns the second word
 	 * @param userCommand The string to be split
 	 * @return The original string without the first word
 	 */
@@ -799,12 +787,18 @@ public class TaskHandler {
 			return "";
 		}
 	}
-	
+
 	private static void updateCurrentTaskId() {
 		currentTaskId = fileIO.getMaxTaskId();
 	}
 
 	public static void setCurrentTaskId(int _currentTaskId) {
 		currentTaskId = _currentTaskId;
+	}
+
+	// Utility function
+	private static Date changeDateTime(Date date, String prevTimeString) throws ParseException {
+		String test1 = dateFormat.format(date);
+		return new SimpleDateFormat("dd/M/yyyy HHmm").parse(test1.split(" ")[0] + " " + prevTimeString);
 	}
 }
