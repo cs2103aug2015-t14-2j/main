@@ -344,6 +344,19 @@ public class Task {
 		return isPastDeadline;
 	}
 
+	// Determines if a deadline task is past deadline
+	public boolean determinePastDeadline() {
+		if (this.deadline != null) {
+			if (this.deadline.after(new Date())) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+	}
+
 	public void setPastDeadline(boolean isPastDeadline) {
 		this.isPastDeadline = isPastDeadline;
 	}
@@ -356,6 +369,14 @@ public class Task {
 		this.hasEnded = hasEnded;
 	}
 
+	public boolean isFloating() {
+		if (this.period == null && this.deadline == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public boolean isEmpty() {
 		return
 			taskId			== -1 				&&

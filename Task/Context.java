@@ -23,8 +23,11 @@ public class Context {
 	private static boolean DEBUG = true;
 	
 	// TaskID for editing, deleting or displaying a specific task
-	private static int TASKID = 0;
+	private static int TASKID      = 0;
 	private static String FILEPATH;
+	private static Pair VIEW_DAY   = new Pair("agendaDay");
+	private static Pair VIEW_MONTH = new Pair("month");
+	private static Pair VIEW_WEEK  = new Pair("agendaWeek");
 
 	// Define success messages here
 	private static Pair MESSAGE_WELCOME        = new Pair("Welcome to TaskBuddy!");
@@ -96,9 +99,6 @@ public class Context {
 	// TaskList
 	private static ArrayList<Task> displayTaskSet = new ArrayList<Task>();
 	
-	// Formatting
-	private static final String PARAM_INDENT = "    ";
-
 	private Context () {}
 	
 	public static Context getInstance() {
@@ -182,59 +182,6 @@ public class Context {
 		FILEPATH = path;
 	}
 
-	public void printToTerminal() {
-		Class thisClass = Context.class;
-		StringBuilder message = new StringBuilder();
-
-		// Print messages
-		Field[] fields = thisClass.getDeclaredFields();
-		for(Field field:fields) {
-			Object o;
-			try {
-				o = field.get(context);
-				if (field.getType().equals(Pair.class)) {
-					field.setAccessible(true);
-					Pair pair = (Pair) o;
-					if (pair.getValue()) {
-						String output = "";
-						if (field.getName().contains("PARAM") && !field.getName().contains("SUBTITLE")) {
-							output = PARAM_INDENT + pair.getKey();
-						} else {
-							output = pair.getKey();
-						}
-						message.append(output+ "<br>");
-						
-						//System.out.format(output + "\n", taskId);
-					}
-				}
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-			
-			
-		}
-		
-		// Gui.getCurrentInstance().setFeedbackText(message.toString());
-		message = new StringBuilder();
-
-		// Print tasks
-		if (!displayTaskSet.isEmpty()) {
-			Iterator<Task> iterator = displayTaskSet.iterator();
-			while (iterator.hasNext()) {
-				Task task = iterator.next();
-				message.append(task.toString()+"\n");
-				//System.out.println(task.toString());
-			}
-		}
-
-		// Newline
-		message.append("\n");
-		// Gui.getCurrentInstance().setTaskText(message.toString());
-		//System.out.println();
-	}
-
 	public HashMap<String, Object> getDataModel() {
 		Class thisClass = Context.class;
 		HashMap<String, Object> dataModel = new HashMap<String, Object>();
@@ -243,6 +190,7 @@ public class Context {
 		ArrayList<String> help_messages     = new ArrayList<String>();
 		ArrayList<String> param_messages    = new ArrayList<String>();
 		ArrayList<String> error_messages    = new ArrayList<String>();
+		ArrayList<String> view_messages     = new ArrayList<String>();
 		ArrayList<Task>   taskList          = new ArrayList<Task>();
 
 		Field[] fields = thisClass.getDeclaredFields();
@@ -269,6 +217,9 @@ public class Context {
 						if (field.getName().contains("ERROR")) {
 							error_messages.add(formatString(field.getName(), pair.getKey()));
 						}
+						if (field.getName().contains("VIEW")) {
+							view_messages.add(formatString(field.getName(), pair.getKey()));
+						}
 					}
 				}
 			} catch (IllegalArgumentException e) {
@@ -290,8 +241,7 @@ public class Context {
 		String jsonData = "";
 		try {
 			String read_string;
-			String filename   = FileIO.getInstance().getFilePath();
-			FileReader fr     = new FileReader(filename);
+			FileReader fr     = new FileReader(FILEPATH);
 			BufferedReader br = new BufferedReader(fr);
 			
 			while ((read_string = br.readLine())!= null) {
@@ -310,6 +260,7 @@ public class Context {
 		dataModel.put("help_messages", help_messages);
 		dataModel.put("param_messages", param_messages);
 		dataModel.put("error_messages", error_messages);
+		dataModel.put("view_messages", view_messages);
 		dataModel.put("taskList", taskList);
 		dataModel.put("jsonData", jsonData);
 		return dataModel;
@@ -320,8 +271,8 @@ public class Context {
 		String result;
 		if (field == "MESSAGE_ADD_TASK" || field == "MESSAGE_DELETE_TASK" 
 			|| field == "MESSAGE_EDIT_TASK" || field == "MESSAGE_UNDO_TASK" 
-			|| field == "MESSAGE_UNDO_TASK" || field == "MESSAGE_REDO_TASK" 
-			|| field == "WARNING_TASK_NOT_EDITED") {
+			|| field == "MESSAGE_REDO_TASK" || field == "MESSAGE_UNDONE_TASK" 
+			|| field == "MESSAGE_DONE_TASK" || field == "WARNING_TASK_NOT_EDITED") {
 			result = String.format(original, TASKID);
 		} else if (field == "MESSAGE_PATH" || field == "MESSAGE_OPEN" 
 			|| field == "MESSAGE_SAVE") {

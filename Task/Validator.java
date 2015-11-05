@@ -460,6 +460,7 @@ public class Validator {
 				cal.add(Calendar.DAY_OF_WEEK, 7);
 				objectHashMap.put(PARAMETER.END_DATE, cal.getTime());
 				objectHashMap.put(PARAMETER.END_TIME, cal.getTime());
+				context.displayMessage("VIEW_WEEK");
 			} else if (keyDate.contains("month") || keyDate.contains("mth")) {
 				cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DATE));
 				cal.set(Calendar.HOUR_OF_DAY, 00);
@@ -471,6 +472,9 @@ public class Validator {
 				cal.set(Calendar.MINUTE, 59);
 				objectHashMap.put(PARAMETER.END_DATE, cal.getTime());
 				objectHashMap.put(PARAMETER.END_TIME, cal.getTime());
+				context.displayMessage("VIEW_MONTH");
+			} else {
+				context.displayMessage("VIEW_DAY");
 			}
 		}
 		

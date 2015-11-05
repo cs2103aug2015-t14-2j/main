@@ -61,6 +61,7 @@ public class TaskHandler {
 		taskList      = fileIO.readFromFile();
 		currentTaskId = fileIO.getMaxTaskId();
 		context.clearAllMessages();
+		updateTaskStatus();
 	}
 	
 	public static void inputFeedBack(String input){
@@ -113,7 +114,7 @@ public class TaskHandler {
 				taskList = fileIO.readFromFile();
 				context.displayMessage("MESSAGE_OPEN");
 				context.displayMessage("MESSAGE_DISPLAY_ALL");
-				displayAllTasks(taskList);
+				displayFloatingTasks(taskList);
 				break;
 			case FILESAVE:
 				fileIO.writeToFile(taskList);
@@ -151,7 +152,7 @@ public class TaskHandler {
 					}			
 				} else {
 					context.displayMessage("MESSAGE_DISPLAY_ALL");
-					displayAllTasks(taskList);
+					displayFloatingTasks(taskList);
 				}
 				break;
 			case EDIT_TASK:
@@ -199,7 +200,6 @@ public class TaskHandler {
 				break;
 			case EXIT:
 				context.displayMessage("MESSAGE_EXIT");
-				context.printToTerminal(); 				// Only call print here just before program exits
 				fileIO.writeToFile(taskList);
 				Platform.exit();
 				System.exit(0);
@@ -642,18 +642,17 @@ public class TaskHandler {
 			context.addTask(task);
 		}
 	}
-		
+
 	/**
-	 * Given a search keyword, and startTime and endTime, return all tasks with that keyword in their description within the search space
-	 * @param keyword
-	 * @param startTime
-	 * @param endTime
-	 * @return
+	 * Displays only floating tasks
 	 */
-	//TODO:Delete?
-	/*public static ArrayList<Task> searchByDescription (String keyword, Date startTime, Date endTime) {
-		return taskList;
-	}*/
+	private static void displayFloatingTasks(ArrayList<Task> list) {
+		for(Task task:list) {
+			if (task.isFloating()) {
+				context.addTask(task);
+			}
+		}
+	}
 	
 	/**
 	 * Returns a task with taskID if found, null otherwise
@@ -794,6 +793,13 @@ public class TaskHandler {
 
 	public static void setCurrentTaskId(int _currentTaskId) {
 		currentTaskId = _currentTaskId;
+	}
+
+	private static void updateTaskStatus() {
+		for (Task t : taskList) {
+			boolean new_status = t.determinePastDeadline();
+			t.setPastDeadline(new_status);
+		}
 	}
 
 	// Utility function
