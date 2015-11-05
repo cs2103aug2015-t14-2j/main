@@ -25,6 +25,7 @@ public class Context {
 	private static int TASKID = 0;
 
 	// Define success messages here
+
 	private static Pair MESSAGE_WELCOME        = new Pair( "Welcome to TaskBuddy!");
 	private static Pair MESSAGE_ADD_TASK       = new Pair("Successfully added task.");
 	private static Pair MESSAGE_GET_TASK       = new Pair("Task %d returned");
@@ -54,6 +55,7 @@ public class Context {
 	private static Pair ERROR_CANNOT_REDO      = new Pair("No more changes to redo.");
 	private static Pair ERROR_START_BEFORE_END = new Pair("You have entered an end time that is before start time!");
 	private static Pair ERROR_DATEFORMAT       = new Pair("The date and/or time you have entered is invalid. Date format is 'dd/M/yyyy' while time is 24 hrs 'HHmm e.g. 2359");
+
 	
 	// Define help messages here
 	private static Pair HELP_TITLE             = new Pair("****************************************************************************Help menu for TaskBuddy!*********************************************************************************************");
@@ -71,7 +73,7 @@ public class Context {
 	private static Pair HELP_HELP              = new Pair("  HELP      : help                                                                                                                                      | Show this help menu                    ");
 	private static Pair HELP_EXIT              = new Pair("  EXIT      : exit                                                                                                                                      | Terminate program                      ");
 	
-	// Parameter specific errors	
+
 	private static Pair PARAM_SUBTITLE      = new Pair("There are errors in the following parameters:");
 	private static Pair PARAM_TASKID_NUM    = new Pair("TaskID          : Invalid number. Please enter a number greater than 1.");
 	private static Pair PARAM_TASKID_NULL   = new Pair("TaskID          : Missing value. Please enter a number.");

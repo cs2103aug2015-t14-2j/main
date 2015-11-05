@@ -42,9 +42,11 @@ public class Gui extends JFrame {
 	private static final int 	FADE_DURATION_MS 	= 10;
 	private static final float 	FADE_OUT_VAL		= .02f;
 
+
 	private static final float 	FADE_IN_VAL 		= .04f;
 	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
 	private static final float 	FADED_IN 			= .96f - FADE_IN_VAL;
+
 	
 	private static final int 	BOX_WIDTH			= (int)Toolkit.getDefaultToolkit().getScreenSize().getWidth() / 2;
 	private static final int 	BOX_HEIGHT			= (int)Toolkit.getDefaultToolkit().getScreenSize().getHeight() * 3 / 4;;

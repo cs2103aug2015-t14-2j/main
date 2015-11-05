@@ -38,6 +38,7 @@ import freemarker.template.Version;
  *  @author A0009586 Jean Pierre Castillo
  *  @author A0118772 Audrey Tiah
  */
+
 public class Controller implements NativeKeyListener {
 	private static Configuration cfg;
 	private static Context context = Context.getInstance();
