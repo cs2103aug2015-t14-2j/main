@@ -260,19 +260,31 @@ public class Validator {
 						cal.set(Calendar.MILLISECOND, 0);
 						end_Time = cal.getTime();
 					}
-					if (end_Time.before(start_Time)) {
-						if (isDayWord(endTime)) {
+					try {
+						if (end_Time.before(start_Time)) {
+							if (isDayWord(endTime)) {
+								cal.setTime(end_Time);
+								cal.add(Calendar.DAY_OF_MONTH, 7);
+								end_Time = cal.getTime();
+								objectHashMap.put(PARAMETER.END_TIME, end_Time);
+								objectHashMap.put(PARAMETER.END_DATE, end_Time);
+							} else {
+								context.displayMessage("ERROR_START_BEFORE_END");
+							}
+						} else {
+							objectHashMap.put(PARAMETER.END_TIME, end_Time);
+							objectHashMap.put(PARAMETER.END_DATE, end_Time);
+						}
+					} catch (NullPointerException n) {
+							end_Time = parseNatty(endDate + " " + endTime);
 							cal.setTime(end_Time);
-							cal.add(Calendar.DAY_OF_MONTH, 7);
+							cal.set(Calendar.HOUR_OF_DAY, 23);
+							cal.set(Calendar.MINUTE, 59);
+							cal.set(Calendar.SECOND, 00);
+							cal.set(Calendar.MILLISECOND, 0);
 							end_Time = cal.getTime();
 							objectHashMap.put(PARAMETER.END_TIME, end_Time);
 							objectHashMap.put(PARAMETER.END_DATE, end_Time);
-						} else {
-							context.displayMessage("ERROR_START_BEFORE_END");
-						}
-					} else {
-						objectHashMap.put(PARAMETER.END_TIME, end_Time);
-						objectHashMap.put(PARAMETER.END_DATE, end_Time);
 					}
 
 				} else {
@@ -405,36 +417,29 @@ public class Validator {
 			}
 			objectHashMap.put(PARAMETER.DELETE_PARAMS, parameterArray);
 		}
-		//DISPLAYING NEXT WEEK NEXT MONTH ETC
+		// DISPLAYING NEXT WEEK NEXT MONTH ETC
 		/*
-		if (command.equals("DISPLAY")) {
-			Date showDate = parseNatty(keyDate);
-			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.SECOND, 00);
-			cal.set(Calendar.MILLISECOND, 0);
-			cal.setTime(showDate);
-			if (keyDate.contains("week") || keyDate.contains("wk")) {
-				cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
-				cal.set(Calendar.HOUR_OF_DAY, 00);
-				cal.set(Calendar.MINUTE, 00);
-				objectHashMap.put(PARAMETER.START_DATE, cal.getTime());
-				cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-				cal.set(Calendar.HOUR_OF_DAY, 23);
-				cal.set(Calendar.MINUTE, 59);
-				objectHashMap.put(PARAMETER.END_DATE, cal.getTime());
-			}else if (keyDate.contains("month")|| keyDate.contains("mth")){
-				cal.set(Calendar.DAY_OF_MONTH, Calendar.getInstance().getActualMinimum(Calendar.DAY_OF_MONTH));
-				cal.set(Calendar.HOUR_OF_DAY, 00);
-				cal.set(Calendar.MINUTE, 00);
-				objectHashMap.put(PARAMETER.START_DATE, cal.getTime());
-				cal.set(Calendar.DAY_OF_MONTH, Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH));
-				cal.set(Calendar.HOUR_OF_DAY, 23);
-				cal.set(Calendar.MINUTE, 59);
-				objectHashMap.put(PARAMETER.END_DATE, cal.getTime());
-			}
-		}*/
+		 * if (command.equals("DISPLAY")) { Date showDate = parseNatty(keyDate);
+		 * Calendar cal = Calendar.getInstance(); cal.set(Calendar.SECOND, 00);
+		 * cal.set(Calendar.MILLISECOND, 0); cal.setTime(showDate); if
+		 * (keyDate.contains("week") || keyDate.contains("wk")) {
+		 * cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+		 * cal.set(Calendar.HOUR_OF_DAY, 00); cal.set(Calendar.MINUTE, 00);
+		 * objectHashMap.put(PARAMETER.START_DATE, cal.getTime());
+		 * cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+		 * cal.set(Calendar.HOUR_OF_DAY, 23); cal.set(Calendar.MINUTE, 59);
+		 * objectHashMap.put(PARAMETER.END_DATE, cal.getTime()); }else if
+		 * (keyDate.contains("month")|| keyDate.contains("mth")){
+		 * cal.set(Calendar.DAY_OF_MONTH,
+		 * Calendar.getInstance().getActualMinimum(Calendar.DAY_OF_MONTH));
+		 * cal.set(Calendar.HOUR_OF_DAY, 00); cal.set(Calendar.MINUTE, 00);
+		 * objectHashMap.put(PARAMETER.START_DATE, cal.getTime());
+		 * cal.set(Calendar.DAY_OF_MONTH,
+		 * Calendar.getInstance().getActualMaximum(Calendar.DAY_OF_MONTH));
+		 * cal.set(Calendar.HOUR_OF_DAY, 23); cal.set(Calendar.MINUTE, 59);
+		 * objectHashMap.put(PARAMETER.END_DATE, cal.getTime()); } }
+		 */
 
-		/*
 		System.out.println("startDate: " + startDate);
 		System.out.println("end date: " + endDate);
 		System.out.println("start time: " + startTime);
@@ -449,7 +454,7 @@ public class Validator {
 		System.out.println("Passed END_TIME: " + objectHashMap.get(PARAMETER.END_TIME));
 		System.out.println("Passed DEADLINE_DATE: " + objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		System.out.println("Passed DEADLINE_TIME: " + objectHashMap.get(PARAMETER.DEADLINE_TIME));
-		*/
+
 		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
 
 		return objectHashMap;
