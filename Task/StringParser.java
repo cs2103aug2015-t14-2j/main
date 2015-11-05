@@ -51,7 +51,7 @@ public class StringParser {
 		
 		getStringHashMap(command, userInput, keywordHash);
 		
-		return Validator.getObjectHashMap(keywordHash);
+		return Validator.getObjectHashMap(keywordHash, command);
 	}
 
 	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {

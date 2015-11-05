@@ -21,5 +21,5 @@ public enum PARAMETER {
 	REMIND_TIMES,
 	TASKID,
 	DELETE_PARAMS, 
-	COMMAND
+
 };
