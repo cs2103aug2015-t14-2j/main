@@ -170,7 +170,7 @@ public class Task {
 		String endTime;
 		String deadline;
 		
-		if (this.period == null) {
+		if (this.period == null || this.period.getStartDateTime() == null || this.period.getEndDateTime() == null) {
 			startTime = null;
 			endTime   = null;
 		} else {

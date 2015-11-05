@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import java.util.List;
-//import java.util.Scanner;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Locale;
@@ -38,7 +38,6 @@ import freemarker.template.Version;
  *  @author A0009586 Jean Pierre Castillo
  *  @author A0118772 Audrey Tiah
  */
-
 public class Controller implements NativeKeyListener {
 	private static Configuration cfg;
 	private static Context context = Context.getInstance();
