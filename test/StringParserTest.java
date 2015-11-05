@@ -120,6 +120,24 @@ public class StringParserTest {
 		
 		assertEquals("from to",
 				keywordHash.get(PARAMETER.DELETE_PARAMS));
+		
+		//Use week keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
+				"at \"hong kong\" on next week do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("next week",
+				keywordHash.get(PARAMETER.DATE));
+		
+		//Use month keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
+				"at \"hong kong\" on next month do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("next month",
+				keywordHash.get(PARAMETER.DATE));
 	}
 	
 	@Test

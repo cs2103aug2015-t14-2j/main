@@ -9,3 +9,4 @@
 /.metadata/*
 *.orig
 *.class
+templates/html/output.html
