@@ -1,11 +1,3 @@
-/**
- *  @@author A0009586
- *  
- *  Represents the control module that is in charge of initialization and GUI
- *  Singleton structure
- * 
- */
-
 package Task;
 
 import java.util.ArrayList;
@@ -29,7 +21,10 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/origin/dev
 import freemarker.core.ParseException;
 import freemarker.template.Configuration;
 import freemarker.template.MalformedTemplateNameException;
@@ -47,7 +42,6 @@ import freemarker.template.Version;
  *  @author A0009586 Jean Pierre Castillo
  *  @author A0118772 Audrey Tiah
  */
-
 
 public class Controller implements NativeKeyListener {
 	private static Configuration cfg;
