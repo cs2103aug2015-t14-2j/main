@@ -13,6 +13,7 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
@@ -23,10 +24,13 @@ public class Context {
 	
 	// TaskID for editing, deleting or displaying a specific task
 	private static int TASKID = 0;
+	private static String FILEPATH;
 
 	// Define success messages here
-
-	private static Pair MESSAGE_WELCOME        = new Pair( "Welcome to TaskBuddy!");
+	private static Pair MESSAGE_WELCOME        = new Pair("Welcome to TaskBuddy!");
+	private static Pair MESSAGE_PATH		   = new Pair("Your new path is: %s");
+	private static Pair MESSAGE_SAVE		   = new Pair("Your calendar has been saved to %s!");
+	private static Pair MESSAGE_OPEN		   = new Pair("Opening calendar at path %s");
 	private static Pair MESSAGE_ADD_TASK       = new Pair("Successfully added task.");
 	private static Pair MESSAGE_GET_TASK       = new Pair("Task %d returned");
 	private static Pair MESSAGE_DISPLAY_ALL    = new Pair("All tasks displayed.");
@@ -54,8 +58,11 @@ public class Context {
 	private static Pair ERROR_CANNOT_UNDO      = new Pair("No more changes to undo.");
 	private static Pair ERROR_CANNOT_REDO      = new Pair("No more changes to redo.");
 	private static Pair ERROR_START_BEFORE_END = new Pair("You have entered an end time that is before start time!");
-	private static Pair ERROR_DATEFORMAT       = new Pair("The date and/or time you have entered is invalid. Date format is 'dd/M/yyyy' while time is 24 hrs 'HHmm e.g. 2359");
-
+	private static Pair ERROR_DATEFORMAT       = new Pair("The date or time you have entered is invalid. Note that we follow American date format mm/dd/yy.");
+	private static Pair ERROR_MALFORMED_TASK   = new Pair("ERROR! Corrupted task region. Task %d has been discarded.");
+	private static Pair ERROR_MALFORMED_FILE   = new Pair("ERROR! Corrupted file region. Rest of file cannot be read.");
+	private static Pair ERROR_MALFORMED_KEY    = new Pair("ERROR! File does not match expected format. Restart program with a new file location.");
+	private static Pair ERROR_FILE_IO          = new Pair("ERROR! Cannot read from specified file location.");
 	
 	// Define help messages here
 	private static Pair HELP_TITLE             = new Pair("****************************************************************************Help menu for TaskBuddy!*********************************************************************************************");
@@ -171,6 +178,10 @@ public class Context {
 		TASKID = _taskId;
 	}
 
+	public void setFilePath(String path) {
+		FILEPATH = path;
+	}
+
 	public void printToTerminal() {
 		Class thisClass = Context.class;
 		StringBuilder message = new StringBuilder();
@@ -244,19 +255,19 @@ public class Context {
 					Pair pair = (Pair) o;
 					if (pair.getValue()) {
 						if (field.getName().contains("MESSAGE")) {
-							success_messages.add(addTaskIDToString(pair.getKey()));
+							success_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 						if (field.getName().contains("WARNING")) {
-							warning_messages.add(addTaskIDToString(pair.getKey()));
+							warning_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 						if (field.getName().contains("HELP")) {
-							help_messages.add(addTaskIDToString(pair.getKey()));
+							help_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 						if (field.getName().contains("PARAM")) {
-							param_messages.add(addTaskIDToString(pair.getKey()));
+							param_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 						if (field.getName().contains("ERROR")) {
-							error_messages.add(addTaskIDToString(pair.getKey()));
+							error_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 					}
 				}
@@ -273,16 +284,13 @@ public class Context {
 			while (iterator.hasNext()) {
 				Task task = iterator.next();
 				taskList.add(task);
-				if(task.getPeriod()!=null) {
-					System.out.println(task.getPeriod().toString());
-				}
 			}
 		}
-		// Read Json file as string
+		// Read Json file as string for fullCalendar to render on canvas
 		String jsonData = "";
 		try {
 			String read_string;
-			String filename   = "./data/calendar.json";
+			String filename   = FileIO.getInstance().getFilePath();
 			FileReader fr     = new FileReader(filename);
 			BufferedReader br = new BufferedReader(fr);
 			
@@ -307,8 +315,20 @@ public class Context {
 		return dataModel;
 	}
 
-	// Helper function to add TaskID to message with %d placeholder
-	private String addTaskIDToString(String original){
-		return String.format(original, TASKID);
+	// Helper function to add variables into messages just before rendering.
+	private String formatString(String field, String original){
+		String result;
+		if (field == "MESSAGE_ADD_TASK" || field == "MESSAGE_DELETE_TASK" 
+			|| field == "MESSAGE_EDIT_TASK" || field == "MESSAGE_UNDO_TASK" 
+			|| field == "MESSAGE_UNDO_TASK" || field == "MESSAGE_REDO_TASK" 
+			|| field == "WARNING_TASK_NOT_EDITED") {
+			result = String.format(original, TASKID);
+		} else if (field == "MESSAGE_PATH" || field == "MESSAGE_OPEN" 
+			|| field == "MESSAGE_SAVE") {
+			result = String.format(original, FILEPATH);
+		} else {
+			result = original;
+		}
+		return result;
 	}
 }

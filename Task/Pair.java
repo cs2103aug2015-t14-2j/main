@@ -9,7 +9,7 @@ package Task;
  *
  */
 public class Pair {
-	private final String key; 		// Note that the message is immutable
+	private final String key; 
 	private boolean value;
 	
 	public Pair(String k) {
@@ -20,7 +20,7 @@ public class Pair {
 	public String getKey() {
 		return this.key;
 	}
-	
+
 	public boolean getValue() {
 		return this.value;
 	}

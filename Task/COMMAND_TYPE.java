@@ -9,6 +9,9 @@ package Task;
  */
 
 public enum COMMAND_TYPE {
+	PATH,
+	FILEOPEN,
+	FILESAVE,
 	ADD_TASK, 
 	GET_TASK,
 	DISPLAY,

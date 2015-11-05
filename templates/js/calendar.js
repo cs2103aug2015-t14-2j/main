@@ -13,7 +13,7 @@ $(document).ready(function() {
 				start  : eventObj.startTime,
 				end    : eventObj.endTime,
 				allDay : false,
-				isDeadline: true
+				isDeadline: false
 			});
 		} else if (eventObj.deadline!=null) {
 			events.push({
@@ -21,7 +21,7 @@ $(document).ready(function() {
 				start  : eventObj.deadline,
 				id     : eventObj.taskId,
 				venue  : eventObj.venue,
-				allDay : true,
+				allDay : false,
 				isDeadline: true				
 			})
 		} else {
