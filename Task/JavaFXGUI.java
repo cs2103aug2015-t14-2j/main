@@ -25,6 +25,8 @@ public class JavaFXGUI extends Application {
     private static Stage stage           = null;
     private static TextField tb          = null;
     private static WebView browser       = null;
+    private static final int WIN_WIDTH = 1000;
+    private static final int WIN_HEIGHT = 740;
 	
 	public JavaFXGUI() {
 		controller = Controller.getInstance();
@@ -45,7 +47,7 @@ public class JavaFXGUI extends Application {
         browser.getEngine().load(template);
         BorderPane border = new BorderPane();
         stage = _stage;
-        Scene scene = new Scene(border, 840, 640);
+        Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         HBox hbox = addHBox();
 
         border.setTop(hbox);
@@ -75,7 +77,7 @@ public class JavaFXGUI extends Application {
         hbox.setStyle("-fx-background-color: #336699;");
         
         tb = new TextField();
-        tb.setPrefSize(800, 20);
+        tb.setPrefSize(WIN_WIDTH, 20);
         //Setting an action for the textbox
         tb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
