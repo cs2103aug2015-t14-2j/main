@@ -1,0 +1,77 @@
+<html>
+	<head>
+		<link href="../css/bootstrap.min.css" rel="stylesheet">
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.css' />
+		<script src="../js/jQuery_v1.11.2.js"></script>
+		<script src="../js/bootstrap.js"></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js'></script>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js'></script>
+		<script src="../js/calendar.js?"+ new Date().now()></script>
+	</head>
+	<body style="margin-top:10px">
+		<div class="container-fluid">
+			<div class="row-fluid">
+				<div class="col-xs-12">
+										<div class="alert alert-success">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<p>Search results:</p>
+					</div>
+					<div class="alert alert-warning">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+							<p>WARNING: You have specified a deadline that is before the current time</p>
+					</div>
+				</div>
+			</div>
+			<div class="row-fluid">
+				<div class="col-xs-8">
+					<div style="display:none" id="jsonData">{    "Tasks": [        {            "taskId": 1,            "createdTime": "2015-11-05 10:42",            "lastModifiedTime": "2015-11-05 10:42",            "startTime": "2015-11-05 14:00",            "endTime": "2015-11-05 15:00",            "deadline": null,            "venue": null,            "description": "cs2103 demo",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 2,            "createdTime": "2015-11-05 10:43",            "lastModifiedTime": "2015-11-05 10:43",            "startTime": "2015-11-03 11:00",            "endTime": "2015-11-03 11:30",            "deadline": null,            "venue": "Lab",            "description": "EE3204 lab demo",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 3,            "createdTime": "2015-11-05 10:46",            "lastModifiedTime": "2015-11-05 10:46",            "startTime": "2015-11-13 10:46",            "endTime": "2015-11-13 23:59",            "deadline": null,            "venue": "LAB",            "description": "cs2103 demo",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 4,            "createdTime": "2015-11-05 10:47",            "lastModifiedTime": "2015-11-05 10:47",            "startTime": null,            "endTime": null,            "deadline": "2015-11-16 23:59",            "venue": null,            "description": "cs2104 lab5",            "isDone": false,            "isPastDeadline": true,            "hasEnded": false        },        {            "taskId": 5,            "createdTime": "2015-11-05 10:52",            "lastModifiedTime": "2015-11-05 10:52",            "startTime": null,            "endTime": null,            "deadline": "2015-11-13 23:59",            "venue": null,            "description": "cs3241 lab5",            "isDone": false,            "isPastDeadline": true,            "hasEnded": false        },        {            "taskId": 6,            "createdTime": "2015-11-05 10:53",            "lastModifiedTime": "2015-11-05 10:53",            "startTime": "2015-11-26 12:00",            "endTime": "2015-11-26 14:00",            "deadline": null,            "venue": "MPSH",            "description": "cs2103 exams",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 7,            "createdTime": "2015-11-05 10:54",            "lastModifiedTime": "2015-11-05 10:54",            "startTime": "2015-12-11 18:00",            "endTime": "2015-12-13 21:00",            "deadline": null,            "venue": null,            "description": "startup weekend singapore",            "isDone": false,            "isPastDeadline": false,            "hasEnded": true        },        {            "taskId": 8,            "createdTime": "2015-11-05 10:55",            "lastModifiedTime": "2015-11-05 10:55",            "startTime": null,            "endTime": null,            "deadline": "2015-10-28 23:59",            "venue": null,            "description": "cs2104 lab4",            "isDone": false,            "isPastDeadline": true,            "hasEnded": false        },        {            "taskId": 9,            "createdTime": "2015-11-05 10:56",            "lastModifiedTime": "2015-11-05 10:56",            "startTime": null,            "endTime": null,            "deadline": "2015-10-06 23:59",            "venue": null,            "description": "ph2223 assignment",            "isDone": true,            "isPastDeadline": true,            "hasEnded": false        }    ]}</div>
+					<div id="calendar"></div>
+				</div>
+				<div class="col-xs-4">
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>cs2104 lab4<span class="badge pull-right">ID: 8</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td>Oct 28, 2015 11:59:00 PM</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<div id="task" class="panel panel-primary">
+							<div class="panel panel-heading">
+								<p>ph2223 assignment&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="label label-danger">Past due</span><span class="label label-success">Completed</span><span class="badge pull-right">ID: 9</span></p>
+							</div>
+							<table class="table table-hover table-condensed">
+								<tbody>
+									<tr>
+										<td style="width:20%">Venue: </td>
+										<td><span class="label label-default">Empty</span></td>
+									</tr>
+									<tr>
+										<td style="width:20%">Period:</td>
+										<td><span class="label label-default">Empty</td>
+									</tr>
+									<tr>
+										<td style="width:20%">Deadline: </td>
+										<td>Oct 6, 2015 11:59:00 PM</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
