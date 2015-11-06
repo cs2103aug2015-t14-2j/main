@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -52,9 +53,13 @@ public class Validator {
 	private static Context context = Context.getInstance();
 	private static Parser parser = new Parser();
 
-	public Validator() {
-	}
+	public Validator() {}
 
+	/**
+	 * Natty takes a phrase of user input and returns single date object
+	 * @param  dateString
+	 * @return Date object, null if Natty cannot parse into a date
+	 */
 	private static Date parseNatty(String dateString) {
 		List<DateGroup> dateGroup = parser.parse(dateString);
 		if (dateGroup.size() == 1) {
@@ -290,12 +295,9 @@ public class Validator {
 						objectHashMap.put(PARAMETER.END_TIME, end_Time);
 						objectHashMap.put(PARAMETER.END_DATE, end_Time);
 					}
-
 				} else {
 					context.displayMessage("PARAM_SUBTITLE");
 					context.displayMessage("PARAM_DEADLINE_TIME");
-					// throw new ParseException("PARAMETER.DEADLINE_TIME",
-					// 0);
 				}
 			}
 
@@ -311,12 +313,8 @@ public class Validator {
 					cal.set(Calendar.SECOND, 00);
 					cal.set(Calendar.MILLISECOND, 0);
 					if (dateOfDeadline.before(cal.getTime())) {
-						
 						context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
 						objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
-						// throw new IllegalArgumentException("DEADLINE_DATE
-						// before
-						// CURRENTDATE");
 					} else {
 						cal.setTime(dateOfDeadline);
 						cal.set(Calendar.HOUR_OF_DAY, 23);
@@ -324,7 +322,6 @@ public class Validator {
 						dateOfDeadline = cal.getTime();
 						objectHashMap.put(PARAMETER.DEADLINE_DATE, dateOfDeadline);
 					}
-
 				} else {
 					context.displayMessage("PARAM_SUBTITLE");
 					context.displayMessage("PARAM_DEADLINE_DATE");
@@ -335,11 +332,9 @@ public class Validator {
 			// Deadline time
 			Date timeOfDeadline = null;
 			if (deadlineTime != null) {
-
 				if ((timeOfDeadline = parseNatty(deadlineTime)) == null) {
 					timeOfDeadline = validTimeFormat(deadlineTime);
 				}
-
 				Calendar cal = Calendar.getInstance();
 				if (timeOfDeadline != null) {
 					cal.setTime(timeOfDeadline);
@@ -369,14 +364,9 @@ public class Validator {
 						System.out.println(cal.getTime());
 						timeOfDeadline = cal.getTime();
 					}
-					
-					
 					Calendar current = Calendar.getInstance();
 					if (cal.getTime().before(current.getTime())) {
 						context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
-						// throw new IllegalArgumentException("DEADLINE_TIME
-						// before
-						// CURRENT");
 					}
 					objectHashMap.put(PARAMETER.DEADLINE_TIME, timeOfDeadline);
 					objectHashMap.put(PARAMETER.DEADLINE_DATE, timeOfDeadline);
@@ -384,8 +374,6 @@ public class Validator {
 				} else {
 					context.displayMessage("PARAM_SUBTITLE");
 					context.displayMessage("PARAM_DEADLINE_TIME");
-					// throw new ParseException("PARAMETER.DEADLINE_TIME",
-					// 0);
 				}
 			}
 		}
@@ -397,7 +385,6 @@ public class Validator {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_TASKID_NUM");
 				objectHashMap.put(PARAMETER.TASKID, 0);
-				// throw new ParseException("PARAMETER.TASKID", 0);
 			}
 		} else {
 			objectHashMap.put(PARAMETER.TASKID, -1);
@@ -461,7 +448,9 @@ public class Validator {
 				objectHashMap.put(PARAMETER.END_DATE, cal.getTime());
 				objectHashMap.put(PARAMETER.END_TIME, cal.getTime());
 				context.displayMessage("VIEW_WEEK");
-			} else if (keyDate.contains("month") || keyDate.contains("mth")) {
+			} else if (keyDate.contains("month") || keyDate.contains("mth") 
+					|| isMonth(keyDate) 		 || keyDate.contains("year")
+					|| keyDate.contains("yr") 	 || keyDate.contains("yrs")) {
 				cal.set(Calendar.DAY_OF_MONTH, cal.getActualMinimum(Calendar.DATE));
 				cal.set(Calendar.HOUR_OF_DAY, 00);
 				cal.set(Calendar.MINUTE, 00);
@@ -476,8 +465,17 @@ public class Validator {
 			} else {
 				context.displayMessage("VIEW_DAY");
 			}
+		} else if (command == COMMAND_TYPE.DISPLAY && deadlineTime != null) {
+			if (deadlineTime.contains("week") || deadlineTime.contains("wk")) {
+				context.displayMessage("VIEW_WEEK");
+			} else if (deadlineTime.contains("month") || deadlineTime.contains("mth") 
+					|| isMonth(deadlineTime) 		  || deadlineTime.contains("year")
+					|| deadlineTime.contains("yr") 	  || deadlineTime.contains("yrs")) {
+				context.displayMessage("VIEW_MONTH");
+			} else {
+				context.displayMessage("VIEW_DAY");
+			}
 		}
-		
 
 		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
 		System.out.println("Passed START_TIME: " + objectHashMap.get(PARAMETER.START_TIME));
@@ -1023,6 +1021,18 @@ public class Validator {
 		return false;
 	}
 	
-
-
+	public static boolean isMonth(String mth) {
+		mth = mth.toLowerCase();
+		List<String> monthDict = Arrays.asList(
+			"jan", "january", "feb", "february", "mar", 
+			"march","apr", "april", "may","jun", "june", 
+			"jul", "july", "aug", "august", "sept", "september",
+			"oct", "october", "nov", "november", "dec", "december");
+		for (String month : monthDict) {
+			if (mth.contains(month)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

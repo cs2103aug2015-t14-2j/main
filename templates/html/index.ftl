@@ -70,7 +70,7 @@
 				</div>
 				<div class="col-xs-4" style="height:660px;overflow:scroll">
 					<#list taskList as task>
-						<div id="task" class="panel panel-primary">
+						<div id="task" class="panel panel-default">
 							<div class="panel panel-heading">
 								<p>${task.description}<#if task.isDone()>&nbsp;&nbsp;&nbsp;<span class="label label-success">Completed</span><#elseif task.isPastDeadline()>&nbsp;&nbsp;&nbsp;<span class="label label-danger">Past due</span><#else></#if><span class="badge pull-right">ID: ${task.taskId}</span></p>
 							</div>

@@ -5,7 +5,6 @@ import java.util.logging.Logger;
 
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
-import java.util.Scanner;
 import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,17 +33,14 @@ public class TaskHandler {
 	
 	private static final int ALL_TASKS = -2;
 	
-	private static Scanner         scanner           = new Scanner(System.in);
-	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("dd/M/yyyy HHmm");
-	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
-	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
-	private static String 			defaultFilePath         = "./data/calendar.json";		// relative path to calendar.json 
-	private static int 				currentTaskId;          
-	private static FileIO           fileIO;
-	private static Validator        validate         = new Validator();
+	private static Calendar             calendar        = Calendar.getInstance();
+	private static SimpleDateFormat     dateFormat      = new SimpleDateFormat("dd/M/yyyy HHmm");
+	private static ArrayList<Task>      taskList        = new ArrayList<Task>(50);
+	private static String 			    defaultFilePath = "./data/calendar.json";		// relative path to calendar.json 
+	private static int 				    currentTaskId;          
+	private static FileIO               fileIO;
 	private static TaskUndoManager      undoManager;
-	private static Context context                   = Context.getInstance();
+	private static Context              context         = Context.getInstance();
 	
 	/**
 	 * Initialize settings, search for application files etc.
@@ -154,14 +150,10 @@ public class TaskHandler {
 					context.displayMessage("MESSAGE_DISPLAY_ALL");
 					displayFloatingTasks(taskList);
 				}
-				if (parsedParamTable.get(PARAMETER.START_DATE) != null) {
-					SimpleDateFormat ISO8601 = new SimpleDateFormat("YYYY-MM-dd");
-					context.setDefaultDate(ISO8601.format((Date)parsedParamTable.get(PARAMETER.START_DATE)));
-				}
+				setCalendarView(parsedParamTable);
 				break;
 			case EDIT_TASK:
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
-
 				editTask((int)parsedParamTable.get(PARAMETER.TASKID),
 					(PARAMETER[])parsedParamTable.get(PARAMETER.DELETE_PARAMS),
 					(String)parsedParamTable.get(PARAMETER.DESC),
@@ -177,7 +169,6 @@ public class TaskHandler {
 				break;
 			case DELETE_TASK:
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
-
 				removeTask((int)parsedParamTable.get(PARAMETER.TASKID));
 				fileIO.writeToFile(taskList);
 				break;
@@ -692,16 +683,21 @@ public class TaskHandler {
 				false,
 				false);
 		
-		for(Task t : taskList){
-			if(isTaskSameFields(compareTask, t)){
+		for (Task t : taskList) {
+			if (isTaskSameFields(compareTask, t, (Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE))) {
 				searchResult.add(t);
 			}
 		}
 		return searchResult;
 	}
 	
-	private static boolean isTaskSameFields(Task compareTask, Task taskListTask) {
-	
+	private static boolean isTaskSameFields(Task compareTask, Task taskListTask, Date deadlineDate) {
+		Date startOfDay;
+		System.out.println(deadlineDate.toString());
+		calendar.setTime(deadlineDate);
+		calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR)-7);	// One week earlier
+		startOfDay = calendar.getTime();
+
 		return
 			(compareTask.getTaskId()		== -1 	|| 
 				compareTask.getTaskId() == taskListTask.getTaskId() 								)&&
@@ -711,6 +707,7 @@ public class TaskHandler {
 				compareTask.getEndDateTime().after(taskListTask.getStartDateTime()) 				))&&
 			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
 				compareTask.getDeadline().after(taskListTask.getDeadline()) 						))&&
+				(taskListTask.getDeadline().after(startOfDay))										  &&
 			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
 					taskListTask.getVenue().toLowerCase().contains(
 							compareTask.getVenue().toLowerCase())									))&&
@@ -718,13 +715,13 @@ public class TaskHandler {
 					taskListTask.getDescription().toLowerCase().contains(
 							compareTask.getDescription().toLowerCase())								))&&
 			
-			//TODO:search for boolean values 
-			//compareTask.isDone() == taskListTask.isDone()
-			//compareTask.isPastDeadline() == taskListTask.isPastDeadline()
-			//compareTask.isHasEnded() == taskListTask.isHasEnded()
 			
 			(!compareTask.isEmpty()															)
 			;
+			//TODO:search for boolean values 
+			// compareTask.isDone() == taskListTask.isDone()
+			//compareTask.isPastDeadline() == taskListTask.isPastDeadline()
+			//compareTask.isHasEnded() == taskListTask.isHasEnded()
 	}
 
 	/**
@@ -794,10 +791,10 @@ public class TaskHandler {
 		}
 	}
 
-	private static void updateCurrentTaskId() {
-		currentTaskId = fileIO.getMaxTaskId();
-	}
-
+	/**
+	 * Allow TaskListEdit to set currentTaskId for undo and redo operations
+	 * @param taskID
+	 */
 	public static void setCurrentTaskId(int _currentTaskId) {
 		currentTaskId = _currentTaskId;
 	}
@@ -806,6 +803,21 @@ public class TaskHandler {
 		for (Task t : taskList) {
 			boolean new_status = t.determinePastDeadline();
 			t.setPastDeadline(new_status);
+		}
+	}
+
+	/**
+	 * For display commands, set defaultDate in context with the correct defaultDate 
+	 * so that fullCalendar can render the right date.
+	 * @param paramTable
+	 */
+	private static void setCalendarView(HashMap<PARAMETER,Object> paramTable) {
+		// FullCalendar uses moments.js which prefers ISO8601 formatted date strings
+		SimpleDateFormat ISO8601 = new SimpleDateFormat("YYYY-MM-dd");
+		if (paramTable.get(PARAMETER.START_DATE) != null) {
+			context.setDefaultDate(ISO8601.format((Date)paramTable.get(PARAMETER.START_DATE)));
+		} else if (paramTable.get(PARAMETER.DEADLINE_DATE) != null) {
+			context.setDefaultDate(ISO8601.format((Date)paramTable.get(PARAMETER.DEADLINE_DATE)));
 		}
 	}
 
