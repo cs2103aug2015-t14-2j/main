@@ -7,7 +7,7 @@
 		<script src="../js/bootstrap.js"></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js'></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js'></script>
-		<script src="../js/calendar.js?"+ new Date().now()></script>
+		<script src="../js/calendar.js?"></script>
 	</head>
 	<body style="margin-top:10px">
 		<div class="container-fluid">
@@ -58,7 +58,9 @@
 						<#list view_messages as message>
 							<p id="view">${message}</p>
 						</#list>
+					</div>
 					</#if>
+					<div style="display:none" id="default_date">${default_date!.now?date}</div>
 				</div>
 			</div>
 			<div class="row-fluid">
@@ -68,7 +70,7 @@
 				</div>
 				<div class="col-xs-4" style="height:660px;overflow:scroll">
 					<#list taskList as task>
-						<div id="task" class="panel panel-primary">
+						<div id="task" class="panel panel-default">
 							<div class="panel panel-heading">
 								<p>${task.description}<#if task.isDone()>&nbsp;&nbsp;&nbsp;<span class="label label-success">Completed</span><#elseif task.isPastDeadline()>&nbsp;&nbsp;&nbsp;<span class="label label-danger">Past due</span><#else></#if><span class="badge pull-right">ID: ${task.taskId}</span></p>
 							</div>

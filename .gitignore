@@ -1,4 +1,4 @@
-/data/calendar.json
+data/calendar.json
 /Calendar.class
 /TaskHandler.class
 /TaskHandler$COMMAND_TYPE.class
@@ -9,4 +9,3 @@
 /.metadata/*
 *.orig
 *.class
-templates/html/output.html
