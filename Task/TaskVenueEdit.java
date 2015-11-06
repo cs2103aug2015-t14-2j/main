@@ -9,7 +9,7 @@ public class TaskVenueEdit extends UndoableSignificantEdit implements UndoableEd
 	protected String newValue;
 	protected boolean isSignificant = false;
 	
-	TaskVenueEdit(Task _task, String _oldValue, String _newValue) {
+	public TaskVenueEdit(Task _task, String _oldValue, String _newValue) {
 		task = _task;
 		oldValue = _oldValue;
 		newValue = _newValue;

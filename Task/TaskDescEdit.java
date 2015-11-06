@@ -8,7 +8,7 @@ public class TaskDescEdit extends UndoableSignificantEdit implements UndoableEdi
 	protected String oldValue;
 	protected String newValue;
 	
-	TaskDescEdit(Task _task, String _oldValue, String _newValue) {
+	public TaskDescEdit(Task _task, String _oldValue, String _newValue) {
 		task = _task;
 		oldValue = _oldValue;
 		newValue = _newValue;

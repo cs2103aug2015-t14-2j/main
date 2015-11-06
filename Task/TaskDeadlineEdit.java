@@ -10,7 +10,7 @@ public class TaskDeadlineEdit extends UndoableSignificantEdit implements Undoabl
 	protected Date oldValue;
 	protected Date newValue;
 	
-	TaskDeadlineEdit(Task _task, Date _oldValue, Date _newValue) {
+	public TaskDeadlineEdit(Task _task, Date _oldValue, Date _newValue) {
 		task = _task;
 		oldValue = _oldValue;
 		newValue = _newValue;

@@ -8,7 +8,7 @@ public class TaskDoneEdit extends UndoableSignificantEdit implements UndoableEdi
 	protected boolean oldValue;
 	protected boolean newValue;
 	
-	TaskDoneEdit(Task _task, boolean _oldValue, boolean _newValue) {
+	public TaskDoneEdit(Task _task, boolean _oldValue, boolean _newValue) {
 		task = _task;
 		oldValue = _oldValue;
 		newValue = _newValue;
