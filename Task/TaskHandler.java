@@ -609,7 +609,7 @@ public class TaskHandler {
 			compoundEdit.addEdit(edit);
 			compoundEdit.end();
 			undoManager.addEdit(compoundEdit);
-			context.displayMessage("MESSAGE_DELETE_ALL_TASK");
+			context.displayMessage("MESSAGE_DISPLAY_ALL");
 		} else {
 			context.displayMessage("ERROR_TASK_NOT_FOUND");		
 		}
