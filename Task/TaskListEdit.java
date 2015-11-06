@@ -16,7 +16,9 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		taskList = _taskList;
 		taskListContents = new ArrayList<Task>();
 		taskListContents.addAll(taskList);
-		taskListContents.add(task);
+		if(!_isAdd){
+			taskListContents.add(task);
+		}
 		newCurrentId = _newCurrentId;
 		oldCurrentId = _oldCurrentId;
 		isAdd = _isAdd;
