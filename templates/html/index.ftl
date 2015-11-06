@@ -7,7 +7,7 @@
 		<script src="../js/bootstrap.js"></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js'></script>
 		<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js'></script>
-		<script src="../js/calendar.js?"+ new Date().now()></script>
+		<script src="../js/calendar.js?"></script>
 	</head>
 	<body style="margin-top:10px">
 		<div class="container-fluid">
@@ -58,7 +58,9 @@
 						<#list view_messages as message>
 							<p id="view">${message}</p>
 						</#list>
+					</div>
 					</#if>
+					<div style="display:none" id="default_date">${default_date!.now?date}</div>
 				</div>
 			</div>
 			<div class="row-fluid">

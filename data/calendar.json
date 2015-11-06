@@ -20,10 +20,10 @@
             "startTime": "2015-11-07 18:00",
             "endTime": "2015-11-07 19:05",
             "deadline": "2015-11-06 14:00",
-            "venue": "Lab",
+            "venue": "com lab",
             "description": "EE3204 lab demo",
             "isDone": false,
-            "isPastDeadline": false,
+            "isPastDeadline": true,
             "hasEnded": true
         },
         {

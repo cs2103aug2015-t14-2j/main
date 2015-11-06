@@ -10,6 +10,7 @@ $(document).ready(function() {
 	if (view==null) {
 		view = 'month';
 	}
+	var defaultDateString = document.getElementById("default_date").innerHTML;
 
 	var events = [];
 	for (var i=0; i < data.Tasks.length; i++) {
@@ -41,7 +42,7 @@ $(document).ready(function() {
 				textColor : 'white'
 			});
 		} else {
-			// Do nothing	
+			// Floating tasks, do nothing, won't show up on calendar
 		}
 	}
 
@@ -54,16 +55,19 @@ $(document).ready(function() {
         	right: 'month,agendaWeek,agendaDay'
     	},
     	defaultView : view,
+    	defaultDate : moment(defaultDateString),
     	views: {
         	month: { // name of view
             	titleFormat: 'MMMM YYYY'
             	// other view-specific options here
         	},
         	agendaWeek: {
-        		titleFormat: 'MMM D'
+        		titleFormat: 'MMM D',
+        		allDaySlot : false
         	},
         	agendaDay: {
-        		titleFormat: 'MMMM D, YYYY'
+        		titleFormat: 'MMMM D, YYYY',
+        		allDaySlot : false
         	}
     	},
     	height : 640,

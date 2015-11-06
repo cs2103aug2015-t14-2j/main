@@ -23,11 +23,13 @@ public class Context {
 	private static boolean DEBUG = true;
 	
 	// TaskID for editing, deleting or displaying a specific task
-	private static int TASKID      = 0;
 	private static String FILEPATH;
-	private static Pair VIEW_DAY   = new Pair("agendaDay");
-	private static Pair VIEW_MONTH = new Pair("month");
-	private static Pair VIEW_WEEK  = new Pair("agendaWeek");
+	private static int    TASKID      = 0;
+	private static String DEFAULT_DATE;
+	private static Pair   VIEW_DAY    = new Pair("agendaDay");
+	private static Pair   VIEW_MONTH  = new Pair("month");
+	private static Pair   VIEW_WEEK   = new Pair("agendaWeek");
+	private static Pair   VIEW_START_DATE = new Pair("");
 
 	// Define success messages here
 	private static Pair MESSAGE_WELCOME        = new Pair("Welcome to TaskBuddy!");
@@ -182,6 +184,10 @@ public class Context {
 		FILEPATH = path;
 	}
 
+	public void setDefaultDate(String datestring) {
+		DEFAULT_DATE = datestring;
+	}
+
 	public HashMap<String, Object> getDataModel() {
 		Class thisClass = Context.class;
 		HashMap<String, Object> dataModel = new HashMap<String, Object>();
@@ -237,7 +243,7 @@ public class Context {
 				taskList.add(task);
 			}
 		}
-		// Read Json file as string for fullCalendar to render on canvas
+		// Read Json file as string and inject into the HTML template for fullCalendar to render on canvas
 		String jsonData = "";
 		try {
 			String read_string;
@@ -261,6 +267,7 @@ public class Context {
 		dataModel.put("param_messages", param_messages);
 		dataModel.put("error_messages", error_messages);
 		dataModel.put("view_messages", view_messages);
+		dataModel.put("default_date", DEFAULT_DATE);
 		dataModel.put("taskList", taskList);
 		dataModel.put("jsonData", jsonData);
 		return dataModel;

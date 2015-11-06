@@ -140,10 +140,10 @@ public class TaskHandler {
 				}
 				break;
 			case DISPLAY:
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				if (taskList.isEmpty()) {
 					context.displayMessage("ERROR_EMPTY_TASKLIST");
 				} else if(removeFirstWord(userInput).length() != 0){
-					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 					if(searchTasks(parsedParamTable).size() == 0){
 						context.displayMessage("ERROR_NO_RESUlTS_FOUND");
 					} else {
@@ -153,6 +153,10 @@ public class TaskHandler {
 				} else {
 					context.displayMessage("MESSAGE_DISPLAY_ALL");
 					displayFloatingTasks(taskList);
+				}
+				if (parsedParamTable.get(PARAMETER.START_DATE) != null) {
+					SimpleDateFormat ISO8601 = new SimpleDateFormat("YYYY-MM-dd");
+					context.setDefaultDate(ISO8601.format((Date)parsedParamTable.get(PARAMETER.START_DATE)));
 				}
 				break;
 			case EDIT_TASK:
@@ -518,13 +522,13 @@ public class TaskHandler {
 				compoundEdit.end();
 				edit1.setSignificant();
 				undoManager.addEdit(compoundEdit);
-				context.addTask(task);
 				context.displayMessage("MESSAGE_EDIT_TASK");
 			} else {
 				context.displayMessage("WARNING_TASK_NOT_EDITED");
 				context.displayMessage("HELP_HEADING");				
 				context.displayMessage("HELP_EDIT_TASK");
 			}
+			context.addTask(task);
 			context.setTaskId(task.getTaskId());
 		} catch (ParseException e) {			
 			e.printStackTrace();
@@ -568,6 +572,9 @@ public class TaskHandler {
 		}
 	}
 	
+	/**
+	 * Creates a new task using the suitable contructor based on whatever information we have
+	 */
 	private static Task createTask(int taskID, String desc, String venue, Date startDate, 
 			Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) throws IllegalArgumentException{
 		if (startTime != null && endTime != null){
