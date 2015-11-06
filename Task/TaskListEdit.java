@@ -11,7 +11,7 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 	protected ArrayList<Task> taskListContents;
 	protected boolean isAdd;
 	
-	TaskListEdit(Task task, ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
+	public TaskListEdit(Task task, ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
 		super();
 		taskList = _taskList;
 		taskListContents = new ArrayList<Task>();
@@ -24,7 +24,7 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		isAdd = _isAdd;
 	}
 	
-	TaskListEdit(ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
+	public TaskListEdit(ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
 		super();
 		taskList = _taskList;
 		taskListContents = new ArrayList<Task>();
@@ -32,7 +32,6 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		newCurrentId = _newCurrentId;
 		oldCurrentId = _oldCurrentId;
 		isAdd = _isAdd;
-		
 	}
 
 	@Override

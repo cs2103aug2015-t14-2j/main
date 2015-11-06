@@ -71,6 +71,7 @@ public class Context {
 	private static Pair ERROR_MALFORMED_FILE   = new Pair("ERROR! Corrupted file region. Rest of file cannot be read.");
 	private static Pair ERROR_MALFORMED_KEY    = new Pair("ERROR! File does not match expected format. Restart program with a new file location.");
 	private static Pair ERROR_FILE_IO          = new Pair("ERROR! Cannot read from specified file location.");
+	private static Pair ERROR_HTML_TEMPLATE    = new Pair("ERROR! Cannot read html template.");
 	
 	// Define help messages here
 	private static Pair HELP_TITLE             = new Pair("****************************************************************************Help menu for TaskBuddy!*********************************************************************************************");

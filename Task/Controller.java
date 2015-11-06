@@ -3,7 +3,6 @@ package Task;
 import java.util.ArrayList;
 
 import javafx.application.Application;
-import javafx.stage.Stage;
 import java.util.List;
 
 import java.util.logging.Level;
@@ -13,7 +12,6 @@ import java.util.HashMap;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 
 import org.jnativehook.GlobalScreen;
@@ -21,13 +19,10 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
-import freemarker.core.ParseException;
 import freemarker.template.Configuration;
-import freemarker.template.MalformedTemplateNameException;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
-import freemarker.template.TemplateNotFoundException;
 import freemarker.template.Version;
 
 /**
@@ -60,8 +55,8 @@ public class Controller implements NativeKeyListener {
 	    try {
 			cfg.setDirectoryForTemplateLoading(new File("./templates/html"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			context.displayMessage("ERROR_HTML_TEMPLATE");
 		}
 	    
 	    // Some other recommended settings:
@@ -96,16 +91,6 @@ public class Controller implements NativeKeyListener {
 				e1.printStackTrace();
 			}
     	}
-    	
-        //TODO: shortcut for exit?
-        /* if (e.getKeyCode() == NativeKeyEvent.VC_F10) {
-          		LOGGER.info("Exit triggered");
-                try {
-					GlobalScreen.unregisterNativeHook();
-				} catch (NativeHookException e1) {
-					e1.printStackTrace();
-				}
-        }*/
     }
 
     public void nativeKeyReleased(NativeKeyEvent e) {

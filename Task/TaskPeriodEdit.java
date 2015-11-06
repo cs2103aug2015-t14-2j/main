@@ -9,7 +9,7 @@ public class TaskPeriodEdit extends UndoableSignificantEdit implements UndoableE
 	protected Period oldValue;
 	protected Period newValue;
 	
-	TaskPeriodEdit(Task _task, Period _oldValue, Period _newValue) {
+	public TaskPeriodEdit(Task _task, Period _oldValue, Period _newValue) {
 		task = _task;
 		oldValue = _oldValue;
 		newValue = _newValue;
