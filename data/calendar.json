@@ -17,13 +17,13 @@
             "taskId": 2,
             "createdTime": "2015-11-05 10:43",
             "lastModifiedTime": "2015-11-05 10:43",
-            "startTime": "2015-11-06 10:00",
-            "endTime": "2015-11-06 16:45",
-            "deadline": "2015-11-06 14:00",
+            "startTime": "2015-11-07 18:00",
+            "endTime": "2015-11-07 19:05",
+            "deadline": null,
             "venue": "Lab",
             "description": "EE3204 lab demo",
             "isDone": false,
-            "isPastDeadline": true,
+            "isPastDeadline": false,
             "hasEnded": true
         },
         {
