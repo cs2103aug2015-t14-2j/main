@@ -1,6 +1,5 @@
 package Task;
 
-import java.net.URL;
 import javafx.application.Platform;
 import javafx.application.Application;
 import javafx.stage.WindowEvent;
@@ -8,14 +7,11 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.*;
 import javafx.geometry.Insets;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.control.Button;
 import javafx.stage.Stage;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.paint.*;
+import javafx.stage.StageStyle;
 import javafx.scene.control.TextField;
 
 public class JavaFXGUI extends Application {
@@ -47,6 +43,7 @@ public class JavaFXGUI extends Application {
         browser.getEngine().load(template);
         BorderPane border = new BorderPane();
         stage = _stage;
+        stage.initStyle(StageStyle.UNDECORATED);
         Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         HBox hbox = addHBox();
 
