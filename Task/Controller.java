@@ -3,10 +3,15 @@ package Task;
 import java.util.ArrayList;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+
 import java.util.List;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.swing.SwingUtilities;
+
 import java.util.Locale;
 import java.util.HashMap;
 import java.io.File;
@@ -80,16 +85,19 @@ public class Controller implements NativeKeyListener {
     		keyPressedList.add(e.getKeyCode());
     	}
     	
-    	
 		if(isShortCut() && !isShortCutPressed){
     		isShortCutPressed = true;
     		LOGGER.info("ShortCut triggered");
-    		try {
-				Gui.switchViewWindow(Gui.getCurrentInstance());
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+    		Platform.runLater(new Runnable() {
+	            public void run() {
+	            	try {
+						JavaFXGUI.switchViewWindow();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	            }
+	        });
     	}
     }
 

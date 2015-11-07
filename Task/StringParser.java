@@ -12,8 +12,6 @@ import java.util.HashMap;
 
 
 public class StringParser {
-	private static final Context context = Context.getInstance();
-	
 	//Define String constants here
 	private static final String SPACE_CHARACTER = "\\s+";
 	
@@ -416,8 +414,6 @@ public class StringParser {
 			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase], keywordsInInput);
 			if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) ==  null){
 				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase].split(keywordsInInput[commandFromKeywordIndex])[1].trim()); //Ignore the quote delimeters
-			} else if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) !=  null){
-				//TODO: throw exception for double keyword
 			}
 		}
 	}
