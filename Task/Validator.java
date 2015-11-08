@@ -44,6 +44,7 @@ public class Validator {
 				return null;
 			}
 		} else {
+			context.displayMessage("ERROR_DATEFORMAT");
 			return null;
 		}
 	}

@@ -112,6 +112,11 @@ public class JavaFXGUI extends Application {
             }
         });
     }
+    
+    public static void show(){
+    	stage.setOpacity(FADED_IN + FADE_IN_VAL);
+		tb.requestFocus();
+    }
 
     // @@author A0009586
 	public static void switchViewWindow() throws InterruptedException {

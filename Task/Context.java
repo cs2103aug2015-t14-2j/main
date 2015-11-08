@@ -68,6 +68,7 @@ public class Context {
 	private static Pair ERROR_CANNOT_REDO      = new Pair("No more changes to redo.");
 	private static Pair ERROR_START_BEFORE_END = new Pair("You have entered an end time that is before start time!");
 	private static Pair ERROR_DATEFORMAT       = new Pair("You have entered an invalid date and time. Note that we follow American date format mm/dd/yy.");
+	private static Pair ERROR_TRIGGER_ERROR    = new Pair("ERROR! The trigger shortcut has been interrupted and aborted.");
 	private static Pair ERROR_MALFORMED_TASK   = new Pair("ERROR! Corrupted task region. Task %d has been discarded.");
 	private static Pair ERROR_MALFORMED_FILE   = new Pair("ERROR! Corrupted file region. Rest of file cannot be read.");
 	private static Pair ERROR_MALFORMED_KEY    = new Pair("ERROR! File does not match expected format. Restart program with a new file location.");
