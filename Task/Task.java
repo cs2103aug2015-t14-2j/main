@@ -389,8 +389,8 @@ public class Task {
 			deadline   		== null				&&
 			venue           == null				&&
 			description     == null				&&
-			isDone         	== false			&&
-			isPastDeadline 	== false			&&
-			hasEnded       	== false;
+			isDone         	== null				&&
+			isPastDeadline 	== null				&&
+			hasEnded       	== null;
 	}
 }
