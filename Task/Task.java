@@ -44,7 +44,7 @@ public class Task {
 		this.deadline = null;
 		this.venue = venue;
 		this.description = desc;
-		this.isDone = false;
+		setFlags(false);
 	}
 	
 	/**
@@ -70,7 +70,7 @@ public class Task {
 		this.deadline = null;
 		this.venue = venue;
 		this.description = desc;
-		setEnded();
+		setFlags(null);
 	}
 		
 	/**
@@ -90,8 +90,7 @@ public class Task {
 		this.deadline = deadline;
 		this.venue = venue;
 		this.description = desc;
-		this.isDone = false;
-		setPastDeadline();
+		setFlags(false);
 	}
 	
 	/**
@@ -127,18 +126,9 @@ public class Task {
 		this.deadline = deadline;
 		this.venue = venue;
 		this.description = desc;
-		this.isDone = isDone;
-		if(startTime == null || endTime == null){
-			this.isDone = isDone;
-		}
-		if(deadline != null){
-			setPastDeadline();
-		}
-		if(startTime != null && endTime != null){
-			setEnded();
-		}
+		setFlags(isDone);
 	}
-	
+
 	//To be used for tempory tasks
 	public Task(int taskId, String desc, String venue, Date startTime, Date endTime, Date deadline, Boolean isDone, Boolean isPastDeadline, Boolean hasEnded) {
 		this.createdTime = null;
@@ -229,6 +219,18 @@ public class Task {
 	// Utility method
 	private static boolean bothNullOrEqual(Object x, Object y) {
 		return ( x == null ? y == null : x.equals(y));
+	}
+	
+	public void setFlags(Boolean _isDone) {
+		if(this.getStartDateTime() == null || this.getEndDateTime() == null){
+			setDone(_isDone);
+		}
+		if(this.getDeadline() != null){
+			setPastDeadline();
+		}
+		if(this.getStartDateTime() != null && this.getEndDateTime() != null){
+			setEnded();
+		}
 	}
 	
 	public void setPastDeadline () {

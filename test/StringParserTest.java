@@ -138,6 +138,41 @@ public class StringParserTest {
 		
 		assertEquals("next month  deadline",
 				keywordHash.get(PARAMETER.DATE));
+		
+		//Use done keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
+				"at \"hong kong\" on next month do \"to be or not\" deadline done",keywordHash);
+		
+		assertEquals("true",
+				keywordHash.get(PARAMETER.IS_DONE));
+		//Use done keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
+				"at \"hong kong\" ended on next month do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("true",
+				keywordHash.get(PARAMETER.HAS_ENDED));
+		
+		//Use done keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
+				"at \"hong kong\" on next month past do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("true",
+				keywordHash.get(PARAMETER.IS_PAST));
+		
+		//Use all keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
+				"all at \"hong kong\" on next month do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("true",
+				keywordHash.get(PARAMETER.SPECIAL));
 	}
 	
 	@Test

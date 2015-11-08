@@ -69,11 +69,11 @@ public class StringParser {
 		case DONE:
 			
 		case UNDONE:
-			userInput = getTaskID(userInput, keywordHash);
+			getTaskID(userInput, keywordHash);
 			break;
 			
 		case DISPLAY:
-			userInput = getTaskID(userInput, keywordHash);
+			getTaskID(userInput, keywordHash);
 			//Take the "" keywords out
 			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
 			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
@@ -96,7 +96,7 @@ public class StringParser {
 			break;
 			
 		case EDIT_TASK:
-			userInput = getTaskID(userInput, keywordHash);
+			getTaskID(userInput, keywordHash);
 			isDeleteParams = findKeywordIndexInput(userInput.trim(),"no", 0) != PARAM_NOT_FOUND;
 			//Take the no keywords out
 			if(isDeleteParams){
@@ -254,22 +254,16 @@ public class StringParser {
 	 * @param keywordHash 
 	 * @return The string after the ID has been taken out
 	 */
-	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) {
+	private static void getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) {
 		String[] inputArray = userInput.trim().split(SPACE_CHARACTER,2);
 		if(inputArray[0].toLowerCase().equals("all")){
 			keywordHash.put(PARAMETER.TASKID, ALL_TASKS);
 		} else if(inputArray[0] == null || !containsOnlyPositiveNumbers(inputArray[0])){
 			// To prevent null exceptions in TaskHandler
 			keywordHash.put(PARAMETER.TASKID, "-1");
-			return userInput;
 		} else {
 			keywordHash.put(PARAMETER.TASKID, inputArray[0]);
 		}
-		
-		if(inputArray.length > 1){
-			return userInput.split(SPACE_CHARACTER,2)[1];
-		}
-		else return "";
 	}
 	
 	/**

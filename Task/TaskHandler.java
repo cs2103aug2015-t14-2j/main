@@ -9,7 +9,6 @@ import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
@@ -23,6 +22,7 @@ import javafx.application.Platform;
  * 
  *  @@author A0097689
  */
+@SuppressWarnings("unused")
 public class TaskHandler {	
 	private static final Logger LOGGER = Logger.getLogger(TaskHandler.class.getName());
 	
@@ -217,6 +217,15 @@ public class TaskHandler {
 				break;
 		
 		}
+		
+		updateAllTaskFlags(taskList);
+	}
+
+	private static void updateAllTaskFlags(ArrayList<Task> taskList) {
+		for(Task t:taskList){
+			t.setFlags(t.isDone());
+		}
+		
 	}
 
 	/**
@@ -225,11 +234,10 @@ public class TaskHandler {
 	 * @param taskDone
 	 * @return
 	 */
-	private static void completeTask(int taskID, boolean isDone) {
+	private static void completeTask(int taskID, Boolean isDone) {
 		boolean notFound = true;
 		for (Task t:taskList){
 			if (t.getTaskId() == taskID){
-				String isDoneTask     = Integer.toString(t.getTaskId());
 				boolean prevDone      = t.isDone();
 				TaskEdit compoundEdit = new TaskEdit(t);
 				TaskDoneEdit edit     = new TaskDoneEdit(t, prevDone, isDone);
@@ -295,7 +303,6 @@ public class TaskHandler {
 	private static void editTask(int ID, PARAMETER[] deleteParams, String desc,String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) {
 		// Declare local variables
 		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
-		SimpleDateFormat localDateFormat = new SimpleDateFormat("dd/M/yyyy");
 
 		Task task          = null;
 		Date _deadlineDate = null;
@@ -311,8 +318,6 @@ public class TaskHandler {
 
 		boolean isUpdated = false;
 		Boolean prevIsdone;
-		Boolean prevIsHasEnded;
-		Boolean prevPastDeadline;
 		
 		if (ID != -1){
 			task = getTask(ID);
@@ -357,8 +362,6 @@ public class TaskHandler {
 		}
 		
 		prevIsdone 			= task.isDone();
-		prevIsHasEnded 		= task.isHasEnded();
-		prevPastDeadline 	= task.isPastDeadline();
 		
 		if (prevDeadlineDate != null) {
 			prevDeadlineTime = timeFormat.format(prevDeadlineDate);
@@ -715,7 +718,7 @@ public class TaskHandler {
 		ArrayList<Task> result = new ArrayList<>();
 		
 		for(Task t:searchResult){
-			if(t.getStartDateTime() != null || t.getDeadline() != null){
+			if((t.getStartDateTime() != null && t.getEndDateTime() != null) || t.getDeadline() != null){
 				periodsAndDeadlines.add(t);
 			} else {
 				floating.add(t);
@@ -733,21 +736,47 @@ public class TaskHandler {
 	/**
 	 * @@author A0009586
 	 * 
-	 * @param tasklist
+	 * @param taskListToSort
 	 */
-	private static void bubbleSortTasks(ArrayList<Task> tasklist) {
-		for (int i=0; i < tasklist.size() - 1;i++)
+	private static void bubbleSortTasks(ArrayList<Task> taskListToSort) {
+		for (int i=0; i < taskListToSort.size() - 1;i++)
 	    {
-	        if(tasklist.get(i).getStartDateTime() != null && tasklist.get(i).getStartDateTime().after(tasklist.get(i + 1).getStartDateTime()))
+	        if(isAfterPeriodDeadline(taskListToSort.get(i),taskListToSort.get(i+1)))
 	        {
-	        	sendToEndOfList(tasklist, i);
-	            bubbleSortTasks(tasklist);
-	        } else if(tasklist.get(i).getDeadline() != null && tasklist.get(i).getDeadline().after(tasklist.get(i + 1).getDeadline())) {
-	        	sendToEndOfList(tasklist, i);
-	            bubbleSortTasks(tasklist);
+	        	sendToEndOfList(taskListToSort, i);
+	            bubbleSortTasks(taskListToSort);
 	        }
 	    }
 		
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param firstTask
+	 * @param secondTask
+	 * @return
+	 */
+	private static boolean isAfterPeriodDeadline(Task firstTask, Task secondTask) {
+		
+		Date compDateOne = deadlineOrPeriodDate(firstTask);
+		Date compDateTwo = deadlineOrPeriodDate(secondTask);
+		
+		return compDateOne.after(compDateTwo);
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param firstTask
+	 * @return
+	 */
+	private static Date deadlineOrPeriodDate(Task firstTask) {
+		if(firstTask.getDeadline() != null){
+			return firstTask.getDeadline();
+		} else {
+			return firstTask.getStartDateTime();
+		}
 	}
 
 	/**
@@ -876,7 +905,7 @@ public class TaskHandler {
 	 * @return
 	 */
 	private static boolean isSameTaskId(Task compareTask, Task taskListTask) {
-		return compareTask.getTaskId()		== -1 	|| 
+		return compareTask.getTaskId()		== -1 	|| compareTask.getTaskId()		== ALL_TASKS ||
 			compareTask.getTaskId() == taskListTask.getTaskId();
 	}
 
