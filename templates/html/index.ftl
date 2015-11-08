@@ -3,12 +3,12 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="../css/bootstrap.min.css" rel="stylesheet">
-		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.css' />
+		<link rel='stylesheet' href='../css//fullcalendar.min.css' />
 		<link rel='stylesheet' href="../css/custom.css">
 		<script src="../js/jQuery_v1.11.2.js"></script>
 		<script src="../js/bootstrap.js"></script>
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js'></script>
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.4.0/fullcalendar.min.js'></script>
+		<script src='../js/moment.min.js'></script>
+		<script src='../js/fullcalendar.min.js'></script>
 		<script src="../js/calendar.js?"></script>
 	</head>
 	<body style="margin-top:10px">
