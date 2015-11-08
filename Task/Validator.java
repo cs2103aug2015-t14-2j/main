@@ -23,15 +23,16 @@ import com.joestelmach.natty.*;
 public class Validator {
 	private static Context context = Context.getInstance();
 	private static Parser parser = new Parser();
-	
+
 	private static String TRUE_STRING = "true";
 
 	public Validator() {
 	}
-	
+
 	/**
 	 * Natty takes a phrase of user input and returns single date object
-	 * @param  dateString
+	 * 
+	 * @param dateString
 	 * @return Date object, null if Natty cannot parse into a date
 	 */
 	private static Date parseNatty(String dateString) {
@@ -76,10 +77,10 @@ public class Validator {
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
 		String keyDate = hashmap.get(PARAMETER.DATE);
-		
+
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
-		
+
 		// System.out.println("startDate: " + startDate);
 		// System.out.println("end date: " + endDate);
 		// System.out.println("start time: " + startTime);
@@ -87,29 +88,29 @@ public class Validator {
 		// System.out.println("deadline date: " + deadlineDate);
 		// System.out.println("deadline time: " + deadlineTime);
 		// System.out.println("date: " + hashmap.get(PARAMETER.DATE));
-		
-		//used when there is a parsed KeyDate (etc. no deliminator or on _____) 
+
+		// used when there is a parsed KeyDate (etc. no deliminator or on _____)
 		if (keyDate != null) {
 			start_Date = parseNatty(keyDate);
 			end_Date = parseNatty(keyDate);
 			if (parseNatty(keyDate) != null) {
-				keyWordUpdateHashMap(start_Date,end_Date,startTime,endTime,objectHashMap);
+				keyWordUpdateHashMap(start_Date, end_Date, startTime, endTime, objectHashMap,command);
 			}
 		} else {
-			//when there is no keyDate ( etc. direct dates: from ___ to ___)
+			// when there is no keyDate ( etc. direct dates: from ___ to ___)
 			if (startTime != null) {
-				updateStartTimeHashMap(startTime,objectHashMap);
+				updateStartTimeHashMap(startTime, objectHashMap);
 			}
 			// End time
 			if (endTime != null) {
-				updateEndTimeHashMap(endTime,endDate, objectHashMap);				
+				updateEndTimeHashMap(endTime, endDate, objectHashMap);
 			}
-			// Deadline time ( etc. by _____) 
+			// Deadline time ( etc. by _____)
 			if (deadlineTime != null) {
 				updateDeadlineTimeHashMap(deadlineTime, objectHashMap);
 			}
 		}
-		
+
 		if (taskID != null) {
 			if (containsOnlyNumbers(taskID)) {
 				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
@@ -117,26 +118,25 @@ public class Validator {
 				context.displayMessage("PARAM_SUBTITLE");
 				context.displayMessage("PARAM_TASKID_NUM");
 				objectHashMap.put(PARAMETER.TASKID, 0);
-		
+
 			}
 		} else {
 			objectHashMap.put(PARAMETER.TASKID, -1);
 		}
-		
+
 		String editString;
 		if ((editString = hashmap.get(PARAMETER.DELETE_PARAMS)) != null) {
 			int numOfSpaces = countOccurence(editString, ' ');
-			
-			updateDeleteParamsHashMap(editString,numOfSpaces,objectHashMap);
+
+			updateDeleteParamsHashMap(editString, numOfSpaces, objectHashMap);
 		}
-		
-		if (command == COMMAND_TYPE.DISPLAY && keyDate != null && parseNatty(keyDate) != null){
+
+		if (command == COMMAND_TYPE.DISPLAY && keyDate != null && parseNatty(keyDate) != null) {
 			Date showDate = parseNatty(keyDate);
 			Calendar startcal = Calendar.getInstance();
 			startcal.setTime(showDate);
 			startcal = setStartTime(startcal);
-			
-			
+
 			Calendar endcal = Calendar.getInstance();
 			endcal.setTime(showDate);
 			endcal = setEndTime(endcal);
@@ -145,13 +145,13 @@ public class Validator {
 
 		if (command == COMMAND_TYPE.DISPLAY) {
 			updateContextDisplay(deadlineTime, keyDate);
-			
-			//CHECK FOR FLAGS USED IN SEARCH			
-			setFlag(hashmap,PARAMETER.IS_DONE,objectHashMap);
-			setFlag(hashmap,PARAMETER.HAS_ENDED,objectHashMap);
-			setFlag(hashmap,PARAMETER.IS_PAST,objectHashMap);
-			
-			setFlag(hashmap,PARAMETER.SPECIAL,objectHashMap);
+
+			// CHECK FOR FLAGS USED IN SEARCH
+			setFlag(hashmap, PARAMETER.IS_DONE, objectHashMap);
+			setFlag(hashmap, PARAMETER.HAS_ENDED, objectHashMap);
+			setFlag(hashmap, PARAMETER.IS_PAST, objectHashMap);
+
+			setFlag(hashmap, PARAMETER.SPECIAL, objectHashMap);
 		}
 
 		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
@@ -161,26 +161,27 @@ public class Validator {
 		System.out.println("Passed DEADLINE_DATE: " + objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		System.out.println("Passed DEADLINE_TIME: " + objectHashMap.get(PARAMETER.DEADLINE_TIME));
 		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
-		
+
 		return objectHashMap;
 	}
 
 	/**
 	 * @@author A0009586
 	 * 
-	 * Used to set the flag a Boolean flag in the hashmap
+	 *          Used to set the flag a Boolean flag in the hashmap
 	 * @param hashmap
 	 * @param isDone
-	 * @param objectHashMap 
+	 * @param objectHashMap
 	 */
-	private static void setFlag(HashMap<PARAMETER, String> hashmap, PARAMETER param, HashMap<PARAMETER, Object> objectHashMap) {
-		if(hashmap.get(param) != null){
+	private static void setFlag(HashMap<PARAMETER, String> hashmap, PARAMETER param,
+			HashMap<PARAMETER, Object> objectHashMap) {
+		if (hashmap.get(param) != null) {
 			objectHashMap.put(param, hashmap.get(param).equals(TRUE_STRING));
 		}
 	}
 
 	private static void keyWordUpdateHashMap(Date start_Date, Date end_Date, String startTime, String endTime,
-			HashMap<PARAMETER, Object> objectHashMap) {
+			HashMap<PARAMETER, Object> objectHashMap, COMMAND_TYPE command) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(start_Date);
 
@@ -201,6 +202,8 @@ public class Validator {
 			cal.set(Calendar.SECOND, 00);
 			cal.set(Calendar.MILLISECOND, 0);
 			start_Date = cal.getTime();
+			objectHashMap.put(PARAMETER.START_DATE, start_Date);
+			objectHashMap.put(PARAMETER.START_TIME, start_Date);
 		}
 		if (endTime != null && parseNatty(endTime) != null) {
 			Date time = parseNatty(endTime);
@@ -213,11 +216,15 @@ public class Validator {
 			cal.set(Calendar.SECOND, 00);
 			cal.set(Calendar.MILLISECOND, 0);
 			end_Date = cal.getTime();
+			objectHashMap.put(PARAMETER.END_DATE, end_Date);
+			objectHashMap.put(PARAMETER.END_TIME, end_Date);
 		}
-		objectHashMap.put(PARAMETER.START_DATE, start_Date);
-		objectHashMap.put(PARAMETER.START_TIME, start_Date);
-		objectHashMap.put(PARAMETER.END_DATE, end_Date);
-		objectHashMap.put(PARAMETER.END_TIME, end_Date);	
+		if (command != COMMAND_TYPE.EDIT_TASK) {
+			objectHashMap.put(PARAMETER.START_DATE, start_Date);
+			objectHashMap.put(PARAMETER.START_TIME, start_Date);
+			objectHashMap.put(PARAMETER.END_DATE, end_Date);
+			objectHashMap.put(PARAMETER.END_TIME, end_Date);
+		}
 	}
 
 	private static void updateStartTimeHashMap(String startTime, HashMap<PARAMETER, Object> objectHashMap) {
@@ -242,7 +249,7 @@ public class Validator {
 			context.displayMessage("PARAM_SUBTITLE");
 			context.displayMessage("PARAM_DEADLINE_TIME");
 		}
-		
+
 	}
 
 	private static void updateEndTimeHashMap(String endTime, String endDate, HashMap<PARAMETER, Object> objectHashMap) {
@@ -276,7 +283,7 @@ public class Validator {
 					objectHashMap.put(PARAMETER.END_DATE, end_Time);
 				}
 			} catch (NullPointerException n) {
-				if(parseNatty(endDate + " " + endTime) != null){
+				if (parseNatty(endDate + " " + endTime) != null) {
 					end_Time = parseNatty(endDate + " " + endTime);
 					cal.setTime(end_Time);
 					cal = setEndTime(cal);
@@ -290,7 +297,7 @@ public class Validator {
 			context.displayMessage("PARAM_SUBTITLE");
 			context.displayMessage("PARAM_DEADLINE_TIME");
 		}
-		
+
 	}
 
 	private static void updateDeadlineTimeHashMap(String deadlineTime, HashMap<PARAMETER, Object> objectHashMap) {
@@ -315,9 +322,9 @@ public class Validator {
 				cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DATE));
 				cal = setEndTime(cal);
 				timeOfDeadline = cal.getTime();
-			} else if (deadlineTime.contains("yr")|| deadlineTime.contains("year")){
+			} else if (deadlineTime.contains("yr") || deadlineTime.contains("year")) {
 				cal.setTime(timeOfDeadline);
-				cal.set(Calendar.MONTH,11);
+				cal.set(Calendar.MONTH, 11);
 				cal.set(Calendar.DAY_OF_MONTH, 31);
 				cal = setEndTime(cal);
 				timeOfDeadline = cal.getTime();
@@ -335,11 +342,11 @@ public class Validator {
 			context.displayMessage("PARAM_DEADLINE_TIME");
 
 		}
-		
+
 	}
 
 	private static void updateDeleteParamsHashMap(String editString, int numOfSpaces,
-		HashMap<PARAMETER, Object> objectHashMap) {
+			HashMap<PARAMETER, Object> objectHashMap) {
 		int n = 0;
 		String[] splitString = editString.split("\\s+");
 		PARAMETER[] parameterArray = new PARAMETER[20];
@@ -372,10 +379,11 @@ public class Validator {
 			}
 		}
 		objectHashMap.put(PARAMETER.DELETE_PARAMS, parameterArray);
-		
+
 	}
 
-	private static void updateHashMapForDisplay(String keyDate, Calendar startcal, Calendar endcal, HashMap<PARAMETER, Object> objectHashMap) {
+	private static void updateHashMapForDisplay(String keyDate, Calendar startcal, Calendar endcal,
+			HashMap<PARAMETER, Object> objectHashMap) {
 		if (keyDate.contains("week") || keyDate.contains("wk")) {
 			// Calendar cal = Calendar.getInstance();
 			startcal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -394,11 +402,11 @@ public class Validator {
 			objectHashMap.put(PARAMETER.END_DATE, endcal.getTime());
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
 		} else if (keyDate.contains("yr") || keyDate.contains("year")) {
-			startcal.set(Calendar.MONTH,0);
+			startcal.set(Calendar.MONTH, 0);
 			startcal.set(Calendar.DAY_OF_YEAR, 1);
 			objectHashMap.put(PARAMETER.START_DATE, startcal.getTime());
 			objectHashMap.put(PARAMETER.START_TIME, startcal.getTime());
-			endcal.set(Calendar.MONTH,11);
+			endcal.set(Calendar.MONTH, 11);
 			endcal.set(Calendar.DAY_OF_MONTH, 31);
 			objectHashMap.put(PARAMETER.END_DATE, endcal.getTime());
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
@@ -408,11 +416,12 @@ public class Validator {
 			objectHashMap.put(PARAMETER.END_DATE, endcal.getTime());
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
 		}
-		
+
 	}
 
 	/**
 	 * Given user query strings, determine the appropriate calendar view
+	 * 
 	 * @param deadline
 	 * @param keyDate
 	 */
