@@ -23,6 +23,8 @@ import com.joestelmach.natty.*;
 public class Validator {
 	private static Context context = Context.getInstance();
 	private static Parser parser = new Parser();
+	
+	private static String TRUE_STRING = "true";
 
 	public Validator() {
 	}
@@ -73,6 +75,7 @@ public class Validator {
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
 		String keyDate = hashmap.get(PARAMETER.DATE);
+		
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 		
@@ -141,6 +144,13 @@ public class Validator {
 
 		if (command == COMMAND_TYPE.DISPLAY) {
 			updateContextDisplay(deadlineTime, keyDate);
+			
+			//CHECK FOR FLAGS USED IN SEARCH			
+			setFlag(hashmap,PARAMETER.IS_DONE,objectHashMap);
+			setFlag(hashmap,PARAMETER.HAS_ENDED,objectHashMap);
+			setFlag(hashmap,PARAMETER.IS_PAST,objectHashMap);
+			
+			setFlag(hashmap,PARAMETER.SPECIAL,objectHashMap);
 		}
 
 		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
@@ -152,6 +162,20 @@ public class Validator {
 		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
 		
 		return objectHashMap;
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * Used to set the flag a Boolean flag in the hashmap
+	 * @param hashmap
+	 * @param isDone
+	 * @param objectHashMap 
+	 */
+	private static void setFlag(HashMap<PARAMETER, String> hashmap, PARAMETER param, HashMap<PARAMETER, Object> objectHashMap) {
+		if(hashmap.get(param) != null){
+			objectHashMap.put(param, hashmap.get(param).equals(TRUE_STRING));
+		}
 	}
 
 	private static void keyWordUpdateHashMap(Date start_Date, Date end_Date, String startTime, String endTime,

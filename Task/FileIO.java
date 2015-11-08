@@ -272,12 +272,20 @@ public class FileIO {
 		if(currentTask.isDone() != null){
 			jsonWriter.name("isDone").value(currentTask.isDone());
 		} else {
-			jsonWriter.name("isDone").value("null");
+			jsonWriter.name("isDone").nullValue();
 		}
 		
 		jsonWriter.endObject();
 	}
 	
+	private Boolean toNullOrBool(Boolean done) {
+		if (done == null) {
+			return null;
+		} else {
+			return done;
+		}
+	}
+
 	// Check whether path is valid
 	@SuppressWarnings("resource")
 	private boolean isValidFilePath(String path) {

@@ -248,7 +248,7 @@ public class StringParserTest {
 	}
 	
 	// NORMALLY PRIVATE METHOD TESTING //
-
+	/*
 	@Test
 	public void testTransferQuoteToHashMap() throws ParseException {
 		
@@ -404,4 +404,5 @@ public class StringParserTest {
 		assertEquals(null,StringParser.nextWordFromIndex("",0));
 		
 	}
+	*/
 }

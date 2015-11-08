@@ -25,9 +25,9 @@ public class JavaFXGUI extends Application {
     private static final int WIN_HEIGHT  = 740;
     
     // @@author A0009586
-    private static final int 	FADE_DURATION_MS 	= 10;
-	private static final float 	FADE_OUT_VAL		= .02f;
-	private static final float 	FADE_IN_VAL 		= .04f;
+    private static final int 	FADE_DURATION_MS 	= 2;
+	private static final float 	FADE_OUT_VAL		= .01f;
+	private static final float 	FADE_IN_VAL 		= .05f;
 	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
 	private static final float 	FADED_IN 			= 1f - FADE_IN_VAL;
 	
@@ -116,16 +116,19 @@ public class JavaFXGUI extends Application {
     // @@author A0009586
 	public static void switchViewWindow() throws InterruptedException {
 		if(stage.getOpacity() > FADED_OUT){
+			stage.hide();
     		while(stage.getOpacity() > FADED_OUT){
     			stage.setOpacity(stage.getOpacity()-FADE_OUT_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
     		
     	} else {    		
+    		stage.show();
     		while(stage.getOpacity() < FADED_IN){
     			stage.setOpacity(stage.getOpacity()+FADE_IN_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
+    		stage.setOpacity(FADED_IN + FADE_IN_VAL);
     		tb.requestFocus();
     	}
 		

@@ -184,7 +184,7 @@ public class StringParser {
 	 * @param keywordHash
 	 * @return
 	 */
-	public static String obtainTrailingKeywordsToHashmap(String inputString, int startingPosition, int offset, String[] keywords,
+	private static String obtainTrailingKeywordsToHashmap(String inputString, int startingPosition, int offset, String[] keywords,
 			PARAMETER param, HashMap<PARAMETER, String> keywordHash) {
 		int endPosition = startingPosition + offset;
 		String[] trimedKeywords = trimStringList(keywords);
@@ -226,7 +226,7 @@ public class StringParser {
 	 * @param startingPostion
 	 * @return
 	 */
-	public static String nextWordFromIndex(String inputString, int startingPostion) {
+	private static String nextWordFromIndex(String inputString, int startingPostion) {
 		if(inputString.length()>startingPostion){
 			String remainingString = inputString.substring(startingPostion);
 			return remainingString.trim().split(" ")[0];
@@ -271,7 +271,7 @@ public class StringParser {
 	 * @param numString The string to be checked for all numbers
 	 * @return A boolean representation of whether the string provided is all numbers
 	 */
-	public static boolean containsOnlyPositiveNumbers(String numString) {
+	private static boolean containsOnlyPositiveNumbers(String numString) {
 		return numString.matches("^[0-9 ]+$");
 	}
 
@@ -283,7 +283,7 @@ public class StringParser {
 	 * @param keywordHash 
 	 * @return The trimmed string without the 
 	 */
-	public static String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput, HashMap<PARAMETER, String> keywordHash) {
+	private static String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput, HashMap<PARAMETER, String> keywordHash) {
 		int positionOfKeyword = findKeywordIndexInput(userInput, keywordString,0);
 		if(positionOfKeyword == PARAM_NOT_FOUND){
 			return userInput;
@@ -305,7 +305,7 @@ public class StringParser {
 	 * @param keywordString The keyword to be searched
 	 * @return The index of the keyword found
 	 */
-	public static int findKeywordIndexInput(String userInput, String keywordString, int StartIndex) {
+	private static int findKeywordIndexInput(String userInput, String keywordString, int StartIndex) {
 		boolean outsideOfQuotes = true;
 		if(userInput == null || userInput.length() == 0){
 			return -1;
@@ -342,7 +342,7 @@ public class StringParser {
 	 * @param endOfDesc The end index of the portion to be trimmed out
 	 * @return The trimmed out string result
 	 */
-	public static String trimStringPortionOut(String userInput, int startOfDesc, int endOfDesc) {
+	private static String trimStringPortionOut(String userInput, int startOfDesc, int endOfDesc) {
 		StringBuilder result = new StringBuilder();
 		if(userInput == null){
 			return null;
@@ -363,7 +363,7 @@ public class StringParser {
 	 * @param endOfDesc The end index of the portion to be trimmed out
 	 * @return The string inside the indexes of the userInput
 	 */
-	public static String getKeywordInString(String userInput, int startOfDesc, int endOfDesc) {
+	private static String getKeywordInString(String userInput, int startOfDesc, int endOfDesc) {
 		StringBuilder result = new StringBuilder();
 		if(userInput == null){
 			return null;
@@ -383,7 +383,7 @@ public class StringParser {
 	 * @param keywordsInInput The keyword list to compare to the input
 	 * @return The index of the keyword input matches
 	 */
-	public static int indexKeywordInString(String input, String[] keywordsInInput) {
+	private static int indexKeywordInString(String input, String[] keywordsInInput) {
 		if(input != null && keywordsInInput != null){
 			for(int i = 0;i< keywordsInInput.length;i++){
 			   if(input.toLowerCase().contains(keywordsInInput[i])){
