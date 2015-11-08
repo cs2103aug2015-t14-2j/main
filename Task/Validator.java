@@ -37,7 +37,6 @@ public class Validator {
 		if (dateGroup.size() == 1) {
 			List<Date> dateList = dateGroup.get(0).getDates();
 			if (dateList.size() == 1) {
-				// System.out.println(dateList.get(0).toString());
 				return dateList.get(0);
 			} else {
 				return null;
@@ -76,15 +75,15 @@ public class Validator {
 		String keyDate = hashmap.get(PARAMETER.DATE);
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
-		/*
-		System.out.println("startDate: " + startDate);
-		System.out.println("end date: " + endDate);
-		System.out.println("start time: " + startTime);
-		System.out.println("end time: " + endTime);
-		System.out.println("deadline date: " + deadlineDate);
-		System.out.println("deadline time: " + deadlineTime);
-		System.out.println("date: " + hashmap.get(PARAMETER.DATE));
-		*/
+		
+		// System.out.println("startDate: " + startDate);
+		// System.out.println("end date: " + endDate);
+		// System.out.println("start time: " + startTime);
+		// System.out.println("end time: " + endTime);
+		// System.out.println("deadline date: " + deadlineDate);
+		// System.out.println("deadline time: " + deadlineTime);
+		// System.out.println("date: " + hashmap.get(PARAMETER.DATE));
+		
 		//used when there is a parsed KeyDate (etc. no deliminator or on _____) 
 		if (keyDate != null) {
 			start_Date = parseNatty(keyDate);
@@ -139,6 +138,11 @@ public class Validator {
 			endcal = setEndTime(endcal);
 			updateHashMapForDisplay(keyDate, startcal, endcal, objectHashMap);
 		}
+
+		if (command == COMMAND_TYPE.DISPLAY) {
+			updateContextDisplay(deadlineTime, keyDate);
+		}
+
 		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
 		System.out.println("Passed START_TIME: " + objectHashMap.get(PARAMETER.START_TIME));
 		System.out.println("Passed END_DATE: " + objectHashMap.get(PARAMETER.END_DATE));
@@ -150,8 +154,6 @@ public class Validator {
 		return objectHashMap;
 	}
 
-	
-	
 	private static void keyWordUpdateHashMap(Date start_Date, Date end_Date, String startTime, String endTime,
 			HashMap<PARAMETER, Object> objectHashMap) {
 		Calendar cal = Calendar.getInstance();
@@ -280,7 +282,6 @@ public class Validator {
 				cal.setTime(timeOfDeadline);
 				cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 				cal = setEndTime(cal);
-				cal.add(Calendar.DAY_OF_WEEK, 7);
 				timeOfDeadline = cal.getTime();
 			} else if (isMonthWord(deadlineTime)) {
 				cal.setTime(timeOfDeadline);
@@ -357,7 +358,6 @@ public class Validator {
 			endcal.add(Calendar.DAY_OF_WEEK, 7);
 			objectHashMap.put(PARAMETER.END_DATE, endcal.getTime());
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
-			context.displayMessage("VIEW_WEEK");
 		} else if (isMonthWord(keyDate)) {
 			// Calendar cal = Calendar.getInstance();
 			startcal.set(Calendar.DAY_OF_MONTH, startcal.getActualMinimum(Calendar.DATE));
@@ -366,7 +366,6 @@ public class Validator {
 			endcal.set(Calendar.DAY_OF_MONTH, endcal.getActualMaximum(Calendar.DATE));
 			objectHashMap.put(PARAMETER.END_DATE, endcal.getTime());
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
-			context.displayMessage("VIEW_MONTH");
 		} else if (keyDate.contains("yr") || keyDate.contains("year")) {
 			startcal.set(Calendar.MONTH,0);
 			startcal.set(Calendar.DAY_OF_YEAR, 1);
@@ -376,15 +375,40 @@ public class Validator {
 			endcal.set(Calendar.DAY_OF_MONTH, 31);
 			objectHashMap.put(PARAMETER.END_DATE, endcal.getTime());
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
-			context.displayMessage("VIEW_MONTH");
 		} else {
 			objectHashMap.put(PARAMETER.START_DATE, startcal.getTime());
 			objectHashMap.put(PARAMETER.START_TIME, startcal.getTime());
 			objectHashMap.put(PARAMETER.END_DATE, endcal.getTime());
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
-			context.displayMessage("VIEW_DAY");
 		}
 		
+	}
+
+	/**
+	 * Given user query strings, determine the appropriate calendar view
+	 * @param deadline
+	 * @param keyDate
+	 */
+	private static void updateContextDisplay(String deadline, String keyDate) {
+		String query;
+		if (keyDate != null) {
+			query = keyDate;
+		} else if (deadline != null) {
+			query = deadline;
+		} else {
+			context.displayMessage("VIEW_MONTH");
+			return;
+		}
+
+		if (query.contains("week") || query.contains("wk")) {
+			context.displayMessage("VIEW_WEEK");
+		} else if (isMonthWord(query)) {
+			context.displayMessage("VIEW_MONTH");
+		} else if (query.contains("yr") || query.contains("year")) {
+			context.displayMessage("VIEW_MONTH");
+		} else {
+			context.displayMessage("VIEW_DAY");
+		}
 	}
 
 	/**
