@@ -129,7 +129,7 @@ public class Validator {
 			updateDeleteParamsHashMap(editString,numOfSpaces,objectHashMap);
 		}
 		
-		if (command == COMMAND_TYPE.DISPLAY && keyDate != null){
+		if (command == COMMAND_TYPE.DISPLAY && keyDate != null && parseNatty(keyDate) != null){
 			Date showDate = parseNatty(keyDate);
 			Calendar startcal = Calendar.getInstance();
 			startcal.setTime(showDate);
@@ -189,7 +189,7 @@ public class Validator {
 		cal = setEndTime(cal);
 		end_Date = cal.getTime();
 
-		if (startTime != null) {
+		if (startTime != null && parseNatty(startTime) != null) {
 			Date time = parseNatty(startTime);
 			cal.setTime(start_Date);
 			Calendar timePortion = Calendar.getInstance();
@@ -201,7 +201,7 @@ public class Validator {
 			cal.set(Calendar.MILLISECOND, 0);
 			start_Date = cal.getTime();
 		}
-		if (endTime != null) {
+		if (endTime != null && parseNatty(endTime) != null) {
 			Date time = parseNatty(endTime);
 			cal.setTime(end_Date);
 			Calendar timePortion = Calendar.getInstance();
@@ -275,12 +275,14 @@ public class Validator {
 					objectHashMap.put(PARAMETER.END_DATE, end_Time);
 				}
 			} catch (NullPointerException n) {
-				end_Time = parseNatty(endDate + " " + endTime);
-				cal.setTime(end_Time);
-				cal = setEndTime(cal);
-				end_Time = cal.getTime();
-				objectHashMap.put(PARAMETER.END_TIME, end_Time);
-				objectHashMap.put(PARAMETER.END_DATE, end_Time);
+				if(parseNatty(endDate + " " + endTime) != null){
+					end_Time = parseNatty(endDate + " " + endTime);
+					cal.setTime(end_Time);
+					cal = setEndTime(cal);
+					end_Time = cal.getTime();
+					objectHashMap.put(PARAMETER.END_TIME, end_Time);
+					objectHashMap.put(PARAMETER.END_DATE, end_Time);
+				}
 			}
 
 		} else {
