@@ -75,20 +75,23 @@ public class Context {
 	private static Pair ERROR_HTML_TEMPLATE    = new Pair("ERROR! Cannot read html template.");
 	
 	// Define help messages here
-	private static Pair HELP_TITLE             = new Pair("****************************************************************************Help menu for TaskBuddy!*********************************************************************************************");
+	private static Pair HELP_TITLE             = new Pair("**********************************************************************Help menu for TaskBuddy!*****************************************************************");
 	private static Pair HELP_HEADING           = new Pair("Please follow the following command format:");
-	private static Pair HELP_SUBTITLE          = new Pair("[COMMAND]   [FORMAT]                                                                                                                                    [DESCRIPTION]                            ");
-	private static Pair HELP_ADD_TASK          = new Pair("  ADD       : add    do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"              | Adds a floating task, event or deadline");
-	private static Pair HELP_DISPLAY           = new Pair("  DISPLAY   : display                                                                                                                                   | Displays all tasks                     ");
+	private static Pair HELP_SUBTITLE          = new Pair("[COMMAND]   [FORMAT]                                                                                                                                    ");
+	private static Pair HELP_PATH              = new Pair("  PATH          : path [absolute filepath]");
+	private static Pair HELP_FILEOPEN          = new Pair("  FILEOPEN  : fileopen");
+	private static Pair HELP_FILESAVE          = new Pair("  FILESAVE   : filesave");
+	private static Pair HELP_ADD_TASK          = new Pair("  ADD            : add do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"              ");
+	private static Pair HELP_DISPLAY           = new Pair("  DISPLAY    : display                                                                                                                                   ");
 	// private static Pair HELP_SEARCH_TASK       = new Pair("  SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |");
-	private static Pair HELP_EDIT_TASK         = new Pair("  EDIT      : edit [task-id] do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"      | Edits an existing task                 ");
-	private static Pair HELP_UNDO              = new Pair("  UNDO      : undo                                                                                                                                      | Undo the last action                   ");
-	private static Pair HELP_REDO              = new Pair("  REDO      : redo                                                                                                                                      | Redo the last undoed action            ");
-	private static Pair HELP_DONE              = new Pair("  DONE      : done [task-id]                                                                                                                            | Mark a task as completed               ");
-	private static Pair HELP_UNDONE            = new Pair("  UNDONE    : undone [task-id]                                                                                                                          | Mark a task as uncompleted             ");	
-	private static Pair HELP_DELETE_TASK       = new Pair("  DELETE    : delete [task-id]                                                                                                                          | Removes a task                         ");
-	private static Pair HELP_HELP              = new Pair("  HELP      : help                                                                                                                                      | Show this help menu                    ");
-	private static Pair HELP_EXIT              = new Pair("  EXIT      : exit                                                                                                                                      | Terminate program                      ");
+	private static Pair HELP_EDIT_TASK         = new Pair("  EDIT           : edit [task-id] do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"      ");
+	private static Pair HELP_UNDO              = new Pair("  UNDO        : undo                                                                                                                                      ");
+	private static Pair HELP_REDO              = new Pair("  REDO        : redo                                                                                                                                      ");
+	private static Pair HELP_DONE              = new Pair("  DONE        : done [task-id]                                                                                                                            ");
+	private static Pair HELP_UNDONE            = new Pair("  UNDONE   : undone [task-id]                                                                                                                          ");	
+	private static Pair HELP_DELETE_TASK       = new Pair("  DELETE     : delete [task-id]                                                                                                                          ");
+	private static Pair HELP_HELP              = new Pair("  HELP         : help                                                                                                                                      ");
+	private static Pair HELP_EXIT              = new Pair("  EXIT          : exit                                                                                                                                      ");
 	
 	// Define parameter specific messages here
 	private static Pair PARAM_SUBTITLE      = new Pair("There are errors in the following parameters:");
@@ -270,7 +273,6 @@ public class Context {
 			e1.printStackTrace();
 			
 		}
-
 		dataModel.put("success_messages", success_messages);
 		dataModel.put("warning_messages", warning_messages);
 		dataModel.put("help_messages", help_messages);
