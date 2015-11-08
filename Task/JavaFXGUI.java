@@ -21,8 +21,8 @@ public class JavaFXGUI extends Application {
     private static Stage stage           = null;
     private static TextField tb          = null;
     private static WebView browser       = null;
-    private static final int WIN_WIDTH = 1000;
-    private static final int WIN_HEIGHT = 740;
+    private static final int WIN_WIDTH 	 = 1000;
+    private static final int WIN_HEIGHT  = 740;
     
     // @@author A0009586
     private static final int 	FADE_DURATION_MS 	= 10;
@@ -51,7 +51,7 @@ public class JavaFXGUI extends Application {
         BorderPane border = new BorderPane();
         stage = _stage;
         stage.setAlwaysOnTop(true);
-        stage.initStyle(StageStyle.UTILITY);
+        stage.initStyle(StageStyle.UNIFIED);
         Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         HBox hbox = addHBox();
 

@@ -22,7 +22,7 @@ public class StringParser {
 	
 	private static String[] 	AllKeywordsInInput	={"on","from","to","by","do","at"};
 	private static String[] 	daysInInput			={"monday","tuesday","wednesday","thursday","friday","saturday","sunday",
-														"today","tomorrow","mon","tues","wed","thurs","fri","sat","sun","tmr"};
+														"today","tomorrow","tmr"};
 	private static String[] 	taskTypes			={"deadline","floating","event"};
 	private static String[]		taskTypeDel			={"from to","from to by","by"};
 	
