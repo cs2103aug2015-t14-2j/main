@@ -77,9 +77,10 @@
 								<#if task.isDone()??>
 									<#if task.isDone()>&nbsp;&nbsp;&nbsp;<span class="label label-success">Completed</span>
 									<#elseif task.isPastDeadline()??> 
-										<#if task.isPastDeadline()>&nbsp;&nbsp;&nbsp;<span class="label label-danger">Past due</span><#else></#if><span class="badge pull-right">ID: ${task.taskId}</span></p>
-									<#else></#if>
-								<#else></#if>
+										<#if task.isPastDeadline()>&nbsp;&nbsp;&nbsp;<span class="label label-danger">Past due</span></#if>
+									</#if>
+								</#if>
+								<span class="badge pull-right">ID: ${task.taskId}</span></p>
 							</div>
 							<table class="table table-hover table-condensed">
 								<tbody>
