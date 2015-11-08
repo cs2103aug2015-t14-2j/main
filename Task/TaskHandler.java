@@ -664,6 +664,7 @@ public class TaskHandler {
 	}
 	
 	/**
+	 * @@author A0009586
 	 * Returns a task with taskID if found, null otherwise
 	 * @param taskId
 	 * @return Task or null
@@ -725,7 +726,7 @@ public class TaskHandler {
 			}
 		}
 		
-		bubbleSortTasks(periodsAndDeadlines);
+		bubbleSortTasks(periodsAndDeadlines,containsEarlierThanToday(periodsAndDeadlines));
 		
 		result.addAll(periodsAndDeadlines);
 		result.addAll(floating);
@@ -736,15 +737,31 @@ public class TaskHandler {
 	/**
 	 * @@author A0009586
 	 * 
+	 * @param periodsAndDeadlines
+	 * @return
+	 */
+	private static boolean containsEarlierThanToday(ArrayList<Task> periodsAndDeadlines) {
+		for(Task t :periodsAndDeadlines){
+			if((t.getDeadline() != null && t.getDeadline().before(new Date())) || 
+					(t.getStartDateTime() != null && t.getStartDateTime().before(new Date()))){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
 	 * @param taskListToSort
 	 */
-	private static void bubbleSortTasks(ArrayList<Task> taskListToSort) {
+	private static void bubbleSortTasks(ArrayList<Task> taskListToSort, boolean isSortAsending) {
 		for (int i=0; i < taskListToSort.size() - 1;i++)
 	    {
-	        if(isAfterPeriodDeadline(taskListToSort.get(i),taskListToSort.get(i+1)))
+	        if(isPeriodDeadlineComp(taskListToSort.get(i),taskListToSort.get(i+1),isSortAsending))
 	        {
 	        	sendToEndOfList(taskListToSort, i);
-	            bubbleSortTasks(taskListToSort);
+	            bubbleSortTasks(taskListToSort,isSortAsending);
 	        }
 	    }
 		
@@ -757,12 +774,15 @@ public class TaskHandler {
 	 * @param secondTask
 	 * @return
 	 */
-	private static boolean isAfterPeriodDeadline(Task firstTask, Task secondTask) {
+	private static boolean isPeriodDeadlineComp(Task firstTask, Task secondTask, boolean isSortAsending) {
 		
 		Date compDateOne = deadlineOrPeriodDate(firstTask);
 		Date compDateTwo = deadlineOrPeriodDate(secondTask);
-		
-		return compDateOne.after(compDateTwo);
+		if(isSortAsending){
+			return compDateOne.after(compDateTwo);
+		} else {
+			return compDateOne.before(compDateTwo);
+		}
 	}
 
 	/**
