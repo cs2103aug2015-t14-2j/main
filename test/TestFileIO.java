@@ -32,27 +32,24 @@ public class TestFileIO {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		fileIO = new FileIO("./test/data/test1.json");
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/test1.json");
 		
 		// Task1 - has deadline, startTime and endTime and non-empty tags array
 		int taskId = 1;
 		Date createdTime;
-		Date lastModifiedTime;
 		Date startTime;
 		Date endTime;
 		Date deadline;
 		String venue = "NUS";
 		String description = "Buy lunch";
-		boolean isDone = false;
-		boolean isPastDeadline = false;
-		boolean hasEnded = false;
+		Boolean isDone = false;
 		try {
 			createdTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
-			lastModifiedTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
 			startTime = dateFormat.parse("Thu, 10 Sep, 2015 1200");
 			endTime = dateFormat.parse("Fri, 11 Sep, 2015 1400");
 			deadline = dateFormat.parse("Sat, 12 Sep, 2015 1200");
-			expectedTask1 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded);
+			expectedTask1 = new Task(createdTime, taskId, description, startTime, endTime, deadline, venue, isDone);
 		} catch (ParseException e1) {
 			e1.printStackTrace();
 		}
@@ -61,17 +58,14 @@ public class TestFileIO {
 		taskId = 2;
 		venue = "Jurong West St.71 #07-10";
 		description = "haircut";
-		isDone = true;
-		isPastDeadline = false;
-		hasEnded = false;
+		isDone = null;
 		
 		try {
 			createdTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
-			lastModifiedTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
 			startTime = dateFormat.parse("Mon, 14 Sep, 2015 1800");
 			endTime = dateFormat.parse("Mon, 14 Sep, 2015 2000");
 			deadline = null;
-			expectedTask2 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded);
+			expectedTask2 = new Task(createdTime, taskId, description, startTime, endTime, deadline, venue, isDone);
 		} catch (ParseException e2) {
 			e2.printStackTrace();
 		}
@@ -81,16 +75,13 @@ public class TestFileIO {
 		venue = null;
 		description = "Shop for groceries!";
 		isDone = false;
-		isPastDeadline = true;
-		hasEnded = false;
 		
 		try {
 			createdTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
-			lastModifiedTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
 			startTime = null;
 			endTime = null;
 			deadline = dateFormat.parse("Tue, 29 Sep, 2015 1200");
-			expectedTask3 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded);
+			expectedTask3 = new Task(createdTime, taskId, description, startTime, endTime, deadline, venue, isDone);
 		} catch (ParseException e3) {
 			e3.printStackTrace();
 		}
@@ -100,16 +91,13 @@ public class TestFileIO {
 		venue = null;
 		description = "CS2103 mid-terms";
 		isDone = false;
-		isPastDeadline = false;
-		hasEnded = false;
 		
 		try {
 			createdTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
-			lastModifiedTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
 			startTime = null;
 			endTime = null;
 			deadline = null;
-			expectedTask4 = new Task(createdTime, lastModifiedTime, taskId, description, startTime, endTime, deadline, venue, isDone, isPastDeadline, hasEnded);
+			expectedTask4  = new Task(createdTime, taskId, description, startTime, endTime, deadline, venue, isDone);
 		} catch (ParseException e4) {
 			e4.printStackTrace();
 		}
@@ -124,30 +112,30 @@ public class TestFileIO {
 	@Test
 	public void testReadFromFile() {
 		// Test 1 - empty file
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/test1.json");
 		actualTaskList = fileIO.readFromFile();
 		assertEquals(expectedTaskList, actualTaskList);
 		
 		// Test 2
 		expectedTaskList.add(expectedTask1);
-		fileIO = new FileIO("./test/data/test2.json");
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/test2.json");
 		actualTaskList = fileIO.readFromFile();
 		assertEquals(expectedTaskList, actualTaskList);
 		
 		// Test 3
 		expectedTaskList.add(expectedTask2);
-		fileIO = new FileIO("./test/data/test3.json");
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/test3.json");
 		actualTaskList = fileIO.readFromFile();
 		assertEquals(expectedTaskList, actualTaskList);
 		
 		// Test 4
 		expectedTaskList.add(expectedTask3);
-		fileIO = new FileIO("./test/data/test4.json");
-		actualTaskList = fileIO.readFromFile();
-		assertEquals(expectedTaskList, actualTaskList);
-		
-		// Test 5
 		expectedTaskList.add(expectedTask4);
-		fileIO = new FileIO("./test/data/test5.json");
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/test4.json");
 		actualTaskList = fileIO.readFromFile();
 		assertEquals(expectedTaskList, actualTaskList);
 	}
@@ -156,7 +144,8 @@ public class TestFileIO {
 	public void testWriteToFile() {
 		expectedTaskList.clear();
 		// Test 1
-		fileIO = new FileIO("./test/data/write1.json");
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/write1.json");
 		fileIO.writeToFile(expectedTaskList);
 		File expectedFile = new File("./test/data/test1.json");
 		File actualFile = new File("./test/data/write1.json");
@@ -168,7 +157,8 @@ public class TestFileIO {
 		
 		// Test 2
 		expectedTaskList.add(expectedTask1);
-		fileIO = new FileIO("./test/data/write2.json");
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/write2.json");
 		fileIO.writeToFile(expectedTaskList);
 		expectedFile = new File("./test/data/test2.json");
 		actualFile = new File("./test/data/write2.json");
@@ -180,7 +170,8 @@ public class TestFileIO {
 		
 		// Test 3
 		expectedTaskList.add(expectedTask2);
-		fileIO = new FileIO("./test/data/write3.json");
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/write3.json");
 		fileIO.writeToFile(expectedTaskList);
 		expectedFile = new File("./test/data/test3.json");
 		actualFile = new File("./test/data/write3.json");
@@ -192,7 +183,9 @@ public class TestFileIO {
 		
 		// Test 4
 		expectedTaskList.add(expectedTask3);
-		fileIO = new FileIO("./test/data/write4.json");
+		expectedTaskList.add(expectedTask4);
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/write4.json");
 		fileIO.writeToFile(expectedTaskList);
 		expectedFile = new File("./test/data/test4.json");
 		actualFile = new File("./test/data/write4.json");
@@ -200,18 +193,6 @@ public class TestFileIO {
 			assertEquals(FileUtils.readFileToString(expectedFile, "utf-8"), FileUtils.readFileToString(actualFile, "utf-8"));
 		} catch (IOException e3) {
 			e3.printStackTrace();
-		}
-		
-		// Test 5
-		expectedTaskList.add(expectedTask4);
-		fileIO = new FileIO("./test/data/write5.json");
-		fileIO.writeToFile(expectedTaskList);
-		expectedFile = new File("./test/data/test5.json");
-		actualFile = new File("./test/data/write5.json");
-		try {
-			assertEquals(FileUtils.readFileToString(expectedFile, "utf-8"), FileUtils.readFileToString(actualFile, "utf-8"));
-		} catch (IOException e4) {
-			e4.printStackTrace();
 		}
 		
 	}
