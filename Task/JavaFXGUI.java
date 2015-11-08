@@ -10,7 +10,6 @@ import javafx.scene.web.WebView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 
@@ -48,16 +47,15 @@ public class JavaFXGUI extends Application {
     	String template = getClass().getResource("/templates/html/output.html").toExternalForm();
         browser = new WebView(); 
         browser.getEngine().load(template);
-        BorderPane border = new BorderPane();
         stage = _stage;
-        stage.setAlwaysOnTop(true);
-        stage.initStyle(StageStyle.UNIFIED);
-        Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         HBox hbox = addHBox();
 
+        // Set grid layout
+        BorderPane border = new BorderPane();
         border.setTop(hbox);
         border.setCenter(browser);
 
+        Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         // Handle close button
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override

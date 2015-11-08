@@ -1,3 +1,4 @@
+<#ftl strip_whitespace=false strip_text=false>
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -42,7 +43,7 @@
 					<div class="alert alert-info">
 						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<#list help_messages as message>
-							<p>${message}</p>
+							<p class="help">${message}</p>
 						</#list>
 					</div>
 					</#if>

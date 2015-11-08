@@ -102,6 +102,8 @@ public class TaskHandler {
 				String filepath = removeFirstWord(userInput);
 				if (fileIO.setFilePath(filepath)) {
 					context.displayMessage("MESSAGE_PATH");
+				} else {
+					context.displayMessage("HELP_PATH");
 				};
 				break;
 			case FILEOPEN:
@@ -629,8 +631,12 @@ public class TaskHandler {
 	 */
 	private static void showHelpMenu() {
 		context.displayMessage("HELP_TITLE");
+		context.displayMessage("HELP_HEADING");
 		context.displayMessage("HELP_SUBTITLE");
 		context.displayMessage("HELP_ADD_TASK");
+		context.displayMessage("HELP_PATH");
+		context.displayMessage("HELP_FILEOPEN");
+		context.displayMessage("HELP_FILESAVE");
 		context.displayMessage("HELP_DISPLAY");
 		context.displayMessage("HELP_EDIT_TASK");
 		context.displayMessage("HELP_UNDO");
@@ -640,7 +646,6 @@ public class TaskHandler {
 		context.displayMessage("HELP_DELETE_TASK");
 		context.displayMessage("HELP_HELP");
 		context.displayMessage("HELP_EXIT");
-
 	}
 	
 	/**
