@@ -148,14 +148,14 @@ public class Validator {
 
 			setFlag(hashmap, PARAMETER.SPECIAL, objectHashMap);
 		}
-
+/*
 		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
 		System.out.println("Passed START_TIME: " + objectHashMap.get(PARAMETER.START_TIME));
 		System.out.println("Passed END_DATE: " + objectHashMap.get(PARAMETER.END_DATE));
 		System.out.println("Passed END_TIME: " + objectHashMap.get(PARAMETER.END_TIME));
 		System.out.println("Passed DEADLINE_DATE: " + objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		System.out.println("Passed DEADLINE_TIME: " + objectHashMap.get(PARAMETER.DEADLINE_TIME));
-		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
+	*/	// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
 
 		return objectHashMap;
 	}
@@ -450,6 +450,11 @@ public class Validator {
 	 * @return A boolean representation of whether the string provided is all
 	 *         numbers
 	 */
+	private static boolean containsOnlyNumbers(String numString) {
+		return (numString.matches("[-+]?\\d*\\.?\\d+"));
+	}
+	
+	
 	private static Calendar setStartTime(Calendar cal) {
 		cal.set(Calendar.HOUR_OF_DAY, 00);
 		cal.set(Calendar.MINUTE, 00);
@@ -466,9 +471,6 @@ public class Validator {
 		return cal;
 	}
 
-	private static boolean containsOnlyNumbers(String numString) {
-		return (numString.matches("[-+]?\\d*\\.?\\d+"));
-	}
 
 	private static boolean isValidString(String string) {
 		if (string == null || string.trim().equals("")) {
@@ -500,7 +502,6 @@ public class Validator {
 	/*********************************************************************
 	 * TIME HANDLING *
 	 * 
-	 * @throws ParseException
 	 *             *
 	 *********************************************************************/
 
@@ -539,7 +540,6 @@ public class Validator {
 	}
 
 	// Deals with 24 hrs format.
-	// TODO: deal with inputs like 2500, 1270
 	private static Date is24hrTimeFormat(String string) {
 		string = string.trim();
 		SimpleDateFormat timeFormat = null;
