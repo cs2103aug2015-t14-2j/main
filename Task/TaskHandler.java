@@ -666,6 +666,12 @@ public class TaskHandler {
 		return null;
 	}
 	
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param parsedParamTable
+	 * @return
+	 */
 	public static ArrayList<Task> searchTasks(HashMap<PARAMETER, Object> parsedParamTable){
 		ArrayList<Task> searchResult = new ArrayList<Task>(50);
 		Task compareTask = null;
@@ -675,10 +681,7 @@ public class TaskHandler {
 				(String)parsedParamTable.get(PARAMETER.VENUE), 
 				(Date)parsedParamTable.get(PARAMETER.START_DATE),
 				(Date)parsedParamTable.get(PARAMETER.END_DATE), 
-				//(Date)parsedParamTable.get(PARAMETER.START_TIME),
-				//(Date)parsedParamTable.get(PARAMETER.END_TIME),
 				(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-				//(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME),
 				false,
 				false,
 				false);
@@ -688,37 +691,90 @@ public class TaskHandler {
 				searchResult.add(t);
 			}
 		}
-		return searchResult;
+		return sortTasks(searchResult);
 	}
 	
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param searchResult
+	 * @return
+	 */
+	private static ArrayList<Task> sortTasks(ArrayList<Task> searchResult) {
+		ArrayList<Task> periodsAndDeadlines = new ArrayList<>();
+		ArrayList<Task> floating = new ArrayList<>();
+		
+		ArrayList<Task> result = new ArrayList<>();
+		
+		for(Task t:searchResult){
+			if(t.getStartDateTime() != null || t.getDeadline() != null){
+				periodsAndDeadlines.add(t);
+			} else {
+				floating.add(t);
+			}
+		}
+		
+		bubbleSortTasks(periodsAndDeadlines);
+		
+		result.addAll(periodsAndDeadlines);
+		result.addAll(floating);
+		
+		return result;
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param tasklist
+	 */
+	private static void bubbleSortTasks(ArrayList<Task> tasklist) {
+		for (int i=0; i < tasklist.size() - 1;i++)
+	    {
+	        if(tasklist.get(i).getStartDateTime() != null && tasklist.get(i).getStartDateTime().after(tasklist.get(i + 1).getStartDateTime()))
+	        {
+	        	sendToEndOfList(tasklist, i);
+	            bubbleSortTasks(tasklist);
+	        } else if(tasklist.get(i).getDeadline() != null && tasklist.get(i).getDeadline().after(tasklist.get(i + 1).getDeadline())) {
+	        	sendToEndOfList(tasklist, i);
+	            bubbleSortTasks(tasklist);
+	        }
+	    }
+		
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param tasklist
+	 * @param i
+	 */
+	private static void sendToEndOfList(ArrayList<Task> tasklist, int i) {
+		tasklist.add(tasklist.get(i));
+		tasklist.remove(i);
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
 	private static boolean isTaskSameFields(Task compareTask, Task taskListTask) {
-		Date startOfDay;
-		// System.out.println(deadlineDate.toString());
 		if (compareTask.getDeadline() != null) {
 			calendar.setTime(compareTask.getDeadline());
 		} else {
 			// do nothing, calendar displays current time by default
 		}
 		calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR)-7);	// One week earlier
-		startOfDay = calendar.getTime();
 
 		return
-			(compareTask.getTaskId()		== -1 	|| 
-				compareTask.getTaskId() == taskListTask.getTaskId() 								)&&
-			(compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
-				compareTask.getStartDateTime().before(taskListTask.getEndDateTime()) 				))&&
-			(compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   &&
-				compareTask.getEndDateTime().after(taskListTask.getStartDateTime()) 				))&&
-			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
-				compareTask.getDeadline().after(taskListTask.getDeadline()) 					&& 
-				(taskListTask.getDeadline().after(startOfDay)) 										))&&
-			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
-					taskListTask.getVenue().toLowerCase().contains(
-							compareTask.getVenue().toLowerCase())									))&&
-			(compareTask.getDescription()	== null || (taskListTask.getDescription() != null 	&&
-					taskListTask.getDescription().toLowerCase().contains(
-							compareTask.getDescription().toLowerCase())								))&&
-			
+			isSameTaskId(compareTask, taskListTask)				&&
+			isBeforeDateTime(compareTask, taskListTask)			&&
+			isAfterDateTime(compareTask, taskListTask)			&&
+			isAfterDeadline(compareTask, taskListTask)			&&
+			containsWithinVenue(compareTask, taskListTask)		&&
+			containsWithinDescription(compareTask, taskListTask)&&
 			
 			(!compareTask.isEmpty()															)
 			;
@@ -726,6 +782,80 @@ public class TaskHandler {
 			// compareTask.isDone() == taskListTask.isDone()
 			//compareTask.isPastDeadline() == taskListTask.isPastDeadline()
 			//compareTask.isHasEnded() == taskListTask.isHasEnded()
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isAfterDeadline(Task compareTask, Task taskListTask) {
+		return compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
+			compareTask.getDeadline().after(taskListTask.getDeadline()) 							&& 
+			(taskListTask.getDeadline().after(calendar.getTime())));
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean containsWithinDescription(Task compareTask, Task taskListTask) {
+		return compareTask.getDescription()	== null || (taskListTask.getDescription() != null 		&&
+				taskListTask.getDescription().toLowerCase().contains(
+						compareTask.getDescription().toLowerCase()));
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean containsWithinVenue(Task compareTask, Task taskListTask) {
+		return compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
+				taskListTask.getVenue().toLowerCase().contains(compareTask.getVenue().toLowerCase())									);
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isAfterDateTime(Task compareTask, Task taskListTask) {
+		return compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   	&&
+			compareTask.getEndDateTime().after(taskListTask.getStartDateTime()));
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isBeforeDateTime(Task compareTask, Task taskListTask) {
+		return compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
+			compareTask.getStartDateTime().before(taskListTask.getEndDateTime()));
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isSameTaskId(Task compareTask, Task taskListTask) {
+		return compareTask.getTaskId()		== -1 	|| 
+			compareTask.getTaskId() == taskListTask.getTaskId();
 	}
 
 	/**
@@ -805,7 +935,7 @@ public class TaskHandler {
 
 	private static void updateTaskStatus() {
 		for (Task t : taskList) {
-			boolean new_status = t.determinePastDeadline();
+			Boolean new_status = t.determinePastDeadline();
 			t.setPastDeadline(new_status);
 		}
 	}

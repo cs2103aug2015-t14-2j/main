@@ -5,13 +5,13 @@ import javafx.application.Application;
 import javafx.stage.WindowEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.*;
 import javafx.geometry.Insets;
 import javafx.scene.web.WebView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 
 public class JavaFXGUI extends Application {
@@ -23,6 +23,13 @@ public class JavaFXGUI extends Application {
     private static WebView browser       = null;
     private static final int WIN_WIDTH = 1000;
     private static final int WIN_HEIGHT = 740;
+    
+    // @@author A0009586
+    private static final int 	FADE_DURATION_MS 	= 10;
+	private static final float 	FADE_OUT_VAL		= .02f;
+	private static final float 	FADE_IN_VAL 		= .04f;
+	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
+	private static final float 	FADED_IN 			= .96f - FADE_IN_VAL;
 	
 	public JavaFXGUI() {
 		controller = Controller.getInstance();
@@ -43,6 +50,7 @@ public class JavaFXGUI extends Application {
         browser.getEngine().load(template);
         BorderPane border = new BorderPane();
         stage = _stage;
+        stage.setAlwaysOnTop(true);
         stage.initStyle(StageStyle.UNDECORATED);
         Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         HBox hbox = addHBox();
@@ -60,7 +68,7 @@ public class JavaFXGUI extends Application {
         });
         controller.prepareStartUpScreen();
         stage.setScene(scene);  
-        stage.show();  
+        stage.show();
     } 
     
     /*
@@ -104,4 +112,22 @@ public class JavaFXGUI extends Application {
             }
         });
     }
+
+    // @@author A0009586
+	public static void switchViewWindow() throws InterruptedException {
+		if(stage.getOpacity() > FADED_OUT){
+    		while(stage.getOpacity() > FADED_OUT){
+    			stage.setOpacity(stage.getOpacity()-FADE_OUT_VAL);
+    			Thread.sleep(FADE_DURATION_MS);
+    		}
+    		
+    	} else {    		
+    		while(stage.getOpacity() < FADED_IN){
+    			stage.setOpacity(stage.getOpacity()+FADE_IN_VAL);
+    			Thread.sleep(FADE_DURATION_MS);
+    		}
+    		tb.requestFocus();
+    	}
+		
+	}
 }

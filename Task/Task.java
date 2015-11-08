@@ -27,9 +27,9 @@ public class Task {
 	private Date deadline          = null;
 	private String venue           = null;
 	private String description     = null;
-	private boolean isDone         = false;
-	private boolean isPastDeadline = false;
-	private boolean hasEnded       = false;
+	private Boolean isDone         = null;
+	private Boolean isPastDeadline = null;
+	private Boolean hasEnded       = null;
 	
 	/**
 	 * Constructor for tasks without startTime, endTime and deadline. 
@@ -48,8 +48,6 @@ public class Task {
 		this.venue = venue;
 		this.description = desc;
 		this.isDone = false;
-		this.isPastDeadline = false;
-		this.hasEnded = false;
 	}
 	
 	/**
@@ -76,8 +74,6 @@ public class Task {
 		this.deadline = null;
 		this.venue = venue;
 		this.description = desc;
-		this.isDone = false;
-		this.isPastDeadline = false;
 		this.hasEnded = hasEnded(this.createdTime , endTime);
 	}
 		
@@ -101,7 +97,6 @@ public class Task {
 		this.description = desc;
 		this.isDone = false;
 		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
-		this.hasEnded = false;
 	}
 	
 	/**
@@ -120,7 +115,7 @@ public class Task {
 	 * @param isPastDeadline
 	 * @param hasEnded
 	 */
-	public Task (Date createdTime, Date lastModifiedTime, int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, boolean isDone, boolean isPastDeadline, boolean hasEnded) {
+	public Task (Date createdTime, Date lastModifiedTime, int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, Boolean isDone, Boolean isPastDeadline, Boolean hasEnded) {
 		this.createdTime = createdTime;
 		this.lastModifiedTime = lastModifiedTime;
 		this.taskId = taskId;
@@ -144,7 +139,7 @@ public class Task {
 	}
 	
 	//To be used for tempory tasks
-	public Task(int taskId, String desc, String venue, Date startTime, Date endTime, Date deadline, boolean isDone, boolean isPastDeadline, boolean hasEnded) {
+	public Task(int taskId, String desc, String venue, Date startTime, Date endTime, Date deadline, Boolean isDone, Boolean isPastDeadline, Boolean hasEnded) {
 		this.createdTime = null;
 		this.lastModifiedTime =  null;
 		this.period = null;
@@ -237,11 +232,11 @@ public class Task {
 	}
 	
 	public boolean isPastDeadline (Date now, Date deadline) {
-		return true;
+		return now.after(deadline);
 	}
 
 	public boolean hasEnded ( Date now, Date endTime) {
-		return true;
+		return now.after(endTime);
 	}
 	
 	public Date getCreatedTime() {
@@ -336,16 +331,16 @@ public class Task {
 		return isDone;
 	}
 
-	public void setDone(boolean isDone) {
+	public void setDone(Boolean isDone) {
 		this.isDone = isDone;
 	}
 
-	public boolean isPastDeadline() {
+	public Boolean isPastDeadline() {
 		return isPastDeadline;
 	}
 
 	// Determines if a deadline task is past deadline
-	public boolean determinePastDeadline() {
+	public Boolean determinePastDeadline() {
 		if (this.deadline != null) {
 			if (this.deadline.after(new Date())) {
 				return false;
@@ -353,19 +348,19 @@ public class Task {
 				return true;
 			}
 		} else {
-			return false;
+			return null;
 		}
 	}
 
-	public void setPastDeadline(boolean isPastDeadline) {
+	public void setPastDeadline(Boolean isPastDeadline) {
 		this.isPastDeadline = isPastDeadline;
 	}
 
-	public boolean isHasEnded() {
+	public Boolean isHasEnded() {
 		return hasEnded;
 	}
 
-	public void setHasEnded(boolean hasEnded) {
+	public void setHasEnded(Boolean hasEnded) {
 		this.hasEnded = hasEnded;
 	}
 

@@ -127,7 +127,7 @@ public class StringParserTest {
 		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"at \"hong kong\" on next week do \"to be or not\" deadline",keywordHash);
 		
-		assertEquals("next week",
+		assertEquals("next week  deadline",
 				keywordHash.get(PARAMETER.DATE));
 		
 		//Use month keyword
@@ -136,7 +136,7 @@ public class StringParserTest {
 		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
 				"at \"hong kong\" on next month do \"to be or not\" deadline",keywordHash);
 		
-		assertEquals("next month",
+		assertEquals("next month  deadline",
 				keywordHash.get(PARAMETER.DATE));
 	}
 	
