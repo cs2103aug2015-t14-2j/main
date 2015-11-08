@@ -128,24 +128,26 @@ public class Controller implements NativeKeyListener {
 	public static void main(String[] args) {
 		LOGGER.setLevel(Level.SEVERE);
 		
-        try {
-            Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-            logger.setLevel(Level.OFF);
-            GlobalScreen.registerNativeHook();
-        }
-        
-        catch (NativeHookException ex) {
-            System.err.println("There was a problem enableing the shortcut functionality, ensure no instances are running");
-            LOGGER.severe(ex.getMessage());
-            System.exit(1);
-        }
+		if(System.getProperty("os.name").toLowerCase().contains("windows")){
+			try {
+	            Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+	            logger.setLevel(Level.OFF);
+	            GlobalScreen.registerNativeHook();
+	        }
+	        
+	        catch (NativeHookException ex) {
+	            System.err.println("There was a problem enableing the shortcut functionality, ensure no instances are running");
+	            LOGGER.severe(ex.getMessage());
+	            System.exit(1);
+	        }
 
-        // Construct the example object and initialze native hook.
-        GlobalScreen.addNativeKeyListener(Controller.getInstance());
-	    
-        // Start the task handler before launching GUI so JavaFX application thread
-        // still has TaskHandler info before forking
-        TaskHandler.init(args);
+	        // Construct the example object and initialze native hook.
+	        GlobalScreen.addNativeKeyListener(Controller.getInstance());
+		    
+	        // Start the task handler before launching GUI so JavaFX application thread
+	        // still has TaskHandler info before forking
+	        TaskHandler.init(args);
+		}
 
         // Start the GUI
         Application.launch(JavaFXGUI.class);

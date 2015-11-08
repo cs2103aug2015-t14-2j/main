@@ -51,7 +51,7 @@ public class JavaFXGUI extends Application {
         BorderPane border = new BorderPane();
         stage = _stage;
         stage.setAlwaysOnTop(true);
-        stage.initStyle(StageStyle.UTILITY);
+        stage.initStyle(StageStyle.UNIFIED);
         Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         HBox hbox = addHBox();
 
