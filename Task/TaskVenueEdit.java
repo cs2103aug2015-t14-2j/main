@@ -3,6 +3,7 @@ package Task;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 
+@SuppressWarnings({ "unused", "serial" })
 public class TaskVenueEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
 	protected String oldValue;

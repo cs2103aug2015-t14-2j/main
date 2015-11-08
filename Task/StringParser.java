@@ -21,17 +21,22 @@ public class StringParser {
 	private static final String ALL_TASKS = "-2";
 	
 	private static String[] 	AllKeywordsInInput	={"on","from","to","by","do","at"};
-	private static String[] 	keywordsInInput		={"on ","from ","to ","by "};
 	private static String[] 	daysInInput			={"monday","tuesday","wednesday","thursday","friday","saturday","sunday",
 														"today","tomorrow","mon","tues","wed","thurs","fri","sat","sun","tmr"};
 	private static String[] 	taskTypes			={"deadline","floating","event"};
 	private static String[]		taskTypeDel			={"from to","from to by","by"};
 	
+	private static String[]		searchTypeDone		={"done"};
+	private static String[]		searchTypeEnded		={"ended"};
+	private static String[]		searchTypePast		={"past"};
+	private static String[]		searchTypeAll		={"all"};
 	
+
+	private static String[] 	keywordsInInput		={"on ","from ","to ","by "};
 	private static PARAMETER[] 	paramInInput		={PARAMETER.DATE,
 														PARAMETER.START_TIME,
 														PARAMETER.END_TIME,
-														PARAMETER.DEADLINE_TIME
+														PARAMETER.DEADLINE_TIME,
 														};
 	
 
@@ -67,7 +72,31 @@ public class StringParser {
 			userInput = getTaskID(userInput, keywordHash);
 			break;
 			
+		case DISPLAY:
+			userInput = getTaskID(userInput, keywordHash);
+			//Take the "" keywords out
+			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
+			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			
+			if(keywordHash.get(PARAMETER.DESC) == null){
+				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
+			}
+			
+			addAttributesWithoutKeyword(keywordsInInput, paramInInput, userInput.split(obtainDelimiterStringList(keywordsInInput)), keywordHash);
+			
+			if(keywordHash.get(PARAMETER.START_TIME) == null && keywordHash.get(PARAMETER.END_TIME) == null && keywordHash.get(PARAMETER.DEADLINE_TIME) == null){
+				addAttributesWithOneParamKeyword(daysInInput, PARAMETER.DATE, userInput.split(obtainDelimiterStringList(daysInInput)), keywordHash);
+			}
+			
+			addAttributesFromList(searchTypeDone,PARAMETER.IS_DONE, userInput, keywordHash);
+			addAttributesFromList(searchTypeEnded,PARAMETER.HAS_ENDED, userInput, keywordHash);
+			addAttributesFromList(searchTypePast,PARAMETER.IS_PAST, userInput, keywordHash);
+			addAttributesFromList(searchTypeAll,PARAMETER.SPECIAL, userInput, keywordHash);
+			
+			break;
+			
 		case EDIT_TASK:
+			userInput = getTaskID(userInput, keywordHash);
 			isDeleteParams = findKeywordIndexInput(userInput.trim(),"no", 0) != PARAM_NOT_FOUND;
 			//Take the no keywords out
 			if(isDeleteParams){
@@ -75,11 +104,9 @@ public class StringParser {
 								"no ".length(),AllKeywordsInInput,PARAMETER.DELETE_PARAMS,keywordHash);
 			}
 			
-			addStringToParamFromList(userInput,taskTypes,taskTypeDel,PARAMETER.DELETE_PARAMS,keywordHash);
-			removeRepeatedWordsParam(PARAMETER.DELETE_PARAMS,keywordHash);
 			
-		case DISPLAY:
-			userInput = getTaskID(userInput, keywordHash);
+			addStringToParamFromList(userInput,taskTypes,taskTypeDel,PARAMETER.DELETE_PARAMS,keywordHash);
+			removeRepeatedWordsParam(PARAMETER.DELETE_PARAMS,keywordHash);			
 			
 		case ADD_TASK:
 		
@@ -100,6 +127,15 @@ public class StringParser {
 			
 			break;
 			
+		}
+	}
+
+	private static void addAttributesFromList(String[] wordList, PARAMETER param, String userInput,
+			HashMap<PARAMETER, String> keywordHash) {
+		for (int i = 0; i < wordList.length;i++){
+			if(userInput.toLowerCase().contains(wordList[i].toLowerCase())){
+				keywordHash.put(param, "true");
+			}
 		}
 	}
 

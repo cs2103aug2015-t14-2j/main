@@ -4,7 +4,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 import java.util.Date;
 
-
+@SuppressWarnings({ "unused", "serial" })
 public class TaskDeadlineEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
 	protected Date oldValue;

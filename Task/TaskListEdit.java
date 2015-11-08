@@ -4,6 +4,7 @@ import javax.swing.undo.UndoableEdit;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+@SuppressWarnings("serial")
 public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected int oldCurrentId;
 	protected int newCurrentId;

@@ -4,6 +4,7 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CompoundEdit;
 import javax.swing.undo.UndoableEdit;
 
+@SuppressWarnings({ "unused", "serial" })
 public class TaskEdit extends CompoundEdit implements UndoableEdit {
 	protected Task   task;
 	

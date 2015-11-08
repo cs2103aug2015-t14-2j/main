@@ -29,7 +29,7 @@ public class JavaFXGUI extends Application {
 	private static final float 	FADE_OUT_VAL		= .02f;
 	private static final float 	FADE_IN_VAL 		= .04f;
 	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
-	private static final float 	FADED_IN 			= .96f - FADE_IN_VAL;
+	private static final float 	FADED_IN 			= 1f - FADE_IN_VAL;
 	
 	public JavaFXGUI() {
 		controller = Controller.getInstance();
@@ -51,7 +51,7 @@ public class JavaFXGUI extends Application {
         BorderPane border = new BorderPane();
         stage = _stage;
         stage.setAlwaysOnTop(true);
-        stage.initStyle(StageStyle.UNDECORATED);
+        stage.initStyle(StageStyle.UTILITY);
         Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         HBox hbox = addHBox();
 

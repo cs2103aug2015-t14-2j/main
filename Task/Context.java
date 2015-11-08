@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+@SuppressWarnings("unused")
 public class Context {
 	private static Context context = null;
 	
@@ -117,6 +118,7 @@ public class Context {
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public void displayMessage(String fieldName) {
 		Class thisClass = Context.class;
 		
@@ -133,6 +135,7 @@ public class Context {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void clearMessage(String fieldName) {
 		Class thisClass = Context.class;
 		
@@ -158,6 +161,7 @@ public class Context {
 		displayTaskSet.add(task);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void clearAllMessages() {
 		Class thisClass = Context.class;
 
@@ -193,6 +197,7 @@ public class Context {
 		DEFAULT_DATE = datestring;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public HashMap<String, Object> getDataModel() {
 		Class thisClass = Context.class;
 		HashMap<String, Object> dataModel = new HashMap<String, Object>();

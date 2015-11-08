@@ -21,9 +21,7 @@ import javafx.application.Platform;
 /**
  *  Represents the handler for tasks
  * 
- *  @author A0097689 Tan Si Kai
- *  @author A0009586 Jean Pierre Castillo
- *  @author A0118772  Audrey Tiah
+ *  @@author A0097689
  */
 public class TaskHandler {	
 	private static final Logger LOGGER = Logger.getLogger(TaskHandler.class.getName());
@@ -312,6 +310,9 @@ public class TaskHandler {
 		String prevDeadlineTime = null;
 
 		boolean isUpdated = false;
+		Boolean prevIsdone;
+		Boolean prevIsHasEnded;
+		Boolean prevPastDeadline;
 		
 		if (ID != -1){
 			task = getTask(ID);
@@ -354,6 +355,10 @@ public class TaskHandler {
 			prevEndTime      = timeFormat.format(prevEndDate);
 			oldPeriod        = new Period(prevStartDate, prevEndDate);
 		}
+		
+		prevIsdone 			= task.isDone();
+		prevIsHasEnded 		= task.isHasEnded();
+		prevPastDeadline 	= task.isPastDeadline();
 		
 		if (prevDeadlineDate != null) {
 			prevDeadlineTime = timeFormat.format(prevDeadlineDate);
@@ -476,7 +481,6 @@ public class TaskHandler {
 				isUpdated        = true;
 			}
 			
-			//TODO: test
 			if(deleteParams != null){
 				for(PARAMETER p:deleteParams){
 					if(p != null){
@@ -489,6 +493,10 @@ public class TaskHandler {
 							task.setDeadline(null);
 							edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
 							compoundEdit.addEdit(edit);
+							if(task.getStartDateTime() != null){
+								edit = new TaskDoneEdit(task, prevIsdone, null);
+								compoundEdit.addEdit(edit);
+							}
 						} else if(p.equals(PARAMETER.VENUE)){
 							String oldVenue = task.getVenue();
 							task.setVenue(null);
@@ -682,9 +690,9 @@ public class TaskHandler {
 				(Date)parsedParamTable.get(PARAMETER.START_DATE),
 				(Date)parsedParamTable.get(PARAMETER.END_DATE), 
 				(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-				false,
-				false,
-				false);
+				(Boolean)parsedParamTable.get(PARAMETER.IS_DONE),
+				(Boolean)parsedParamTable.get(PARAMETER.IS_PAST),
+				(Boolean)parsedParamTable.get(PARAMETER.HAS_ENDED));
 		
 		for (Task t : taskList) {
 			if (isTaskSameFields(compareTask, t)) {
@@ -775,13 +783,27 @@ public class TaskHandler {
 			isAfterDeadline(compareTask, taskListTask)			&&
 			containsWithinVenue(compareTask, taskListTask)		&&
 			containsWithinDescription(compareTask, taskListTask)&&
+			isSameLogic(compareTask.isDone(), 
+					taskListTask.isDone()) 						&&
+			isSameLogic(compareTask.isPastDeadline(), 
+					taskListTask.isPastDeadline()) 				&&
+			isSameLogic(compareTask.isHasEnded(), 
+					taskListTask.isHasEnded()) 					&&
 			
-			(!compareTask.isEmpty()															)
-			;
-			//TODO:search for boolean values 
-			// compareTask.isDone() == taskListTask.isDone()
-			//compareTask.isPastDeadline() == taskListTask.isPastDeadline()
-			//compareTask.isHasEnded() == taskListTask.isHasEnded()
+			(!compareTask.isEmpty()															
+					
+			);
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isSameLogic(Boolean compareTask, Boolean taskListTask) {
+		return compareTask == null || compareTask == taskListTask;
 	}
 
 	/**
