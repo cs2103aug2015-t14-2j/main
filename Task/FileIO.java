@@ -277,14 +277,6 @@ public class FileIO {
 		
 		jsonWriter.endObject();
 	}
-	
-	private Boolean toNullOrBool(Boolean done) {
-		if (done == null) {
-			return null;
-		} else {
-			return done;
-		}
-	}
 
 	// Check whether path is valid
 	@SuppressWarnings("resource")

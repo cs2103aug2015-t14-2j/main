@@ -51,7 +51,7 @@ public class JavaFXGUI extends Application {
         BorderPane border = new BorderPane();
         stage = _stage;
         stage.setAlwaysOnTop(true);
-        stage.initStyle(StageStyle.UNIFIED);
+        stage.initStyle(StageStyle.UTILITY);
         Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         HBox hbox = addHBox();
 
@@ -116,14 +116,12 @@ public class JavaFXGUI extends Application {
     // @@author A0009586
 	public static void switchViewWindow() throws InterruptedException {
 		if(stage.getOpacity() > FADED_OUT){
-			stage.hide();
     		while(stage.getOpacity() > FADED_OUT){
     			stage.setOpacity(stage.getOpacity()-FADE_OUT_VAL);
     			Thread.sleep(FADE_DURATION_MS);
     		}
-    		
-    	} else {    		
-    		stage.show();
+    		stage.setOpacity(0f);
+    	} else {    	
     		while(stage.getOpacity() < FADED_IN){
     			stage.setOpacity(stage.getOpacity()+FADE_IN_VAL);
     			Thread.sleep(FADE_DURATION_MS);
