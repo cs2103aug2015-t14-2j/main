@@ -68,10 +68,11 @@ public class Context {
 	private static Pair ERROR_CANNOT_REDO      = new Pair("No more changes to redo.");
 	private static Pair ERROR_START_BEFORE_END = new Pair("You have entered an end time that is before start time!");
 	private static Pair ERROR_DATEFORMAT       = new Pair("You have entered an invalid date and time. Note that we follow American date format mm/dd/yy.");
+	private static Pair ERROR_TRIGGER_ERROR    = new Pair("ERROR! The trigger shortcut has been interrupted and aborted.");
 	private static Pair ERROR_MALFORMED_TASK   = new Pair("ERROR! Corrupted task region. Task %d has been discarded.");
 	private static Pair ERROR_MALFORMED_FILE   = new Pair("ERROR! Corrupted file region. Rest of file cannot be read.");
 	private static Pair ERROR_MALFORMED_KEY    = new Pair("ERROR! File does not match expected format. Restart program with a new file location.");
-	private static Pair ERROR_FILE_IO          = new Pair("ERROR! Cannot read from specified file location.");
+	private static Pair ERROR_FILE_IO          = new Pair("ERROR! Cannot read from specified file location. Creating a new one.");
 	private static Pair ERROR_HTML_TEMPLATE    = new Pair("ERROR! Cannot read html template.");
 	
 	// Define help messages here
@@ -83,7 +84,6 @@ public class Context {
 	private static Pair HELP_FILESAVE          = new Pair("  FILESAVE   : filesave");
 	private static Pair HELP_ADD_TASK          = new Pair("  ADD            : add do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"              ");
 	private static Pair HELP_DISPLAY           = new Pair("  DISPLAY    : display                                                                                                                                   ");
-	// private static Pair HELP_SEARCH_TASK       = new Pair("  SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |");
 	private static Pair HELP_EDIT_TASK         = new Pair("  EDIT           : edit [task-id] do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"      ");
 	private static Pair HELP_UNDO              = new Pair("  UNDO        : undo                                                                                                                                      ");
 	private static Pair HELP_REDO              = new Pair("  REDO        : redo                                                                                                                                      ");

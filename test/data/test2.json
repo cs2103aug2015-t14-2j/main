@@ -2,16 +2,13 @@
     "Tasks": [
         {
             "taskId": 1,
-            "createdTime": "Thu, 10 Sep, 2015 1356",
-            "lastModifiedTime": "Thu, 10 Sep, 2015 1356",
-            "startTime": "Thu, 10 Sep, 2015 1200",
-            "endTime": "Fri, 11 Sep, 2015 1400",
-            "deadline": "Sat, 12 Sep, 2015 1200",
+            "createdTime": "2015-9-10 13:56",
+            "startTime": "2015-9-10 12:00",
+            "endTime": "2015-9-11 14:00",
+            "deadline": "2015-9-12 12:00",
             "venue": "NUS",
             "description": "Buy lunch",
-            "isDone": false,
-            "isPastDeadline": false,
-            "hasEnded": false
+            "isDone": null
         }
     ]
 }

@@ -1,5 +1,6 @@
 /**
  *  @@author A0009586
+ *  @author Jean Castillo
  *  
  *  Represents the parser for strings
  * 

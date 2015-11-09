@@ -91,8 +91,8 @@ public class Controller implements NativeKeyListener {
 	            	try {
 						JavaFXGUI.switchViewWindow();
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						context.displayMessage("ERROR_TRIGGER_ERROR");
+						JavaFXGUI.show();
 					}
 	            }
 	        });
@@ -137,8 +137,8 @@ public class Controller implements NativeKeyListener {
 	        
 	        catch (NativeHookException ex) {
 	            System.err.println("There was a problem enableing the shortcut functionality, ensure no instances are running");
+	            context.displayMessage("ERROR_TRIGGER_ERROR");
 	            LOGGER.severe(ex.getMessage());
-	            System.exit(1);
 	        }
 
 	        // Construct the example object and initialze native hook.
@@ -176,7 +176,7 @@ public class Controller implements NativeKeyListener {
 	        template.process(dataModel, fileWriter);
 	        fileWriter.close();
 	    } catch (TemplateException | IOException e) {
-			// TODO Auto-generated catch block
+	    	context.displayMessage("ERROR_HTML_TEMPLATE");
 			e.printStackTrace();
 		}
     }

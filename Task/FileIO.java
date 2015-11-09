@@ -9,6 +9,9 @@ import com.google.gson.stream.MalformedJsonException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+
+import org.apache.commons.io.FilenameUtils;
+
 import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Date;
@@ -91,7 +94,7 @@ public class FileIO {
 			reader.close();
 		} catch (FileNotFoundException e) {
 			// Create an empty file if file is not found
-			createNewFile();
+			createNewFile(this.path);
 		} catch (MalformedJsonException e1) {
 			context.displayMessage("ERROR_MALFORMED_FILE");
 			System.out.format(ERROR_MALFORMED_FILE);
@@ -135,9 +138,9 @@ public class FileIO {
 		}
 	}
 
-	public void createNewFile() {
+	public void createNewFile(String filePath) {
 		try {
-			FileWriter writer = new FileWriter(this.path);
+			FileWriter writer = new FileWriter(filePath);
 			JsonWriter jsonWriter = new JsonWriter(writer);
 			jsonWriter.setIndent("    ");
 
@@ -171,9 +174,13 @@ public class FileIO {
 			this.path = _path;
 			context.setFilePath(_path);
 			return true;
-		} else {
-			return false;
+		} else if(isValidDirectory(_path)){
+			this.path = _path;
+			createNewFile(_path);
+			context.setFilePath(_path);
+			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -284,10 +291,14 @@ public class FileIO {
 			new FileReader(path);
 			return true;
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 			context.displayMessage("ERROR_FILE_IO");
 			return false;
 		}
+	}
+	
+	private boolean isValidDirectory(String path) {
+		File file = new File(FilenameUtils.getPath(path));
+		return file.isDirectory();
 	}
 	
 	// Utility method

@@ -15,7 +15,6 @@ import com.joestelmach.natty.*;
  *         This class takes the user input in parts(through a hashmap) and
  *         converts them to their respective objects.
  * 
- * 
  */
 
 public class Validator {
@@ -43,6 +42,7 @@ public class Validator {
 				return null;
 			}
 		} else {
+			context.displayMessage("ERROR_DATEFORMAT");
 			return null;
 		}
 	}
@@ -61,9 +61,6 @@ public class Validator {
 				objectHashMap.put(PARAMETER.VENUE, hashmap.get(PARAMETER.VENUE));
 			}
 		}
-		// DO DATE
-		// START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE_DATE,
-		// DEADLINE_TIME, REMIND_TIMES
 		Date start_Date = null;
 		String endDate = hashmap.get(PARAMETER.END_DATE);
 		Date end_Date = null;

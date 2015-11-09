@@ -10,18 +10,20 @@ import javafx.scene.web.WebView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 
 public class JavaFXGUI extends Application {
     
-    private static Controller controller = null;
-    private static JavaFXGUI GUI         = null;
-    private static Stage stage           = null;
-    private static TextField tb          = null;
-    private static WebView browser       = null;
-    private static final int WIN_WIDTH 	 = 1000;
-    private static final int WIN_HEIGHT  = 740;
+    private static Controller controller 			= null;
+    private static JavaFXGUI GUI         			= null;
+    private static Stage stage           			= null;
+    private static TextField tb          			= null;
+    private static WebView browser       			= null;
+    private static final int WIN_WIDTH 	 			= 1000;
+    private static final int WIN_HEIGHT  			= 725;
+	private static final double TAB_HEIGHT 			= 20;
     
     // @@author A0009586
     private static final int 	FADE_DURATION_MS 	= 2;
@@ -54,6 +56,11 @@ public class JavaFXGUI extends Application {
         BorderPane border = new BorderPane();
         border.setTop(hbox);
         border.setCenter(browser);
+        
+        if(System.getProperty("os.name").toLowerCase().contains("windows")){
+        	stage.initStyle(StageStyle.UTILITY);
+        	stage.setAlwaysOnTop(true);
+        }
 
         Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         // Handle close button
@@ -66,6 +73,8 @@ public class JavaFXGUI extends Application {
         });
         controller.prepareStartUpScreen();
         stage.setScene(scene);  
+        stage.setMinWidth(WIN_WIDTH);
+        stage.setMinHeight(WIN_HEIGHT + TAB_HEIGHT);
         stage.show();
     } 
     
@@ -80,7 +89,7 @@ public class JavaFXGUI extends Application {
         hbox.setStyle("-fx-background-color: #336699;");
         
         tb = new TextField();
-        tb.setPrefSize(WIN_WIDTH, 20);
+        tb.setPrefSize(Integer.MAX_VALUE, TAB_HEIGHT);
         //Setting an action for the textbox
         tb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -110,6 +119,11 @@ public class JavaFXGUI extends Application {
             }
         });
     }
+    
+    public static void show(){
+    	stage.setOpacity(FADED_IN + FADE_IN_VAL);
+		tb.requestFocus();
+    }
 
     // @@author A0009586
 	public static void switchViewWindow() throws InterruptedException {
@@ -125,7 +139,7 @@ public class JavaFXGUI extends Application {
     			Thread.sleep(FADE_DURATION_MS);
     		}
     		stage.setOpacity(FADED_IN + FADE_IN_VAL);
-    		tb.requestFocus();
+    		stage.toFront();
     	}
 		
 	}
