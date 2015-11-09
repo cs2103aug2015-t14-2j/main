@@ -185,16 +185,13 @@ public class FileIO {
 			this.path = _path;
 			context.setFilePath(_path);
 			return true;
-		} else if(isValidDirectory(_path)){
-			if(!isJsonFileExt(_path)){
-				_path = FileSystems.getDefault().getPath(_path) + "calendar.json";
-			}
-			this.path = _path;
+		} else {
 			createNewFile(_path);
+			this.path = _path;
 			context.setFilePath(_path);
+			context.displayMessage("WARNING_EMPTY_FILE");
 			return true;
 		}
-		return false;
 	}
 
 	private boolean isJsonFileExt(String _path) {
@@ -267,7 +264,6 @@ public class FileIO {
 			throw e1;
 		} 
 		
-		System.out.println(task);
 		return task;
 	}
 	
@@ -310,21 +306,8 @@ public class FileIO {
 			new FileReader(path);
 			return true;
 		} catch (FileNotFoundException e) {
-			context.displayMessage("ERROR_FILE_IO");
 			return false;
 		}
-	}
-	
-	/**
-	 * @@author A0145472E
-	 * 
-	 * Used to check is a path has a valid directory
-	 * @param path The path to be evaluated
-	 * @return is the path directory valid
-	 */
-	private boolean isValidDirectory(String path) {
-		File file = new File(FilenameUtils.getPath(path));
-		return file.isDirectory();
 	}
 	
 	/**

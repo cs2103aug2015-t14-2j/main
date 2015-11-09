@@ -54,7 +54,7 @@ public class Task {
 	}
 		
 	/**
-	 * Constructor for tasks with only deadline and desc.
+	 * Constructor for tasks with only deadline, venue and desc.
 	 * Used when user adds a new task
 	 * 
 	 * @param taskId
@@ -109,7 +109,7 @@ public class Task {
 		setFlags(isDone);
 	}
 
-	//To be used for tempory tasks
+	//To be used for temporary tasks
 	public Task(int taskId, String desc, String venue, Date startTime, Date endTime, Date deadline, Boolean isDone, Boolean isPastDeadline, Boolean hasEnded) {
 		this.createdTime = null;
 		this.period = null;
