@@ -669,7 +669,7 @@ public class TaskHandler {
 	}
 	
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * Returns a task with taskID if found, null otherwise
 	 * @param taskId
 	 * @return Task or null
@@ -684,7 +684,7 @@ public class TaskHandler {
 	}
 	
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param parsedParamTable
 	 * @return
@@ -727,7 +727,7 @@ public class TaskHandler {
 	}
 	
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param searchResult
 	 * @return
@@ -755,7 +755,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param periodsAndDeadlines
 	 * @return
@@ -771,7 +771,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param taskListToSort
 	 */
@@ -788,7 +788,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param firstTask
 	 * @param secondTask
@@ -806,7 +806,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param firstTask
 	 * @return
@@ -820,7 +820,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param tasklist
 	 * @param i
@@ -831,7 +831,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -865,7 +865,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -876,7 +876,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -889,7 +889,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -902,7 +902,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -914,7 +914,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -926,7 +926,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -938,7 +938,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -948,8 +948,9 @@ public class TaskHandler {
 		return compareTask.getTaskId()		== -1 	|| compareTask.getTaskId()		== ALL_TASKS ||
 			compareTask.getTaskId() == taskListTask.getTaskId();
 	}
-
-	/**
+	
+	/** 
+	 *  @@author A0097689
 	 * Takes a single word and figure out the command
 	 * @param commandTypeString The string containing a command
 	 * @return The enum value corresponding to the commandTypeString

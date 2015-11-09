@@ -5,7 +5,8 @@ package Task;
  *  This class is created for the very specific purpose of allowing code
  *  to set specific messages to be displayed to the user through the GUI.
  *  To be used in the Context object. 
- *  @author Jerry
+ * 
+ *  @@author A0097689
  *
  */
 public class Pair {

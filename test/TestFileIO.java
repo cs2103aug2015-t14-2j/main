@@ -1,5 +1,9 @@
 package test;
 
+/**
+ * @@ author A0097689
+ */
+
 import static org.junit.Assert.*;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -101,6 +105,17 @@ public class TestFileIO {
 		} catch (ParseException e4) {
 			e4.printStackTrace();
 		}
+	}
+	
+	@Test
+	public void testSetFile() {
+		fileIO.setFilePath("./test/data/test1.json");
+		fileIO.setFilePath("./test/data/");
+		fileIO.setFilePath("./test/data/test99.json");
+		File file1 = new File("./test/data/calendar.json");
+		File file2 = new File("./test/data/test99.json");
+		file1.delete();
+		file2.delete();
 	}
 
 	@Before

@@ -2,6 +2,8 @@ package Task;
 
 import java.io.*;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -17,8 +19,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * 
- * @author Jerry
+ * @@ author A0097689
  *
  * Class that takes care of file input and output.
  * Reads Tasks from a JSON file and converts to ArrayList<Tasks> in memory
@@ -67,26 +68,7 @@ public class FileIO {
 			while (jsonReader.hasNext()) {
 				String name = jsonReader.nextName();
 				if (name.equals("Tasks")) {
-					jsonReader.beginArray();
-					while (jsonReader.hasNext()) {
-						try {
-							Task task = getJSONTaskFromFile(jsonReader);
-							assert(task!=null);			// Very important that task not be null here
-							if (task != null) {
-								taskList.add(task);
-							}						
-						} catch (ParseException e) {
-							context.displayMessage("ERROR_MALFORMED_TASK");
-							System.out.format(ERROR_MALFORMED_TASK, maxTaskId);
-						} catch (MalformedJsonException e1) {
-							context.displayMessage("ERROR_MALFORMED_FILE");
-							System.out.format(ERROR_MALFORMED_FILE);
-						} catch (IllegalStateException e2) {
-							context.displayMessage("ERROR_MALFORMED_KEY");
-							System.out.format(ERROR_MALFORMED_KEY);
-							System.exit(0);
-						}
-					}
+					readSingleTask(taskList, jsonReader);
 					jsonReader.endArray();
 				}
 			}
@@ -108,6 +90,35 @@ public class FileIO {
 			System.exit(0);						
 		}
 		return taskList;
+	}
+
+	/**
+	 * Reads a single task from the taskList
+	 * @param taskList the taskList to be added to
+	 * @param jsonReader The reader to read from
+	 * @throws IOException Thrown when a task could not be read
+	 */
+	private void readSingleTask(ArrayList<Task> taskList, JsonReader jsonReader) throws IOException {
+		jsonReader.beginArray();
+		while (jsonReader.hasNext()) {
+			try {
+				Task task = getJSONTaskFromFile(jsonReader);
+				assert(task!=null);			// Very important that task not be null here
+				if (task != null) {
+					taskList.add(task);
+				}						
+			} catch (ParseException e) {
+				context.displayMessage("ERROR_MALFORMED_TASK");
+				System.out.format(ERROR_MALFORMED_TASK, maxTaskId);
+			} catch (MalformedJsonException e1) {
+				context.displayMessage("ERROR_MALFORMED_FILE");
+				System.out.format(ERROR_MALFORMED_FILE);
+			} catch (IllegalStateException e2) {
+				context.displayMessage("ERROR_MALFORMED_KEY");
+				System.out.format(ERROR_MALFORMED_KEY);
+				System.exit(0);
+			}
+		}
 	}
 
 	/**
@@ -170,17 +181,24 @@ public class FileIO {
 	// Validate filepath before changing
 	// Returns false if filepath is invalid and thus not changed
 	public boolean setFilePath(String _path) {
-		if (isValidFilePath(_path)) {
+		if (isValidFilePath(_path) && isJsonFileExt(_path)) {
 			this.path = _path;
 			context.setFilePath(_path);
 			return true;
 		} else if(isValidDirectory(_path)){
+			if(!isJsonFileExt(_path)){
+				_path = FileSystems.getDefault().getPath(_path) + "calendar.json";
+			}
 			this.path = _path;
 			createNewFile(_path);
 			context.setFilePath(_path);
 			return true;
 		}
 		return false;
+	}
+
+	private boolean isJsonFileExt(String _path) {
+		return _path.toLowerCase().endsWith(".json");
 	}
 
 	/**
@@ -297,11 +315,21 @@ public class FileIO {
 		}
 	}
 	
+	/**
+	 * @@author A0145472E
+	 * 
+	 * Used to check is a path has a valid directory
+	 * @param path The path to be evaluated
+	 * @return is the path directory valid
+	 */
 	private boolean isValidDirectory(String path) {
 		File file = new File(FilenameUtils.getPath(path));
 		return file.isDirectory();
 	}
 	
+	/**
+	 * @@ author A0097689
+	 */
 	// Utility method
 		private Boolean parseNullOrBool(JsonReader jsonReader) throws IOException {
 			if (jsonReader.peek() == JsonToken.NULL) {
