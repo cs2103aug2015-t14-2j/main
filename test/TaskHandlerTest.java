@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 public class TaskHandlerTest {
@@ -133,7 +134,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
@@ -151,7 +152,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
@@ -168,11 +169,11 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
-		/*
+		
 		// Test for add event task
 		userInput = "add on 12/10/15 from 1200 to 1240 do \"sth2\"";
 		try {
@@ -193,7 +194,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(((ArrayList<Task>)expected.get(taskList)).get(1), ((ArrayList<Task>)actual.get(taskList)).get(1));
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
@@ -211,6 +212,8 @@ public class TaskHandlerTest {
 		
 		successList = new ArrayList<String>();
 		successList.add(MESSAGE_ADD_TASK);
+		errorList = new ArrayList<String>();
+		errorList.add(ERROR_START_BEFORE_END);
 		taskList = new ArrayList<Task>();
 		taskList.add(task3);
 		
@@ -218,7 +221,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
@@ -242,7 +245,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
@@ -266,7 +269,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
@@ -289,10 +292,9 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
-		*/
 		
 		
 		// Test for edit desc only
@@ -307,7 +309,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
@@ -319,70 +321,94 @@ public class TaskHandlerTest {
 		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for edit floating task startDate only
 		userInput = "edit 5 from 15/10/15";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for edit floating task startDate and startTime
 		userInput = "edit 5 from 15/10/15 2115";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for edit task startDate, startTime and endTime
 		userInput = "edit 5 on 25/10/15 from 1130 to 1409";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for edit task endDate and endTime 
 		userInput = "edit 5 to 23/10/15 2358";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for edit task endDate only
 		userInput = "edit 5 to 24/12/15";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for edit task startDate and endDate only
 		userInput = "edit 5 on 25/12/15";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 
 		// Test for edit task startDate and startTime only
 		userInput = "edit 5 on 25/09/15 from 1000";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for edit task endDate and endTime only
 		userInput = "edit 5 on 25/10/15 to 0030";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for edit task venue
 		userInput = "edit 5 at \"do from on to at by\"";
 		expected  = MESSAGE_EDIT_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		
 		// Test for delete task
 		userInput = "delete 2";
 		expected  = MESSAGE_DELETE_TASK;
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		assertTrue(isSameObjHash(expected, actual));
 		*/
 	}
 	
+	@SuppressWarnings("unchecked")
+	private boolean isSameObjHash(HashMap<String, Object> expected, HashMap<String, Object> actual) {
+		return
+				expected.get("success_messages").equals(actual.get("success_messages")) &&
+				expected.get("warning_messages").equals(actual.get("warning_messages")) &&
+				expected.get("help_messages").equals(actual.get("help_messages")) &&
+				expected.get("param_messages").equals(actual.get("param_messages")) &&
+				expected.get("error_messages").equals(actual.get("error_messages")) &&
+				isSameTaskList((ArrayList<Task>)expected.get("taskList"),(ArrayList<Task>)actual.get("taskList"));
+	}
+
+	private boolean isSameTaskList(ArrayList<Task> arrayList, ArrayList<Task> arrayList2) {
+		if(arrayList.size() != arrayList2.size()){
+			return false;
+		}
+		
+		for(int i = 0; i < arrayList.size();i++){
+			if(!arrayList.get(i).equals(arrayList.get(i))){
+				return false;
+			}
+		}
+		return true;
+	}
+
 	private void clearArrayLists(ArrayList<String> successList, ArrayList<String> warningList,
 			ArrayList<String> helpList, ArrayList<String> paramList, ArrayList<String> errorList,
 			ArrayList<Task> taskList) {
