@@ -60,6 +60,7 @@ public class Context {
 	 */
 	private static Pair WARNING_DEADLINE_BEFORE_NOW = new Pair("WARNING: You have specified a deadline that is before the current time");
 	private static Pair WARNING_TASK_NOT_EDITED     = new Pair("Task %d was not edited.");
+	private static Pair WARNING_EMPTY_FILE          = new Pair("WARNING: No file detected at path. Created new empty json file.");
 
 	// Define error messages here
 	private static Pair ERROR_INVALID_COMMAND  = new Pair("Invalid Command.");
@@ -76,7 +77,7 @@ public class Context {
 	private static Pair ERROR_MALFORMED_TASK   = new Pair("ERROR! Corrupted task region. Task %d has been discarded.");
 	private static Pair ERROR_MALFORMED_FILE   = new Pair("ERROR! Corrupted file region. Rest of file cannot be read.");
 	private static Pair ERROR_MALFORMED_KEY    = new Pair("ERROR! File does not match expected format. Restart program with a new file location.");
-	private static Pair ERROR_FILE_IO          = new Pair("ERROR! Cannot read from specified file location. Creating a new one.");
+	private static Pair ERROR_FILE_IO          = new Pair("ERROR! Cannot read from specified file location.");
 	private static Pair ERROR_HTML_TEMPLATE    = new Pair("ERROR! Cannot read html template.");
 	
 	// Define help messages here
