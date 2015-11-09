@@ -76,14 +76,6 @@ public class Validator {
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 
-	//	 System.out.println("startDate: " + startDate);
-		 System.out.println("end date: " + endDate);
-		 System.out.println("start time: " + startTime);
-		 System.out.println("end time: " + endTime);
-		// System.out.println("deadline date: " + deadlineDate);
-		 System.out.println("deadline time: " + deadlineTime);
-		 System.out.println("date: " + hashmap.get(PARAMETER.DATE));
-
 		// used when there is a parsed KeyDate (etc. no deliminator or on _____)
 		if (keyDate != null) {
 			start_Date = parseNatty(keyDate);
@@ -179,14 +171,6 @@ public class Validator {
 
 			setFlag(hashmap, PARAMETER.SPECIAL, objectHashMap);
 		}
-
-		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
-		System.out.println("Passed START_TIME: " + objectHashMap.get(PARAMETER.START_TIME));
-		System.out.println("Passed END_DATE: " + objectHashMap.get(PARAMETER.END_DATE));
-		System.out.println("Passed END_TIME: " + objectHashMap.get(PARAMETER.END_TIME));
-		System.out.println("Passed DEADLINE_DATE: " + objectHashMap.get(PARAMETER.DEADLINE_DATE));
-		System.out.println("Passed DEADLINE_TIME: " + objectHashMap.get(PARAMETER.DEADLINE_TIME));
-		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
 
 		return objectHashMap;
 	}

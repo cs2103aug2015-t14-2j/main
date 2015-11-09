@@ -34,7 +34,6 @@ public class TaskDescEdit extends UndoableSignificantEdit implements UndoableEdi
 	public void undo() {
 		super.undo();
 		task.setDescription(oldValue);
-		System.out.println("undoed!");
 	}
 	
 	@Override
