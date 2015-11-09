@@ -1,30 +1,32 @@
 package Task;
 
-import java.net.URL;
+/**
+ *  @@author A0097689
+ */
+
 import javafx.application.Platform;
 import javafx.application.Application;
 import javafx.stage.WindowEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.*;
 import javafx.geometry.Insets;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.control.Button;
 import javafx.stage.Stage;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.paint.*;
+import javafx.scene.Scene;
 import javafx.scene.control.TextField;
 
 public class JavaFXGUI extends Application {
     
-    private static Controller controller = null;
-    private static JavaFXGUI GUI         = null;
-    private static Stage stage           = null;
-    private static TextField tb          = null;
-    private static WebView browser       = null;
+    private static Controller controller 			= null;
+    private static JavaFXGUI GUI         			= null;
+    private static Stage stage           			= null;
+    private static TextField tb          			= null;
+    private static WebView browser       			= null;
+    private static final int WIN_WIDTH 	 			= 1000;
+    private static final int WIN_HEIGHT  			= 725;
+	private static final double TAB_HEIGHT 			= 20;
 	
 	public JavaFXGUI() {
 		controller = Controller.getInstance();
@@ -43,14 +45,15 @@ public class JavaFXGUI extends Application {
     	String template = getClass().getResource("/templates/html/output.html").toExternalForm();
         browser = new WebView(); 
         browser.getEngine().load(template);
-        BorderPane border = new BorderPane();
         stage = _stage;
-        Scene scene = new Scene(border, 840, 640);
         HBox hbox = addHBox();
 
+        // Set grid layout
+        BorderPane border = new BorderPane();
         border.setTop(hbox);
         border.setCenter(browser);
 
+        Scene scene = new Scene(border, WIN_WIDTH, WIN_HEIGHT);
         // Handle close button
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
@@ -61,7 +64,9 @@ public class JavaFXGUI extends Application {
         });
         controller.prepareStartUpScreen();
         stage.setScene(scene);  
-        stage.show();  
+        stage.setMinWidth(WIN_WIDTH);
+        stage.setMinHeight(WIN_HEIGHT + TAB_HEIGHT);
+        stage.show();
     } 
     
     /*
@@ -75,12 +80,12 @@ public class JavaFXGUI extends Application {
         hbox.setStyle("-fx-background-color: #336699;");
         
         tb = new TextField();
-        tb.setPrefSize(800, 20);
+        tb.setPrefSize(Integer.MAX_VALUE, TAB_HEIGHT);
         //Setting an action for the textbox
         tb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent e) {
-                String userInput = tb.getText();
+                final String userInput = tb.getText();
                 Platform.runLater(new Runnable() {
                     @Override
                     public void run() {

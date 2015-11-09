@@ -1,5 +1,9 @@
 package Task;
 
+/**
+ *  @@author A0097689
+ */
+
 import Task.Pair;
 
 import java.lang.reflect.Field;
@@ -13,19 +17,29 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+@SuppressWarnings("unused")
 public class Context {
-	// Display settings
 	private static Context context = null;
-	private static boolean DEBUG = true;
 	
-	// TaskID for editing, deleting or displaying a specific task
-	private static int TASKID = 0;
+	// Variables for displaying on screen based on user input
+	private static String FILEPATH;
+	private static int    TASKID      = 0;
+	private static String DEFAULT_DATE;
+
+	// Define fullCalendar view options here, display on HTML template later to affect calendar view
+	private static Pair   VIEW_DAY    = new Pair("agendaDay");
+	private static Pair   VIEW_MONTH  = new Pair("month");
+	private static Pair   VIEW_WEEK   = new Pair("agendaWeek");
 
 	// Define success messages here
-	private static Pair MESSAGE_WELCOME        = new Pair( "Welcome to TaskBuddy!");
+	private static Pair MESSAGE_WELCOME        = new Pair("Welcome to TaskBuddy!");
+	private static Pair MESSAGE_PATH		   = new Pair("Your new path is: %s");
+	private static Pair MESSAGE_SAVE		   = new Pair("Your calendar has been saved to %s!");
+	private static Pair MESSAGE_OPEN		   = new Pair("Opening calendar at path %s");
 	private static Pair MESSAGE_ADD_TASK       = new Pair("Successfully added task.");
 	private static Pair MESSAGE_GET_TASK       = new Pair("Task %d returned");
 	private static Pair MESSAGE_DISPLAY_ALL    = new Pair("All tasks displayed.");
@@ -38,11 +52,18 @@ public class Context {
 	private static Pair MESSAGE_DONE_TASK      = new Pair("Successfully updated Task %d to completed.");
 	private static Pair MESSAGE_UNDONE_TASK    = new Pair("Successfully updated Task %d to uncompleted.");
 	private static Pair MESSAGE_EXIT           = new Pair("Thanks for using TaskBuddy! Changes saved to disk.");
+	private static Pair MESSAGE_FILE_FOUND     = new Pair("Found file at location %s");
 	
-	// Define warning messages here
+	/** 
+	 * Define warning messages here
+	 * Warnings are less severe than errors.
+	 * To communicate to the user they may have done something unintentional
+	 */
 	private static Pair WARNING_DEADLINE_BEFORE_NOW = new Pair("WARNING: You have specified a deadline that is before the current time");
 	private static Pair WARNING_TASK_NOT_EDITED     = new Pair("Task %d was not edited.");
-
+	private static Pair WARNING_EMPTY_FILE          = new Pair("WARNING: No file detected at path. Created new empty json file.");
+	private static Pair WARNING_INVALID_DATEFORMAT  = new Pair("WARNING: Unable to recognize date format. Please follow correct syntax.");
+	
 	// Define error messages here
 	private static Pair ERROR_INVALID_COMMAND  = new Pair("Invalid Command.");
 	private static Pair ERROR_EMPTY_TASKLIST   = new Pair("You have no tasks!");
@@ -53,45 +74,51 @@ public class Context {
 	private static Pair ERROR_CANNOT_UNDO      = new Pair("No more changes to undo.");
 	private static Pair ERROR_CANNOT_REDO      = new Pair("No more changes to redo.");
 	private static Pair ERROR_START_BEFORE_END = new Pair("You have entered an end time that is before start time!");
-	private static Pair ERROR_DATEFORMAT       = new Pair("The date and/or time you have entered is invalid. Date format is 'dd/M/yyyy' while time is 24 hrs 'HHmm e.g. 2359");
+	private static Pair ERROR_DATEFORMAT       = new Pair("You have entered an invalid date and time. Note that we follow American date format mm/dd/yy.");
+	private static Pair ERROR_TRIGGER_ERROR    = new Pair("ERROR! The trigger shortcut has been interrupted and aborted.");
+	private static Pair ERROR_MALFORMED_TASK   = new Pair("ERROR! Corrupted task region. Task %d has been discarded.");
+	private static Pair ERROR_MALFORMED_FILE   = new Pair("ERROR! Corrupted file region. Rest of file cannot be read.");
+	private static Pair ERROR_MALFORMED_KEY    = new Pair("ERROR! File does not match expected format. Restart program with a new file location.");
+	private static Pair ERROR_FILE_IO          = new Pair("ERROR! Cannot read from specified file location.");
+	private static Pair ERROR_HTML_TEMPLATE    = new Pair("ERROR! Cannot read html template.");
 	
 	// Define help messages here
-	private static Pair HELP_TITLE             = new Pair("****************************************************************************Help menu for TaskBuddy!*********************************************************************************************");
+	private static Pair HELP_TITLE             = new Pair("**********************************************************************Help menu for TaskBuddy!*****************************************************************");
 	private static Pair HELP_HEADING           = new Pair("Please follow the following command format:");
-	private static Pair HELP_SUBTITLE          = new Pair("[COMMAND]   [FORMAT]                                                                                                                                    [DESCRIPTION]                            ");
-	private static Pair HELP_ADD_TASK          = new Pair("  ADD       : add    do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"              | Adds a floating task, event or deadline");
-	private static Pair HELP_DISPLAY           = new Pair("  DISPLAY   : display                                                                                                                                   | Displays all tasks                     ");
-	// private static Pair HELP_SEARCH_TASK       = new Pair("  SEARCH    : search [value1=keyword1], [value2=keyword2],...                                    |");
-	private static Pair HELP_EDIT_TASK         = new Pair("  EDIT      : edit [task-id] do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"      | Edits an existing task                 ");
-	private static Pair HELP_UNDO              = new Pair("  UNDO      : undo                                                                                                                                      | Undo the last action                   ");
-	private static Pair HELP_REDO              = new Pair("  REDO      : redo                                                                                                                                      | Redo the last undoed action            ");
-	private static Pair HELP_DONE              = new Pair("  DONE      : done [task-id]                                                                                                                            | Mark a task as completed               ");
-	private static Pair HELP_UNDONE            = new Pair("  UNDONE    : undone [task-id]                                                                                                                          | Mark a task as uncompleted             ");	
-	private static Pair HELP_DELETE_TASK       = new Pair("  DELETE    : delete [task-id]                                                                                                                          | Removes a task                         ");
-	private static Pair HELP_HELP              = new Pair("  HELP      : help                                                                                                                                      | Show this help menu                    ");
-	private static Pair HELP_EXIT              = new Pair("  EXIT      : exit                                                                                                                                      | Terminate program                      ");
+	private static Pair HELP_SUBTITLE          = new Pair("[COMMAND]   [FORMAT]                                                                                                                                    ");
+	private static Pair HELP_PATH              = new Pair("  PATH          : path [absolute filepath]");
+	private static Pair HELP_FILEOPEN          = new Pair("  FILEOPEN  : fileopen");
+	private static Pair HELP_FILESAVE          = new Pair("  FILESAVE   : filesave");
+	private static Pair HELP_ADD_TASK          = new Pair("  ADD            : add do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"              ");
+	private static Pair HELP_DISPLAY           = new Pair("  DISPLAY    : display                                                                                                                                   ");
+	private static Pair HELP_EDIT_TASK         = new Pair("  EDIT           : edit [task-id] do \"[description]\" on [startDate/endDate] from [startTime] to [endTime] by [deadlineDate] [deadlineTime] at \"[venue]\"      ");
+	private static Pair HELP_UNDO              = new Pair("  UNDO        : undo                                                                                                                                      ");
+	private static Pair HELP_REDO              = new Pair("  REDO        : redo                                                                                                                                      ");
+	private static Pair HELP_DONE              = new Pair("  DONE        : done [task-id]                                                                                                                            ");
+	private static Pair HELP_UNDONE            = new Pair("  UNDONE   : undone [task-id]                                                                                                                          ");	
+	private static Pair HELP_DELETE_TASK       = new Pair("  DELETE     : delete [task-id]                                                                                                                          ");
+	private static Pair HELP_HELP              = new Pair("  HELP         : help                                                                                                                                      ");
+	private static Pair HELP_EXIT              = new Pair("  EXIT          : exit                                                                                                                                      ");
 	
-	// Parameter specific errors	
+	// Define parameter specific messages here
 	private static Pair PARAM_SUBTITLE      = new Pair("There are errors in the following parameters:");
-	private static Pair PARAM_TASKID_NUM    = new Pair("TaskID          : Invalid number. Please enter a number greater than 1.");
+	private static Pair PARAM_TASKID_NUM    = new Pair("TaskID          : Invalid number. Please enter a number greater than 0.");
 	private static Pair PARAM_TASKID_NULL   = new Pair("TaskID          : Missing value. Please enter a number.");
 	private static Pair PARAM_DESC          = new Pair("Description     : Invalid value. Please try again.");
 	private static Pair PARAM_VENUE         = new Pair("Venue           : Invalid value. Please try again");
 	private static Pair PARAM_START_DATE    = new Pair("Start Date      : Invalid date format.");
 	private static Pair PARAM_END_DATE      = new Pair("End Date        : Invaild date format.");
-	private static Pair PARAM_START_TIME    = new Pair("Start Time      : Invalid time format. Use 24hr notation e.g. 0000-2359.");
-	private static Pair PARAM_END_TIME      = new Pair("End Time        : Invalid time format. Use 24hr notation e.g. 0000-2359.");
+	private static Pair PARAM_START_TIME    = new Pair("Start Time      : Invalid time format. Please be more specfic.");
+	private static Pair PARAM_END_TIME      = new Pair("End Time        : Invalid time format. Please be more specific.");
 	private static Pair PARAM_DEADLINE_DATE = new Pair("Deadline Date   : Invalid date format.");
-	private static Pair PARAM_DEADLINE_TIME = new Pair("Deadline Time   : Invalid time format. Use 24hr notation e.g. 0000-2359.");
+	private static Pair PARAM_DEADLINE_TIME = new Pair("Deadline Time   : Invalid time format. Please be more specific.");
 
-	// TaskList
+	// TaskList - set of tasks that will be displayed on the right panel
 	private static ArrayList<Task> displayTaskSet = new ArrayList<Task>();
 	
-	// Formatting
-	private static final String PARAM_INDENT = "    ";
-
 	private Context () {}
 	
+	// Singleton pattern, only one context object throughout application
 	public static Context getInstance() {
 		if (context==null) {
 			context = new Context();
@@ -101,6 +128,7 @@ public class Context {
 		}
 	}
 	
+	@SuppressWarnings("rawtypes")
 	public void displayMessage(String fieldName) {
 		Class thisClass = Context.class;
 		
@@ -117,6 +145,7 @@ public class Context {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void clearMessage(String fieldName) {
 		Class thisClass = Context.class;
 		
@@ -142,6 +171,7 @@ public class Context {
 		displayTaskSet.add(task);
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void clearAllMessages() {
 		Class thisClass = Context.class;
 
@@ -169,59 +199,15 @@ public class Context {
 		TASKID = _taskId;
 	}
 
-	public void printToTerminal() {
-		Class thisClass = Context.class;
-		StringBuilder message = new StringBuilder();
-
-		// Print messages
-		Field[] fields = thisClass.getDeclaredFields();
-		for(Field field:fields) {
-			Object o;
-			try {
-				o = field.get(context);
-				if (field.getType().equals(Pair.class)) {
-					field.setAccessible(true);
-					Pair pair = (Pair) o;
-					if (pair.getValue()) {
-						String output = "";
-						if (field.getName().contains("PARAM") && !field.getName().contains("SUBTITLE")) {
-							output = PARAM_INDENT + pair.getKey();
-						} else {
-							output = pair.getKey();
-						}
-						message.append(output+ "<br>");
-						
-						//System.out.format(output + "\n", taskId);
-					}
-				}
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				e.printStackTrace();
-			}
-			
-			
-		}
-		
-		// Gui.getCurrentInstance().setFeedbackText(message.toString());
-		message = new StringBuilder();
-
-		// Print tasks
-		if (!displayTaskSet.isEmpty()) {
-			Iterator<Task> iterator = displayTaskSet.iterator();
-			while (iterator.hasNext()) {
-				Task task = iterator.next();
-				message.append(task.toString()+"\n");
-				//System.out.println(task.toString());
-			}
-		}
-
-		// Newline
-		message.append("\n");
-		// Gui.getCurrentInstance().setTaskText(message.toString());
-		//System.out.println();
+	public void setFilePath(String path) {
+		FILEPATH = path;
 	}
 
+	public void setDefaultDate(String datestring) {
+		DEFAULT_DATE = datestring;
+	}
+
+	@SuppressWarnings("rawtypes")
 	public HashMap<String, Object> getDataModel() {
 		Class thisClass = Context.class;
 		HashMap<String, Object> dataModel = new HashMap<String, Object>();
@@ -230,6 +216,7 @@ public class Context {
 		ArrayList<String> help_messages     = new ArrayList<String>();
 		ArrayList<String> param_messages    = new ArrayList<String>();
 		ArrayList<String> error_messages    = new ArrayList<String>();
+		ArrayList<String> view_messages     = new ArrayList<String>();
 		ArrayList<Task>   taskList          = new ArrayList<Task>();
 
 		Field[] fields = thisClass.getDeclaredFields();
@@ -242,19 +229,22 @@ public class Context {
 					Pair pair = (Pair) o;
 					if (pair.getValue()) {
 						if (field.getName().contains("MESSAGE")) {
-							success_messages.add(addTaskIDToString(pair.getKey()));
+							success_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 						if (field.getName().contains("WARNING")) {
-							warning_messages.add(addTaskIDToString(pair.getKey()));
+							warning_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 						if (field.getName().contains("HELP")) {
-							help_messages.add(addTaskIDToString(pair.getKey()));
+							help_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 						if (field.getName().contains("PARAM")) {
-							param_messages.add(addTaskIDToString(pair.getKey()));
+							param_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 						if (field.getName().contains("ERROR")) {
-							error_messages.add(addTaskIDToString(pair.getKey()));
+							error_messages.add(formatString(field.getName(), pair.getKey()));
+						}
+						if (field.getName().contains("VIEW")) {
+							view_messages.add(formatString(field.getName(), pair.getKey()));
 						}
 					}
 				}
@@ -271,17 +261,13 @@ public class Context {
 			while (iterator.hasNext()) {
 				Task task = iterator.next();
 				taskList.add(task);
-				if(task.getPeriod()!=null) {
-					System.out.println(task.getPeriod().toString());
-				}
 			}
 		}
-		// Read Json file as string
+		// Read Json file as string and inject into the HTML template for fullCalendar to render on canvas
 		String jsonData = "";
 		try {
 			String read_string;
-			String filename   = "./data/calendar.json";
-			FileReader fr     = new FileReader(filename);
+			FileReader fr     = new FileReader(FILEPATH);
 			BufferedReader br = new BufferedReader(fr);
 			
 			while ((read_string = br.readLine())!= null) {
@@ -294,19 +280,32 @@ public class Context {
 			e1.printStackTrace();
 			
 		}
-
 		dataModel.put("success_messages", success_messages);
 		dataModel.put("warning_messages", warning_messages);
 		dataModel.put("help_messages", help_messages);
 		dataModel.put("param_messages", param_messages);
 		dataModel.put("error_messages", error_messages);
+		dataModel.put("view_messages", view_messages);
+		dataModel.put("default_date", DEFAULT_DATE);
 		dataModel.put("taskList", taskList);
 		dataModel.put("jsonData", jsonData);
 		return dataModel;
 	}
 
-	// Helper function to add TaskID to message with %d placeholder
-	private String addTaskIDToString(String original){
-		return String.format(original, TASKID);
+	// Helper function to add variables into messages just before rendering.
+	private String formatString(String field, String original){
+		String result;
+		if (field == "MESSAGE_ADD_TASK" || field == "MESSAGE_DELETE_TASK" 
+			|| field == "MESSAGE_EDIT_TASK" || field == "MESSAGE_UNDO_TASK" 
+			|| field == "MESSAGE_REDO_TASK" || field == "MESSAGE_UNDONE_TASK" 
+			|| field == "MESSAGE_DONE_TASK" || field == "WARNING_TASK_NOT_EDITED") {
+			result = String.format(original, TASKID);
+		} else if (field == "MESSAGE_PATH" || field == "MESSAGE_OPEN" 
+			|| field == "MESSAGE_SAVE" || field == "MESSAGE_FILE_FOUND") {
+			result = String.format(original, FILEPATH);
+		} else {
+			result = original;
+		}
+		return result;
 	}
 }

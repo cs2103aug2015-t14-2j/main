@@ -1,9 +1,14 @@
 package Task;
 
+/**
+ * @@ author A0097689
+ */
+
 import javax.swing.undo.UndoableEdit;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+@SuppressWarnings("serial")
 public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected int oldCurrentId;
 	protected int newCurrentId;
@@ -11,18 +16,26 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 	protected ArrayList<Task> taskListContents;
 	protected boolean isAdd;
 	
-	TaskListEdit(Task task, ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
+	/**
+	 *  @@author A0145472E
+	 */
+	public TaskListEdit(Task task, ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
 		super();
 		taskList = _taskList;
 		taskListContents = new ArrayList<Task>();
 		taskListContents.addAll(taskList);
-		taskListContents.add(task);
+		if(!_isAdd){
+			taskListContents.add(task);
+		}
 		newCurrentId = _newCurrentId;
 		oldCurrentId = _oldCurrentId;
 		isAdd = _isAdd;
 	}
 	
-	TaskListEdit(ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
+	/**
+	 *  @@author A0145472E
+	 */
+	public TaskListEdit(ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
 		super();
 		taskList = _taskList;
 		taskListContents = new ArrayList<Task>();
@@ -30,7 +43,6 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		newCurrentId = _newCurrentId;
 		oldCurrentId = _oldCurrentId;
 		isAdd = _isAdd;
-		
 	}
 
 	@Override
@@ -43,6 +55,9 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		return "Redo add task.";
 	}
 	
+	/**
+	 *  @@author A0145472E
+	 */
 	@Override
 	public void undo() {
 		super.undo();
@@ -67,6 +82,9 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		TaskHandler.setCurrentTaskId(oldCurrentId);
 	}
 	
+	/**
+	 *  @@author A0145472E
+	 */
 	@Override
 	public void redo() {
 		super.redo();
