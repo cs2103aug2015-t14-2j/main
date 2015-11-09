@@ -313,16 +313,31 @@ public class TaskHandlerTest {
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
-		/*
+		
 		// Test for edit floating to event (set startDate, startTime, endDate and endTime
 		userInput = "edit 2 on 12/10/15 from 1200 to 1400";
-
-		task      = new Task(3, "sth4", startTime, endTime, null);
-		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
-		expected  = MESSAGE_EDIT_TASK;
-		TaskHandler.executeCommand(userInput);
-		assertTrue(isSameObjHash(expected, actual));
 		
+		try {
+			startTime = df.parse("12/10/15 1200");
+			endTime   = df.parse("12/10/15 1400");
+			
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		task2      = new Task(2,"sth2",startTime, endTime,null);
+		taskList.add(task2);
+		successList = new ArrayList<String>();
+		successList.add(String.format(MESSAGE_EDIT_TASK, 2));
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
+		
+		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
+		assertTrue(isSameObjHash(expected, actual));
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
+		
+		/* The rest is true by reflection
 		// Test for edit floating task startDate only
 		userInput = "edit 5 from 15/10/15";
 		expected  = MESSAGE_EDIT_TASK;
