@@ -179,7 +179,7 @@ public class Task {
 		result += "   Venue             : " + this.venue + "\n";
 		result += "   Completed?        : " + this.isDone + "\n";
 		result += "   Is Past Deadline? : " + this.isPastDeadline + "\n";
-		result += "   Has Ended?        : " + this.isPastDeadline + "\n";
+		result += "   Has Ended?        : " + this.hasEnded + "\n";
 		
 		return result;
 	}

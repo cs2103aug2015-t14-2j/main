@@ -1,20 +1,15 @@
 package test;
 
 import static org.junit.Assert.*;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import Task.*;
 import java.util.ArrayList;
 import java.io.File;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.text.ParseException;
 
 public class TaskHandlerTest {
 	
@@ -83,56 +78,98 @@ public class TaskHandlerTest {
 	private static String HELP_EXIT              ="  EXIT          : exit                                                                                                                                      ";
 	
 	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
-	private static SimpleDateFormat df               = new SimpleDateFormat("dd/M/yyyy HHmm"); 
+	private static SimpleDateFormat df               = new SimpleDateFormat("M/dd/yyyy HHmm"); 
 	private static Context context 					 = Context.getInstance();
 	
 	@BeforeClass
 	public static void setUp() {
+		deleteFile("./test/data/test10.json");
 		String[] path = {"./test/data/test10.json"};
 		TaskHandler.init(path);
+	}
+
+	private static void deleteFile(String path) {
+		File testFile = new File(path);
+	    if (testFile.exists()) {
+	    	testFile.delete();     
+	    }
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void testExecuteCommand() {
 		String userInput 					= null;
-		HashMap<String,Object> expected  	= new HashMap<String,Object>();
+		
+		HashMap<String,Object> expected  	= null;
 		HashMap<String,Object> actual  		= null;
-		Task   task      					= null;
+		ArrayList<String> errorList			= new ArrayList<String>();
+		ArrayList<String> successList	  	= new ArrayList<String>();
+		ArrayList<String> warningList  		= new ArrayList<String>();
+		ArrayList<String> helpList			= new ArrayList<String>();
+		ArrayList<String> paramList			= new ArrayList<String>();
+		ArrayList<Task>   taskList 			= new ArrayList<Task>();
+		
+		Task   task1      					= null;
+		Task   task2      					= null;
+		Task   task3      					= null;
+		Task   task4      					= null;
 		Task   task5     					= null;
+		Task   task6     					= null;
+		
 		Date   startTime 					= null;
 		Date   endTime   					= null;
 		Date   deadline  					= null;
 		
 		// Test display
 		userInput = "display";
-		ArrayList<String> errorList = new ArrayList<String>();
+		
+		errorList = new ArrayList<String>();
 		errorList.add(ERROR_EMPTY_TASKLIST);
-		expected = buildExpectedHashmap(null,null,null,null,errorList,null);
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
 		assertEquals(expected, actual);
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
 		
 		// Test for misspelling
 		userInput = "dsplay";
-		expected = buildExpectedHashmap(null,null,null,null,null,null);
+		
+		errorList = new ArrayList<String>();
+		errorList.add(ERROR_INVALID_COMMAND);
+		
+		helpList = new ArrayList<String>();
+		helpList.add(HELP_ADD_TASK);
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
 		assertEquals(expected, actual);
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
-		/*
+		
 		// Test for add floating task
 		userInput = "add do \"sth1\"";
-		task      = new Task(1, "sth1", null);
-		System.out.println(task.toString());
-		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
-		TaskHandler.executeCommand(userInput);
-		System.out.println(actual);
-		assertEquals(expected, actual);
+		task1      = new Task(1, "sth1", null);
 		
+		successList = new ArrayList<String>();
+		successList.add(MESSAGE_ADD_TASK);
+		taskList.add(task1);
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
+		
+		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
+		assertEquals(expected, actual);
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
+		
+		/*
 		// Test for add event task
 		userInput = "add on 12/10/15 from 1200 to 1240 do \"sth2\"";
 		try {
@@ -142,10 +179,21 @@ public class TaskHandlerTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		task      = new Task(2, "sth2", startTime, endTime, null);
-		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
+		task2     = new Task(2, "sth2", startTime, endTime, null);
+		
+		successList = new ArrayList<String>();
+		successList.add(MESSAGE_ADD_TASK);
+		taskList = new ArrayList<Task>();
+		taskList.add(task2);
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
+		
 		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
+		actual = stripJson(context.getDataModel());
+		assertEquals(((ArrayList<Task>)expected.get(taskList)).get(1), ((ArrayList<Task>)actual.get(taskList)).get(1));
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
+		
 		
 		// Test for add event task with different start and end dates
 		userInput = "add do \"sth3\" from 12/10/15 1200 to 14/10/15 1340";
@@ -156,10 +204,20 @@ public class TaskHandlerTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		task      = new Task(3, "sth3", startTime, endTime, null);
-		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
+		task3     = new Task(3, "sth3", startTime, endTime, null);
+		
+		successList = new ArrayList<String>();
+		successList.add(MESSAGE_ADD_TASK);
+		taskList = new ArrayList<Task>();
+		taskList.add(task3);
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
+		
 		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
 		assertEquals(expected, actual);
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
 		// Test for add event task with unspecified end time
 		userInput = "add do \"sth4\" on 12/10/15 from 1200";
@@ -170,10 +228,20 @@ public class TaskHandlerTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		task      = new Task(4, "sth4", startTime, endTime, null);
-		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
+		task4     = new Task(4, "sth4", startTime, endTime, null);
+		
+		successList = new ArrayList<String>();
+		successList.add(MESSAGE_ADD_TASK);
+		taskList = new ArrayList<Task>();
+		taskList.add(task4);
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
+		
 		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
 		assertEquals(expected, actual);
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
 		// Test for add event task with unspecified start time
 		userInput = "add do \"sth5\" on 12/10/15 to 1240";
@@ -184,10 +252,20 @@ public class TaskHandlerTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		task5      = new Task(5, "sth5", startTime, endTime, null);
-		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
+		task5     = new Task(5, "sth5", startTime, endTime, null);
+		
+		successList = new ArrayList<String>();
+		successList.add(MESSAGE_ADD_TASK);
+		taskList = new ArrayList<Task>();
+		taskList.add(task5);
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
+		
 		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
 		assertEquals(expected, actual);
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
 		// Test for add deadline task
 		userInput = "add do \"sth6\" by 12/10/15 2359";
@@ -197,19 +275,42 @@ public class TaskHandlerTest {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		task      = new Task(6, "sth6", deadline, null);
-		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
+		task6     = new Task(6, "sth6", startTime, endTime, null);
+		
+		successList = new ArrayList<String>();
+		successList.add(MESSAGE_ADD_TASK);
+		taskList = new ArrayList<Task>();
+		taskList.add(task6);
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
+		
 		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
 		assertEquals(expected, actual);
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
+		*/
+		
 		
 		// Test for edit desc only
 		userInput = "edit 1 do \"nothing-5\"";
-		expected  = task5.toString() + MESSAGE_ADD_TASK;
-		TaskHandler.executeCommand(userInput);
-		assertEquals(expected, actual);
 		
+		task1      = new Task(1, "nothing-5", null);
+		taskList.add(task1);
+		successList = new ArrayList<String>();
+		successList.add(String.format(MESSAGE_EDIT_TASK, 1));
+		
+		expected = buildExpectedHashmap(successList,warningList,helpList,paramList,errorList,taskList);
+		
+		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
+		assertEquals(expected, actual);
+		context.clearAllMessages();
+		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
+		
+		/*
 		// Test for edit floating to event (set startDate, startTime, endDate and endTime
-		userInput = "edit 1 on 12/10/15 from 1200 to 1400";
+		userInput = "edit 2 on 12/10/15 from 1200 to 1400";
 
 		task      = new Task(3, "sth4", startTime, endTime, null);
 		expected  = task.toString() + "\n" + MESSAGE_ADD_TASK;
@@ -279,6 +380,17 @@ public class TaskHandlerTest {
 		*/
 	}
 	
+	private void clearArrayLists(ArrayList<String> successList, ArrayList<String> warningList,
+			ArrayList<String> helpList, ArrayList<String> paramList, ArrayList<String> errorList,
+			ArrayList<Task> taskList) {
+		errorList.clear();
+		successList.clear();
+		warningList.clear();
+		helpList.clear();
+		paramList.clear();
+		taskList.clear();
+	}
+
 	private HashMap<String, Object> stripJson(HashMap<String, Object> dataModel) {
 		dataModel.remove("jsonData");
 		dataModel.remove("default_date");
@@ -290,13 +402,6 @@ public class TaskHandlerTest {
 			ArrayList<String> help_messages, ArrayList<String> param_messages, ArrayList<String> error_messages, 
 			ArrayList<Task> taskList) {	
 		HashMap<String, Object> expected = new HashMap<String, Object> ();
-		
-		success_messages = (success_messages == null) ? new ArrayList<String>() :success_messages;
-		warning_messages = (warning_messages == null) ? new ArrayList<String>() :warning_messages;
-		help_messages	 = (help_messages == null) 	  ? new ArrayList<String>() :help_messages;
-		param_messages 	 = (param_messages == null)   ? new ArrayList<String>() :param_messages;
-		error_messages 	 = (error_messages == null)   ? new ArrayList<String>() :error_messages;
-		taskList 		 = (taskList == null) 		  ? new ArrayList<Task>() :taskList;
 		
 		expected.put("success_messages", success_messages);
 		expected.put("warning_messages", warning_messages);
@@ -313,7 +418,6 @@ public class TaskHandlerTest {
 	public static void tearDown(){
 		taskList.clear();
 		File file1 = new File("./test/data/test10.json");
-		
 		file1.delete();
 		
 	}
