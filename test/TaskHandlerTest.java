@@ -92,10 +92,11 @@ public class TaskHandlerTest {
 		TaskHandler.init(path);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Test
 	public void testExecuteCommand() {
 		String userInput 					= null;
-		ArrayList<String> expectedString  	= new ArrayList<String>();
+		HashMap<String,Object> expected  	= new HashMap<String,Object>();
 		HashMap<String,Object> actual  		= null;
 		Task   task      					= null;
 		Task   task5     					= null;
@@ -105,21 +106,24 @@ public class TaskHandlerTest {
 		
 		// Test display
 		userInput = "display";
-		TaskHandler.executeCommand(userInput);
-		actual = context.getDataModel();
-		actual.remove("jsonData");
-		expectedString.clear();
-		expectedString.add(ERROR_EMPTY_TASKLIST);
-		assertEquals(expectedString, actual.get("error_messages"));
-		expectedString.clear();
+		ArrayList<String> errorList = new ArrayList<String>();
+		errorList.add(ERROR_EMPTY_TASKLIST);
+		expected = buildExpectedHashmap(null,null,null,null,errorList,null);
 		
-		/*
-		// Test for misspelling
-		userInput = "dsplay";
-		expected  = "";
 		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
 		assertEquals(expected, actual);
 		
+		
+		// Test for misspelling
+		userInput = "dsplay";
+		expected = buildExpectedHashmap(null,null,null,null,null,null);
+		
+		TaskHandler.executeCommand(userInput);
+		actual = stripJson(context.getDataModel());
+		assertEquals(expected, actual);
+		
+		/*
 		// Test for add floating task
 		userInput = "add do \"sth1\"";
 		task      = new Task(1, "sth1", null);
@@ -275,15 +279,33 @@ public class TaskHandlerTest {
 		*/
 	}
 	
-	private void clearExpectedHashmap(HashMap<String, Object> expected) {	
-		expected.put("success_messages", new ArrayList<String> ());
-		expected.put("warning_messages", new ArrayList<String> ());
-		expected.put("help_messages", new ArrayList<String> ());
-		expected.put("param_messages", new ArrayList<String> ());
-		expected.put("error_messages", new ArrayList<String> ());
-		expected.put("view_messages", new ArrayList<String> ());
-		expected.put("default_date", DEFAULT_DATE);
-		expected.put("taskList", new ArrayList<Task> ());
+	private HashMap<String, Object> stripJson(HashMap<String, Object> dataModel) {
+		dataModel.remove("jsonData");
+		dataModel.remove("default_date");
+		dataModel.remove("view_messages");
+		return dataModel;
+	}
+
+	private HashMap<String, Object> buildExpectedHashmap(ArrayList<String> success_messages, ArrayList<String> warning_messages, 
+			ArrayList<String> help_messages, ArrayList<String> param_messages, ArrayList<String> error_messages, 
+			ArrayList<Task> taskList) {	
+		HashMap<String, Object> expected = new HashMap<String, Object> ();
+		
+		success_messages = (success_messages == null) ? new ArrayList<String>() :success_messages;
+		warning_messages = (warning_messages == null) ? new ArrayList<String>() :warning_messages;
+		help_messages	 = (help_messages == null) 	  ? new ArrayList<String>() :help_messages;
+		param_messages 	 = (param_messages == null)   ? new ArrayList<String>() :param_messages;
+		error_messages 	 = (error_messages == null)   ? new ArrayList<String>() :error_messages;
+		taskList 		 = (taskList == null) 		  ? new ArrayList<Task>() :taskList;
+		
+		expected.put("success_messages", success_messages);
+		expected.put("warning_messages", warning_messages);
+		expected.put("help_messages", help_messages);
+		expected.put("param_messages", param_messages);
+		expected.put("error_messages", error_messages);
+		expected.put("taskList", taskList);
+		
+		return expected;
 		
 	}
 
