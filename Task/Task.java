@@ -2,7 +2,6 @@
 package Task;
 
 import java.util.Date;
-import java.util.ArrayList;
 import java.text.SimpleDateFormat;
 
 /**
@@ -19,7 +18,6 @@ public class Task {
 	
 	// A task has these meta data
 	private Date createdTime;
-	private Date lastModifiedTime;
 	private int  taskId;
 	
 	// A task has these properties
@@ -27,9 +25,9 @@ public class Task {
 	private Date deadline          = null;
 	private String venue           = null;
 	private String description     = null;
-	private boolean isDone         = false;
-	private boolean isPastDeadline = false;
-	private boolean hasEnded       = false;
+	private Boolean isDone         = null;
+	private Boolean isPastDeadline = null;
+	private Boolean hasEnded       = null;
 	
 	/**
 	 * Constructor for tasks without startTime, endTime and deadline. 
@@ -40,16 +38,13 @@ public class Task {
 	 */
 	public Task (int taskId, String desc, String venue) {
 		this.createdTime = new Date();
-		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
 		
 		this.period = null;
 		this.deadline = null;
 		this.venue = venue;
 		this.description = desc;
-		this.isDone = false;
-		this.isPastDeadline = false;
-		this.hasEnded = false;
+		setFlags(false);
 	}
 	
 	/**
@@ -64,7 +59,6 @@ public class Task {
 	 */
 	public Task (int taskId, String desc, Date startTime, Date endTime, String venue) throws IllegalArgumentException{
 		this.createdTime = new Date();
-		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
 		
 		try {
@@ -76,9 +70,7 @@ public class Task {
 		this.deadline = null;
 		this.venue = venue;
 		this.description = desc;
-		this.isDone = false;
-		this.isPastDeadline = false;
-		this.hasEnded = hasEnded(this.createdTime , endTime);
+		setFlags(null);
 	}
 		
 	/**
@@ -92,16 +84,13 @@ public class Task {
 	 */
 	public Task (int taskId, String desc, Date deadline, String venue) {
 		this.createdTime = new Date();
-		this.lastModifiedTime = this.createdTime;
 		this.taskId = taskId;
 		
 		this.period = null;
 		this.deadline = deadline;
 		this.venue = venue;
 		this.description = desc;
-		this.isDone = false;
-		this.isPastDeadline = isPastDeadline(this.createdTime, deadline);
-		this.hasEnded = false;
+		setFlags(false);
 	}
 	
 	/**
@@ -120,12 +109,11 @@ public class Task {
 	 * @param isPastDeadline
 	 * @param hasEnded
 	 */
-	public Task (Date createdTime, Date lastModifiedTime, int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, boolean isDone, boolean isPastDeadline, boolean hasEnded) {
+	public Task (Date createdTime, int taskId, String desc, Date startTime, Date endTime, Date deadline, String venue, Boolean isDone) {
 		this.createdTime = createdTime;
-		this.lastModifiedTime = lastModifiedTime;
 		this.taskId = taskId;
 		
-		if (startTime == null && endTime == null) {
+		if (startTime == null || endTime == null) {
 			this.period = null;
 		} else {
 			try {
@@ -138,15 +126,12 @@ public class Task {
 		this.deadline = deadline;
 		this.venue = venue;
 		this.description = desc;
-		this.isDone = isDone;
-		this.isPastDeadline = isPastDeadline;
-		this.hasEnded = hasEnded;
+		setFlags(isDone);
 	}
-	
+
 	//To be used for tempory tasks
-	public Task(int taskId, String desc, String venue, Date startTime, Date endTime, Date deadline, boolean isDone, boolean isPastDeadline, boolean hasEnded) {
+	public Task(int taskId, String desc, String venue, Date startTime, Date endTime, Date deadline, Boolean isDone, Boolean isPastDeadline, Boolean hasEnded) {
 		this.createdTime = null;
-		this.lastModifiedTime =  null;
 		this.period = null;
 		
 		try {
@@ -236,24 +221,42 @@ public class Task {
 		return ( x == null ? y == null : x.equals(y));
 	}
 	
-	public boolean isPastDeadline (Date now, Date deadline) {
-		return true;
+	public void setFlags(Boolean _isDone) {
+		if(this.getStartDateTime() == null || this.getEndDateTime() == null){
+			setDone(_isDone);
+		}
+		if(this.getDeadline() != null){
+			setPastDeadline();
+		}
+		if(this.getStartDateTime() != null && this.getEndDateTime() != null){
+			setEnded();
+		}
+	}
+	
+	public void setPastDeadline () {
+		this.isPastDeadline = isPastDeadline(new Date() , this.deadline);
+	}
+	
+	public Boolean isPastDeadline (Date now, Date deadline) {
+		if(now == null || deadline == null){
+			return null;
+		}
+		return now.after(deadline);
+	}
+	
+	public void setEnded () {
+		this.hasEnded = hasEnded(new Date() , this.getEndDateTime());
 	}
 
-	public boolean hasEnded ( Date now, Date endTime) {
-		return true;
+	public Boolean hasEnded ( Date now, Date endTime) {
+		if(now == null || endTime == null){
+			return null;
+		}
+		return now.after(endTime);
 	}
 	
 	public Date getCreatedTime() {
 		return this.createdTime;
-	}
-
-	public Date getModifiedTime() {
-		return this.lastModifiedTime;
-	}
-
-	public void setModifiedTime(Date time) {
-		this.lastModifiedTime = time;
 	}
 
 	public int getTaskId() {
@@ -332,30 +335,51 @@ public class Task {
 		this.description = description;
 	}
 
-	public boolean isDone() {
+	public Boolean isDone() {
 		return isDone;
 	}
 
-	public void setDone(boolean isDone) {
+	public void setDone(Boolean isDone) {
 		this.isDone = isDone;
 	}
 
-	public boolean isPastDeadline() {
+	public Boolean isPastDeadline() {
 		return isPastDeadline;
 	}
 
-	public void setPastDeadline(boolean isPastDeadline) {
+	// Determines if a deadline task is past deadline
+	public Boolean determinePastDeadline() {
+		if (this.deadline != null) {
+			if (this.deadline.after(new Date())) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return null;
+		}
+	}
+
+	public void setPastDeadline(Boolean isPastDeadline) {
 		this.isPastDeadline = isPastDeadline;
 	}
 
-	public boolean isHasEnded() {
+	public Boolean isHasEnded() {
 		return hasEnded;
 	}
 
-	public void setHasEnded(boolean hasEnded) {
+	public void setHasEnded(Boolean hasEnded) {
 		this.hasEnded = hasEnded;
 	}
 
+	public boolean isFloating() {
+		if (this.period == null && this.deadline == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public boolean isEmpty() {
 		return
 			taskId			== -1 				&&
@@ -365,8 +389,8 @@ public class Task {
 			deadline   		== null				&&
 			venue           == null				&&
 			description     == null				&&
-			isDone         	== false			&&
-			isPastDeadline 	== false			&&
-			hasEnded       	== false;
+			isDone         	== null				&&
+			isPastDeadline 	== null				&&
+			hasEnded       	== null;
 	}
 }

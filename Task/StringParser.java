@@ -12,8 +12,6 @@ import java.util.HashMap;
 
 
 public class StringParser {
-	private static final Context context = Context.getInstance();
-	
 	//Define String constants here
 	private static final String SPACE_CHARACTER = "\\s+";
 	
@@ -23,17 +21,22 @@ public class StringParser {
 	private static final String ALL_TASKS = "-2";
 	
 	private static String[] 	AllKeywordsInInput	={"on","from","to","by","do","at"};
-	private static String[] 	keywordsInInput		={"on ","from ","to ","by "};
 	private static String[] 	daysInInput			={"monday","tuesday","wednesday","thursday","friday","saturday","sunday",
-														"today","tomorrow","mon","tues","wed","thurs","fri","sat","sun","tmr"};
+														"today","tomorrow","tmr"};
 	private static String[] 	taskTypes			={"deadline","floating","event"};
 	private static String[]		taskTypeDel			={"from to","from to by","by"};
 	
+	private static String[]		searchTypeDone		={"done"};
+	private static String[]		searchTypeEnded		={"ended"};
+	private static String[]		searchTypePast		={"past"};
+	private static String[]		searchTypeAll		={"all"};
 	
+
+	private static String[] 	keywordsInInput		={"on ","from ","to ","by "};
 	private static PARAMETER[] 	paramInInput		={PARAMETER.DATE,
 														PARAMETER.START_TIME,
 														PARAMETER.END_TIME,
-														PARAMETER.DEADLINE_TIME
+														PARAMETER.DEADLINE_TIME,
 														};
 	
 
@@ -51,7 +54,7 @@ public class StringParser {
 		
 		getStringHashMap(command, userInput, keywordHash);
 		
-		return Validator.getObjectHashMap(keywordHash);
+		return Validator.getObjectHashMap(keywordHash, command);
 	}
 
 	public static void getStringHashMap(COMMAND_TYPE command, String userInput, HashMap<PARAMETER, String> keywordHash) {
@@ -66,10 +69,34 @@ public class StringParser {
 		case DONE:
 			
 		case UNDONE:
-			userInput = getTaskID(userInput, keywordHash);
+			getTaskID(userInput, keywordHash);
+			break;
+			
+		case DISPLAY:
+			getTaskID(userInput, keywordHash);
+			//Take the "" keywords out
+			userInput = transferQuoteToHashMap(PARAMETER.DESC,"do",userInput, keywordHash);
+			userInput = transferQuoteToHashMap(PARAMETER.VENUE,"at",userInput, keywordHash);
+			
+			if(keywordHash.get(PARAMETER.DESC) == null){
+				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
+			}
+			
+			addAttributesWithoutKeyword(keywordsInInput, paramInInput, userInput.split(obtainDelimiterStringList(keywordsInInput)), keywordHash);
+			
+			if(keywordHash.get(PARAMETER.START_TIME) == null && keywordHash.get(PARAMETER.END_TIME) == null && keywordHash.get(PARAMETER.DEADLINE_TIME) == null){
+				addAttributesWithOneParamKeyword(daysInInput, PARAMETER.DATE, userInput.split(obtainDelimiterStringList(daysInInput)), keywordHash);
+			}
+			
+			addAttributesFromList(searchTypeDone,PARAMETER.IS_DONE, userInput, keywordHash);
+			addAttributesFromList(searchTypeEnded,PARAMETER.HAS_ENDED, userInput, keywordHash);
+			addAttributesFromList(searchTypePast,PARAMETER.IS_PAST, userInput, keywordHash);
+			addAttributesFromList(searchTypeAll,PARAMETER.SPECIAL, userInput, keywordHash);
+			
 			break;
 			
 		case EDIT_TASK:
+			getTaskID(userInput, keywordHash);
 			isDeleteParams = findKeywordIndexInput(userInput.trim(),"no", 0) != PARAM_NOT_FOUND;
 			//Take the no keywords out
 			if(isDeleteParams){
@@ -77,11 +104,9 @@ public class StringParser {
 								"no ".length(),AllKeywordsInInput,PARAMETER.DELETE_PARAMS,keywordHash);
 			}
 			
-			addStringToParamFromList(userInput,taskTypes,taskTypeDel,PARAMETER.DELETE_PARAMS,keywordHash);
-			removeRepeatedWordsParam(PARAMETER.DELETE_PARAMS,keywordHash);
 			
-		case DISPLAY:
-			userInput = getTaskID(userInput, keywordHash);
+			addStringToParamFromList(userInput,taskTypes,taskTypeDel,PARAMETER.DELETE_PARAMS,keywordHash);
+			removeRepeatedWordsParam(PARAMETER.DELETE_PARAMS,keywordHash);			
 			
 		case ADD_TASK:
 		
@@ -102,6 +127,15 @@ public class StringParser {
 			
 			break;
 			
+		}
+	}
+
+	private static void addAttributesFromList(String[] wordList, PARAMETER param, String userInput,
+			HashMap<PARAMETER, String> keywordHash) {
+		for (int i = 0; i < wordList.length;i++){
+			if(userInput.toLowerCase().contains(wordList[i].toLowerCase())){
+				keywordHash.put(param, "true");
+			}
 		}
 	}
 
@@ -150,7 +184,7 @@ public class StringParser {
 	 * @param keywordHash
 	 * @return
 	 */
-	public static String obtainTrailingKeywordsToHashmap(String inputString, int startingPosition, int offset, String[] keywords,
+	private static String obtainTrailingKeywordsToHashmap(String inputString, int startingPosition, int offset, String[] keywords,
 			PARAMETER param, HashMap<PARAMETER, String> keywordHash) {
 		int endPosition = startingPosition + offset;
 		String[] trimedKeywords = trimStringList(keywords);
@@ -192,7 +226,7 @@ public class StringParser {
 	 * @param startingPostion
 	 * @return
 	 */
-	public static String nextWordFromIndex(String inputString, int startingPostion) {
+	private static String nextWordFromIndex(String inputString, int startingPostion) {
 		if(inputString.length()>startingPostion){
 			String remainingString = inputString.substring(startingPostion);
 			return remainingString.trim().split(" ")[0];
@@ -220,22 +254,16 @@ public class StringParser {
 	 * @param keywordHash 
 	 * @return The string after the ID has been taken out
 	 */
-	private static String getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) {
+	private static void getTaskID(String userInput, HashMap<PARAMETER, String> keywordHash) {
 		String[] inputArray = userInput.trim().split(SPACE_CHARACTER,2);
 		if(inputArray[0].toLowerCase().equals("all")){
 			keywordHash.put(PARAMETER.TASKID, ALL_TASKS);
 		} else if(inputArray[0] == null || !containsOnlyPositiveNumbers(inputArray[0])){
 			// To prevent null exceptions in TaskHandler
 			keywordHash.put(PARAMETER.TASKID, "-1");
-			return userInput;
 		} else {
 			keywordHash.put(PARAMETER.TASKID, inputArray[0]);
 		}
-		
-		if(inputArray.length > 1){
-			return userInput.split(SPACE_CHARACTER,2)[1];
-		}
-		else return "";
 	}
 	
 	/**
@@ -243,7 +271,7 @@ public class StringParser {
 	 * @param numString The string to be checked for all numbers
 	 * @return A boolean representation of whether the string provided is all numbers
 	 */
-	public static boolean containsOnlyPositiveNumbers(String numString) {
+	private static boolean containsOnlyPositiveNumbers(String numString) {
 		return numString.matches("^[0-9 ]+$");
 	}
 
@@ -255,7 +283,7 @@ public class StringParser {
 	 * @param keywordHash 
 	 * @return The trimmed string without the 
 	 */
-	public static String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput, HashMap<PARAMETER, String> keywordHash) {
+	private static String transferQuoteToHashMap(PARAMETER keyword,String keywordString, String userInput, HashMap<PARAMETER, String> keywordHash) {
 		int positionOfKeyword = findKeywordIndexInput(userInput, keywordString,0);
 		if(positionOfKeyword == PARAM_NOT_FOUND){
 			return userInput;
@@ -277,7 +305,7 @@ public class StringParser {
 	 * @param keywordString The keyword to be searched
 	 * @return The index of the keyword found
 	 */
-	public static int findKeywordIndexInput(String userInput, String keywordString, int StartIndex) {
+	private static int findKeywordIndexInput(String userInput, String keywordString, int StartIndex) {
 		boolean outsideOfQuotes = true;
 		if(userInput == null || userInput.length() == 0){
 			return -1;
@@ -314,7 +342,7 @@ public class StringParser {
 	 * @param endOfDesc The end index of the portion to be trimmed out
 	 * @return The trimmed out string result
 	 */
-	public static String trimStringPortionOut(String userInput, int startOfDesc, int endOfDesc) {
+	private static String trimStringPortionOut(String userInput, int startOfDesc, int endOfDesc) {
 		StringBuilder result = new StringBuilder();
 		if(userInput == null){
 			return null;
@@ -335,7 +363,7 @@ public class StringParser {
 	 * @param endOfDesc The end index of the portion to be trimmed out
 	 * @return The string inside the indexes of the userInput
 	 */
-	public static String getKeywordInString(String userInput, int startOfDesc, int endOfDesc) {
+	private static String getKeywordInString(String userInput, int startOfDesc, int endOfDesc) {
 		StringBuilder result = new StringBuilder();
 		if(userInput == null){
 			return null;
@@ -355,7 +383,7 @@ public class StringParser {
 	 * @param keywordsInInput The keyword list to compare to the input
 	 * @return The index of the keyword input matches
 	 */
-	public static int indexKeywordInString(String input, String[] keywordsInInput) {
+	private static int indexKeywordInString(String input, String[] keywordsInInput) {
 		if(input != null && keywordsInInput != null){
 			for(int i = 0;i< keywordsInInput.length;i++){
 			   if(input.toLowerCase().contains(keywordsInInput[i])){
@@ -416,8 +444,6 @@ public class StringParser {
 			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase], keywordsInInput);
 			if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) ==  null){
 				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase].split(keywordsInInput[commandFromKeywordIndex])[1].trim()); //Ignore the quote delimeters
-			} else if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) !=  null){
-				//TODO: throw exception for double keyword
 			}
 		}
 	}

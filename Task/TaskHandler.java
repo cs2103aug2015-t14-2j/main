@@ -1,25 +1,14 @@
 package Task;
 
-import Task.FileIO;
-import Task.COMMAND_TYPE;
-import Task.StringParser;
-import Task.Validator;
-import Task.TaskVenueEdit;
-//import Task.TaskDescEdit;
-//import Task.TaskPeriodEdit;
-//import Task.TaskDeadlineEdit;
-//import Task.TaskDoneEdit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import java.text.SimpleDateFormat;
 import java.text.ParseException;
-import java.util.Scanner;
 import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.CannotUndoException;
@@ -31,10 +20,9 @@ import javafx.application.Platform;
 /**
  *  Represents the handler for tasks
  * 
- *  @author A0097689 Tan Si Kai
- *  @author A0009586 Jean Pierre Castillo
- *  @author A0118772  Audrey Tiah
+ *  @@author A0097689
  */
+@SuppressWarnings("unused")
 public class TaskHandler {	
 	private static final Logger LOGGER = Logger.getLogger(TaskHandler.class.getName());
 	
@@ -43,27 +31,31 @@ public class TaskHandler {
 	
 	private static final int ALL_TASKS = -2;
 	
-	private static Scanner         scanner           = new Scanner(System.in);
-	private static Calendar        calendar          = Calendar.getInstance();
-	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("dd/M/yyyy HHmm");
-	private static ArrayList<Task> taskList          = new ArrayList<Task>(50);
-	private static ArrayList<Period> timetable       = new ArrayList<Period>(50);			// timetable that keeps track of startTime and endTime of tasks
-	private static LinkedList<String> commandHistory = new LinkedList<String>();	// stack of userInputs history to implement undo action
-	private static String 			filePath         = "./data/calendar.json";		// relative path to calendar.json 
-	private static int 				currentTaskId;          
-	private static FileIO           fileIO;
-	private static Validator        validate         = new Validator();
+	private static Calendar             calendar        = Calendar.getInstance();
+	private static SimpleDateFormat     dateFormat      = new SimpleDateFormat("dd/M/yyyy HHmm");
+	private static ArrayList<Task>      taskList        = new ArrayList<Task>(50);
+	private static String 			    defaultFilePath = "./data/calendar.json";		// relative path to calendar.json 
+	private static int 				    currentTaskId;          
+	private static FileIO               fileIO;
 	private static TaskUndoManager      undoManager;
-	private static Context context                   = Context.getInstance();
+	private static Context              context         = Context.getInstance();
 	
 	/**
-	 * Starts the program
+	 * Initialize settings, search for application files etc.
 	 * @param args The file path to load the file in
 	 * @return 
 	 */
-	public static void startTasks(String[] args) {
+	public static void init(String[] args) {
 		String localFilePath = determineFilePath(args);
-		init(localFilePath);
+		LOGGER.setLevel(Level.INFO);
+		undoManager   = new TaskUndoManager();
+		dateFormat.setCalendar(calendar);
+		fileIO        = FileIO.getInstance();
+		fileIO.setFilePath(localFilePath);
+		taskList      = fileIO.readFromFile();
+		currentTaskId = fileIO.getMaxTaskId();
+		context.clearAllMessages();
+		updateTaskStatus();
 	}
 	
 	public static void inputFeedBack(String input){
@@ -71,33 +63,17 @@ public class TaskHandler {
 			executeCommand(input);
 		}
 	}
-	
-	public static void setFilePath(String localFilePath) {
-		fileIO = new FileIO(localFilePath);
-	}
 
 	private static String determineFilePath(String[] args) {
 		String localFilePath;
 		if (args.length == 1) {
 			localFilePath = args[0];
 		} else {
-			localFilePath = TaskHandler.filePath;
+			localFilePath = TaskHandler.defaultFilePath;
 		}
 		return localFilePath;
 	}
 
-	/**
-	 * Initialize settings, search for application files etc.
-	 */
-	private static void init(String localFilePath) {
-		LOGGER.setLevel(Level.INFO);
-		undoManager   = new TaskUndoManager();
-		dateFormat.setCalendar(calendar);
-		fileIO        = new FileIO(localFilePath);
-		taskList      = fileIO.readFromFile();
-		currentTaskId = fileIO.getMaxTaskId();
-		context.clearAllMessages();
-	}
 
 	/**
 	 * Pattern matching on expected command patterns to decide if it is a valid command
@@ -122,6 +98,22 @@ public class TaskHandler {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
 		HashMap<PARAMETER, Object> parsedParamTable;
 		switch (command) {
+			case PATH:
+				String filepath = removeFirstWord(userInput);
+				if (fileIO.setFilePath(filepath)) {
+					context.displayMessage("MESSAGE_PATH");
+				};
+				break;
+			case FILEOPEN:
+				taskList = fileIO.readFromFile();
+				context.displayMessage("MESSAGE_OPEN");
+				context.displayMessage("MESSAGE_DISPLAY_ALL");
+				displayFloatingTasks(taskList);
+				break;
+			case FILESAVE:
+				fileIO.writeToFile(taskList);
+				context.displayMessage("MESSAGE_SAVE");
+				break;
 			case ADD_TASK:
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				//TODO: shouldn't it be if it has a description?
@@ -142,10 +134,10 @@ public class TaskHandler {
 				}
 				break;
 			case DISPLAY:
+				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				if (taskList.isEmpty()) {
 					context.displayMessage("ERROR_EMPTY_TASKLIST");
 				} else if(removeFirstWord(userInput).length() != 0){
-					parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 					if(searchTasks(parsedParamTable).size() == 0){
 						context.displayMessage("ERROR_NO_RESUlTS_FOUND");
 					} else {
@@ -154,12 +146,12 @@ public class TaskHandler {
 					}			
 				} else {
 					context.displayMessage("MESSAGE_DISPLAY_ALL");
-					displayAllTasks(taskList);
+					displayFloatingTasks(taskList);
 				}
+				setCalendarView(parsedParamTable);
 				break;
 			case EDIT_TASK:
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
-
 				editTask((int)parsedParamTable.get(PARAMETER.TASKID),
 					(PARAMETER[])parsedParamTable.get(PARAMETER.DELETE_PARAMS),
 					(String)parsedParamTable.get(PARAMETER.DESC),
@@ -175,7 +167,6 @@ public class TaskHandler {
 				break;
 			case DELETE_TASK:
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
-
 				removeTask((int)parsedParamTable.get(PARAMETER.TASKID));
 				fileIO.writeToFile(taskList);
 				break;
@@ -202,7 +193,6 @@ public class TaskHandler {
 				break;
 			case EXIT:
 				context.displayMessage("MESSAGE_EXIT");
-				context.printToTerminal(); 				// Only call print here just before program exits
 				fileIO.writeToFile(taskList);
 				Platform.exit();
 				System.exit(0);
@@ -227,6 +217,15 @@ public class TaskHandler {
 				break;
 		
 		}
+		
+		updateAllTaskFlags(taskList);
+	}
+
+	private static void updateAllTaskFlags(ArrayList<Task> taskList) {
+		for(Task t:taskList){
+			t.setFlags(t.isDone());
+		}
+		
 	}
 
 	/**
@@ -235,11 +234,10 @@ public class TaskHandler {
 	 * @param taskDone
 	 * @return
 	 */
-	private static void completeTask(int taskID, boolean isDone) {
+	private static void completeTask(int taskID, Boolean isDone) {
 		boolean notFound = true;
 		for (Task t:taskList){
 			if (t.getTaskId() == taskID){
-				String isDoneTask     = Integer.toString(t.getTaskId());
 				boolean prevDone      = t.isDone();
 				TaskEdit compoundEdit = new TaskEdit(t);
 				TaskDoneEdit edit     = new TaskDoneEdit(t, prevDone, isDone);
@@ -305,7 +303,6 @@ public class TaskHandler {
 	private static void editTask(int ID, PARAMETER[] deleteParams, String desc,String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) {
 		// Declare local variables
 		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
-		SimpleDateFormat localDateFormat = new SimpleDateFormat("dd/M/yyyy");
 
 		Task task          = null;
 		Date _deadlineDate = null;
@@ -320,6 +317,7 @@ public class TaskHandler {
 		String prevDeadlineTime = null;
 
 		boolean isUpdated = false;
+		Boolean prevIsdone;
 		
 		if (ID != -1){
 			task = getTask(ID);
@@ -362,6 +360,8 @@ public class TaskHandler {
 			prevEndTime      = timeFormat.format(prevEndDate);
 			oldPeriod        = new Period(prevStartDate, prevEndDate);
 		}
+		
+		prevIsdone 			= task.isDone();
 		
 		if (prevDeadlineDate != null) {
 			prevDeadlineTime = timeFormat.format(prevDeadlineDate);
@@ -484,20 +484,22 @@ public class TaskHandler {
 				isUpdated        = true;
 			}
 			
-			//TODO: test
 			if(deleteParams != null){
 				for(PARAMETER p:deleteParams){
 					if(p != null){
 						if(p.equals(PARAMETER.START_TIME)||p.equals(PARAMETER.END_TIME)){
-							task.setStartDateTime(null);
-							task.setEndDateTime(null);
-							newPeriod = new Period(null, null);
+							task.setPeriod(null);
+							newPeriod = null;
 							edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 							compoundEdit.addEdit(edit);
 						} else if (p.equals(PARAMETER.DEADLINE_TIME)){
 							task.setDeadline(null);
 							edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
 							compoundEdit.addEdit(edit);
+							if(task.getStartDateTime() != null){
+								edit = new TaskDoneEdit(task, prevIsdone, null);
+								compoundEdit.addEdit(edit);
+							}
 						} else if(p.equals(PARAMETER.VENUE)){
 							String oldVenue = task.getVenue();
 							task.setVenue(null);
@@ -522,24 +524,21 @@ public class TaskHandler {
 				compoundEdit.end();
 				edit1.setSignificant();
 				undoManager.addEdit(compoundEdit);
-				context.addTask(task);
 				context.displayMessage("MESSAGE_EDIT_TASK");
 			} else {
 				context.displayMessage("WARNING_TASK_NOT_EDITED");
 				context.displayMessage("HELP_HEADING");				
 				context.displayMessage("HELP_EDIT_TASK");
 			}
+			context.addTask(task);
 			context.setTaskId(task.getTaskId());
 		} catch (ParseException e) {			
 			e.printStackTrace();
 			context.displayMessage("ERROR_DATEFORMAT");
-		} 
-	}
-	
-	// Utility function
-	private static Date changeDateTime(Date date, String prevTimeString) throws ParseException {
-		String test1 = dateFormat.format(date);
-		return new SimpleDateFormat("dd/M/yyyy HHmm").parse(test1.split(" ")[0] + " " + prevTimeString);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			context.displayMessage("ERROR_START_BEFORE_END");
+		}
 	}
 
 	/**
@@ -575,6 +574,9 @@ public class TaskHandler {
 		}
 	}
 	
+	/**
+	 * Creates a new task using the suitable contructor based on whatever information we have
+	 */
 	private static Task createTask(int taskID, String desc, String venue, Date startDate, 
 			Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) throws IllegalArgumentException{
 		if (startTime != null && endTime != null){
@@ -616,7 +618,7 @@ public class TaskHandler {
 			compoundEdit.addEdit(edit);
 			compoundEdit.end();
 			undoManager.addEdit(compoundEdit);
-			context.displayMessage("MESSAGE_DELETE_ALL_TASK");
+			context.displayMessage("MESSAGE_DISPLAY_ALL");
 		} else {
 			context.displayMessage("ERROR_TASK_NOT_FOUND");		
 		}
@@ -649,29 +651,17 @@ public class TaskHandler {
 			context.addTask(task);
 		}
 	}
-	
+
 	/**
-	 * Figure out free time slots
-	 * @param timetable The timetable to get free time slots for
-	 * @return An array of possible time slots
+	 * Displays only floating tasks
 	 */
-	public static ArrayList<Period> getFreeTimeSlots(ArrayList<Period> timetable) {
-		ArrayList<Period> result = new ArrayList<Period>(50);
-		
-		return result;
+	private static void displayFloatingTasks(ArrayList<Task> list) {
+		for(Task task:list) {
+			if (task.isFloating()) {
+				context.addTask(task);
+			}
+		}
 	}
-		
-	/**
-	 * Given a search keyword, and startTime and endTime, return all tasks with that keyword in their description within the search space
-	 * @param keyword
-	 * @param startTime
-	 * @param endTime
-	 * @return
-	 */
-	//TODO:Delete?
-	/*public static ArrayList<Task> searchByDescription (String keyword, Date startTime, Date endTime) {
-		return taskList;
-	}*/
 	
 	/**
 	 * Returns a task with taskID if found, null otherwise
@@ -687,6 +677,12 @@ public class TaskHandler {
 		return null;
 	}
 	
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param parsedParamTable
+	 * @return
+	 */
 	public static ArrayList<Task> searchTasks(HashMap<PARAMETER, Object> parsedParamTable){
 		ArrayList<Task> searchResult = new ArrayList<Task>(50);
 		Task compareTask = null;
@@ -696,47 +692,221 @@ public class TaskHandler {
 				(String)parsedParamTable.get(PARAMETER.VENUE), 
 				(Date)parsedParamTable.get(PARAMETER.START_DATE),
 				(Date)parsedParamTable.get(PARAMETER.END_DATE), 
-				//(Date)parsedParamTable.get(PARAMETER.START_TIME),
-				//(Date)parsedParamTable.get(PARAMETER.END_TIME),
 				(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-				//(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME),
-				false,
-				false,
-				false);
+				(Boolean)parsedParamTable.get(PARAMETER.IS_DONE),
+				(Boolean)parsedParamTable.get(PARAMETER.IS_PAST),
+				(Boolean)parsedParamTable.get(PARAMETER.HAS_ENDED));
 		
-		for(Task t : taskList){
-			if(isTaskSameFields(compareTask, t)){
+		for (Task t : taskList) {
+			if (isTaskSameFields(compareTask, t)) {
 				searchResult.add(t);
 			}
 		}
-		return searchResult;
+		return sortTasks(searchResult);
 	}
 	
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param searchResult
+	 * @return
+	 */
+	private static ArrayList<Task> sortTasks(ArrayList<Task> searchResult) {
+		ArrayList<Task> periodsAndDeadlines = new ArrayList<>();
+		ArrayList<Task> floating = new ArrayList<>();
+		
+		ArrayList<Task> result = new ArrayList<>();
+		
+		for(Task t:searchResult){
+			if((t.getStartDateTime() != null && t.getEndDateTime() != null) || t.getDeadline() != null){
+				periodsAndDeadlines.add(t);
+			} else {
+				floating.add(t);
+			}
+		}
+		
+		bubbleSortTasks(periodsAndDeadlines);
+		
+		result.addAll(periodsAndDeadlines);
+		result.addAll(floating);
+		
+		return result;
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param taskListToSort
+	 */
+	private static void bubbleSortTasks(ArrayList<Task> taskListToSort) {
+		for (int i=0; i < taskListToSort.size() - 1;i++)
+	    {
+	        if(isAfterPeriodDeadline(taskListToSort.get(i),taskListToSort.get(i+1)))
+	        {
+	        	sendToEndOfList(taskListToSort, i);
+	            bubbleSortTasks(taskListToSort);
+	        }
+	    }
+		
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param firstTask
+	 * @param secondTask
+	 * @return
+	 */
+	private static boolean isAfterPeriodDeadline(Task firstTask, Task secondTask) {
+		
+		Date compDateOne = deadlineOrPeriodDate(firstTask);
+		Date compDateTwo = deadlineOrPeriodDate(secondTask);
+		
+		return compDateOne.after(compDateTwo);
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param firstTask
+	 * @return
+	 */
+	private static Date deadlineOrPeriodDate(Task firstTask) {
+		if(firstTask.getDeadline() != null){
+			return firstTask.getDeadline();
+		} else {
+			return firstTask.getStartDateTime();
+		}
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param tasklist
+	 * @param i
+	 */
+	private static void sendToEndOfList(ArrayList<Task> tasklist, int i) {
+		tasklist.add(tasklist.get(i));
+		tasklist.remove(i);
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
 	private static boolean isTaskSameFields(Task compareTask, Task taskListTask) {
-	
+		if (compareTask.getDeadline() != null) {
+			calendar.setTime(compareTask.getDeadline());
+		} else {
+			// do nothing, calendar displays current time by default
+		}
+		calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR)-7);	// One week earlier
+
 		return
-			(compareTask.getTaskId()		== -1 	|| 
-				compareTask.getTaskId() == taskListTask.getTaskId() 								)&&
-			(compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
-				compareTask.getStartDateTime().before(taskListTask.getEndDateTime()) 				))&&
-			(compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   &&
-				compareTask.getEndDateTime().after(taskListTask.getStartDateTime()) 				))&&
-			(compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
-				compareTask.getDeadline().after(taskListTask.getDeadline()) 						))&&
-			(compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
-					taskListTask.getVenue().toLowerCase().contains(
-							compareTask.getVenue().toLowerCase())									))&&
-			(compareTask.getDescription()	== null || (taskListTask.getDescription() != null 	&&
-					taskListTask.getDescription().toLowerCase().contains(
-							compareTask.getDescription().toLowerCase())								))&&
+			isSameTaskId(compareTask, taskListTask)				&&
+			isBeforeDateTime(compareTask, taskListTask)			&&
+			isAfterDateTime(compareTask, taskListTask)			&&
+			isAfterDeadline(compareTask, taskListTask)			&&
+			containsWithinVenue(compareTask, taskListTask)		&&
+			containsWithinDescription(compareTask, taskListTask)&&
+			isSameLogic(compareTask.isDone(), 
+					taskListTask.isDone()) 						&&
+			isSameLogic(compareTask.isPastDeadline(), 
+					taskListTask.isPastDeadline()) 				&&
+			isSameLogic(compareTask.isHasEnded(), 
+					taskListTask.isHasEnded()) 					&&
 			
-			//TODO:search for boolean values 
-			//compareTask.isDone() == taskListTask.isDone()
-			//compareTask.isPastDeadline() == taskListTask.isPastDeadline()
-			//compareTask.isHasEnded() == taskListTask.isHasEnded()
-			
-			(!compareTask.isEmpty()															)
-			;
+			(!compareTask.isEmpty()															
+					
+			);
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isSameLogic(Boolean compareTask, Boolean taskListTask) {
+		return compareTask == null || compareTask == taskListTask;
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isAfterDeadline(Task compareTask, Task taskListTask) {
+		return compareTask.getDeadline() 		== null	|| (taskListTask.getDeadline() != null 	    &&
+			compareTask.getDeadline().after(taskListTask.getDeadline()) 							&& 
+			(taskListTask.getDeadline().after(calendar.getTime())));
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean containsWithinDescription(Task compareTask, Task taskListTask) {
+		return compareTask.getDescription()	== null || (taskListTask.getDescription() != null 		&&
+				taskListTask.getDescription().toLowerCase().contains(
+						compareTask.getDescription().toLowerCase()));
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean containsWithinVenue(Task compareTask, Task taskListTask) {
+		return compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
+				taskListTask.getVenue().toLowerCase().contains(compareTask.getVenue().toLowerCase())									);
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isAfterDateTime(Task compareTask, Task taskListTask) {
+		return compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   	&&
+			compareTask.getEndDateTime().after(taskListTask.getStartDateTime()));
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isBeforeDateTime(Task compareTask, Task taskListTask) {
+		return compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
+			compareTask.getStartDateTime().before(taskListTask.getEndDateTime()));
+	}
+
+	/**
+	 * @@author A0009586
+	 * 
+	 * @param compareTask
+	 * @param taskListTask
+	 * @return
+	 */
+	private static boolean isSameTaskId(Task compareTask, Task taskListTask) {
+		return compareTask.getTaskId()		== -1 	|| compareTask.getTaskId()		== ALL_TASKS ||
+			compareTask.getTaskId() == taskListTask.getTaskId();
 	}
 
 	/**
@@ -749,7 +919,13 @@ public class TaskHandler {
 			throw new Error("command type string cannot be null!");
 		}
 		
-		if(commandTypeString.equalsIgnoreCase("add")) {
+		if (commandTypeString.equalsIgnoreCase("path")) {
+			return COMMAND_TYPE.PATH;
+		} else if (commandTypeString.equalsIgnoreCase("fileopen")) {
+			return COMMAND_TYPE.FILEOPEN;
+		} else if (commandTypeString.equalsIgnoreCase("filesave")) {
+			return COMMAND_TYPE.FILESAVE;
+		} else if (commandTypeString.equalsIgnoreCase("add")) {
 			return COMMAND_TYPE.ADD_TASK;
 		} else if (commandTypeString.equalsIgnoreCase("get")) {
 			return COMMAND_TYPE.GET_TASK;
@@ -787,7 +963,7 @@ public class TaskHandler {
 	}
 	
 	/**
-	 * Removes the first word from a string
+	 * Removes the first word from a string and returns the second word
 	 * @param userCommand The string to be split
 	 * @return The original string without the first word
 	 */
@@ -799,12 +975,40 @@ public class TaskHandler {
 			return "";
 		}
 	}
-	
-	private static void updateCurrentTaskId() {
-		currentTaskId = fileIO.getMaxTaskId();
-	}
 
+	/**
+	 * Allow TaskListEdit to set currentTaskId for undo and redo operations
+	 * @param taskID
+	 */
 	public static void setCurrentTaskId(int _currentTaskId) {
 		currentTaskId = _currentTaskId;
+	}
+
+	private static void updateTaskStatus() {
+		for (Task t : taskList) {
+			Boolean new_status = t.determinePastDeadline();
+			t.setPastDeadline(new_status);
+		}
+	}
+
+	/**
+	 * For display commands, set defaultDate in context with the correct defaultDate 
+	 * so that fullCalendar can render the right date.
+	 * @param paramTable
+	 */
+	private static void setCalendarView(HashMap<PARAMETER,Object> paramTable) {
+		// FullCalendar uses moments.js which prefers ISO8601 formatted date strings
+		SimpleDateFormat ISO8601 = new SimpleDateFormat("YYYY-MM-dd");
+		if (paramTable.get(PARAMETER.START_DATE) != null) {
+			context.setDefaultDate(ISO8601.format((Date)paramTable.get(PARAMETER.START_DATE)));
+		} else if (paramTable.get(PARAMETER.DEADLINE_DATE) != null) {
+			context.setDefaultDate(ISO8601.format((Date)paramTable.get(PARAMETER.DEADLINE_DATE)));
+		}
+	}
+
+	// Utility function
+	private static Date changeDateTime(Date date, String prevTimeString) throws ParseException {
+		String test1 = dateFormat.format(date);
+		return new SimpleDateFormat("dd/M/yyyy HHmm").parse(test1.split(" ")[0] + " " + prevTimeString);
 	}
 }

@@ -4,12 +4,13 @@ import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 import Task.Period;
 
+@SuppressWarnings({ "unused", "serial" })
 public class TaskPeriodEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
 	protected Period oldValue;
 	protected Period newValue;
 	
-	TaskPeriodEdit(Task _task, Period _oldValue, Period _newValue) {
+	public TaskPeriodEdit(Task _task, Period _oldValue, Period _newValue) {
 		task = _task;
 		oldValue = _oldValue;
 		newValue = _newValue;
