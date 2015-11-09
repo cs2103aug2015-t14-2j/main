@@ -175,8 +175,8 @@ public class FileIO {
 			context.setFilePath(_path);
 			return true;
 		} else if(isValidDirectory(_path)){
-			createNewFile(_path);
 			this.path = _path;
+			createNewFile(_path);
 			context.setFilePath(_path);
 			return true;
 		}
@@ -292,7 +292,6 @@ public class FileIO {
 			new FileReader(path);
 			return true;
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 			context.displayMessage("ERROR_FILE_IO");
 			return false;
 		}
