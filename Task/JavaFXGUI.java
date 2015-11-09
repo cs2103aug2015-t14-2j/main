@@ -30,7 +30,7 @@ public class JavaFXGUI extends Application {
 	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
 	private static final float 	FADED_IN 			= 1f - FADE_IN_VAL;
 	
-	public JavaFXGUI() {
+	private JavaFXGUI() {
 		controller = Controller.getInstance();
 	}
 	

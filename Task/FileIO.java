@@ -242,7 +242,6 @@ public class FileIO {
 			throw e1;
 		} 
 		
-		System.out.println(task);
 		return task;
 	}
 	
