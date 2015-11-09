@@ -23,7 +23,7 @@ import javafx.application.Platform;
  *  @@author A0097689
  */
 @SuppressWarnings("unused")
-public class TaskHandler {	
+public class TaskHandler {
 	private static final Logger LOGGER = Logger.getLogger(TaskHandler.class.getName());
 	
 	private static final boolean TASK_DONE    	= true;
@@ -240,7 +240,7 @@ public class TaskHandler {
 		boolean notFound = true;
 		for (Task t:taskList){
 			if (t.getTaskId() == taskID){
-				boolean prevDone      = t.isDone();
+				Boolean prevDone      = t.isDone();
 				TaskEdit compoundEdit = new TaskEdit(t);
 				TaskDoneEdit edit     = new TaskDoneEdit(t, prevDone, isDone);
 				edit.setSignificant();
@@ -586,7 +586,7 @@ public class TaskHandler {
 		} else if (deadlineDate != null){
 			return new Task(taskID, desc, deadlineDate, venue);		// Deadline task
 		} else {
-			return new Task(taskID, desc, venue);						// Floating task
+			return new Task(taskID, desc, null, venue);				// Floating task
 		}
 	}
 	
@@ -693,15 +693,26 @@ public class TaskHandler {
 		ArrayList<Task> searchResult = new ArrayList<Task>(50);
 		Task compareTask = null;
 		
+		Boolean _isDone = null;
+		Boolean _isPast = null;
+		Boolean _hasEnded = null;
+		
+		if(!isDisplayAll(parsedParamTable)){
+			_isDone 	= (parsedParamTable.get(PARAMETER.IS_DONE) != null)   ? 
+					(Boolean)parsedParamTable.get(PARAMETER.IS_DONE) 	: false;
+			_isPast 	= (Boolean)parsedParamTable.get(PARAMETER.IS_PAST);
+			_hasEnded 	= (Boolean)parsedParamTable.get(PARAMETER.HAS_ENDED);
+		}
+		
 		compareTask = new Task((int)parsedParamTable.get(PARAMETER.TASKID),
 				(String)parsedParamTable.get(PARAMETER.DESC),
 				(String)parsedParamTable.get(PARAMETER.VENUE), 
 				(Date)parsedParamTable.get(PARAMETER.START_DATE),
 				(Date)parsedParamTable.get(PARAMETER.END_DATE), 
 				(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-				(Boolean)parsedParamTable.get(PARAMETER.IS_DONE),
-				(Boolean)parsedParamTable.get(PARAMETER.IS_PAST),
-				(Boolean)parsedParamTable.get(PARAMETER.HAS_ENDED));
+				_isDone,
+				_isPast,
+				_hasEnded);
 		
 		for (Task t : taskList) {
 			if (isTaskSameFields(compareTask, t)) {
@@ -709,6 +720,10 @@ public class TaskHandler {
 			}
 		}
 		return sortTasks(searchResult);
+	}
+
+	private static boolean isDisplayAll(HashMap<PARAMETER, Object> parsedParamTable) {
+		return parsedParamTable.get(PARAMETER.SPECIAL) != null && (boolean)parsedParamTable.get(PARAMETER.SPECIAL);
 	}
 	
 	/**

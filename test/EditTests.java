@@ -21,7 +21,7 @@ import Task.TaskVenueEdit;
 
 public class EditTests {
 	
-	Task task = new Task(1,"Description","Venue");
+	Task task = new Task(1,"Description",null,"Venue");
 
 	//DEADLINE EDIT//
 	@Test
@@ -165,13 +165,13 @@ public class EditTests {
 		
 		ArrayList<Task> taskList = new ArrayList<Task>();
 		taskList.add(task);
-		Task task2 = new Task(2,"Description2","Venue2");
+		Task task2 = new Task(2,"Description2",null,"Venue2");
 		taskList.add(task2);
-		Task task3 = new Task(3,"Description3","Venue3");
+		Task task3 = new Task(3,"Description3",null,"Venue3");
 		taskList.add(task3);
-		Task task4 = new Task(4,"Description4","Venue4");
+		Task task4 = new Task(4,"Description4",null,"Venue4");
 		taskList.add(task4);
-		Task task5 = new Task(5,"Description5","Venue5");
+		Task task5 = new Task(5,"Description5",null,"Venue5");
 		
 		TaskListEdit edit     = new TaskListEdit(task5, taskList, 5, 6,isAnAdd);
 		

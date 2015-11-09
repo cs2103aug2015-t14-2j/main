@@ -30,24 +30,6 @@ public class Task {
 	private Boolean hasEnded       = null;
 	
 	/**
-	 * Constructor for tasks without startTime, endTime and deadline. 
-	 * To be called when user adds a new task.
-	 * 
-	 * @param taskId
-	 * @param desc
-	 */
-	public Task (int taskId, String desc, String venue) {
-		this.createdTime = new Date();
-		this.taskId = taskId;
-		
-		this.period = null;
-		this.deadline = null;
-		this.venue = venue;
-		this.description = desc;
-		setFlags(false);
-	}
-	
-	/**
 	 * Constructor for tasks with startTime and endTime only.
 	 * Used when user adds a new task
 	 * 
@@ -179,7 +161,7 @@ public class Task {
 		result += "   Venue             : " + this.venue + "\n";
 		result += "   Completed?        : " + this.isDone + "\n";
 		result += "   Is Past Deadline? : " + this.isPastDeadline + "\n";
-		result += "   Has Ended?        : " + this.isPastDeadline + "\n";
+		result += "   Has Ended?        : " + this.hasEnded + "\n";
 		
 		return result;
 	}

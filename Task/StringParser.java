@@ -141,25 +141,25 @@ public class StringParser {
 	}
 
 	/**
-	 * 
-	 * @param deleteparams
-	 * @param keywordHash
+	 * Used to remove repeated words inside a string obtained from a hashmap
+	 * @param param The parameter to be used in obtaining the words from hashmap
+	 * @param keywordHash The hashmap to obtain the string from
 	 */
-	private static void removeRepeatedWordsParam(PARAMETER deleteparams, HashMap<PARAMETER, String> keywordHash) {
-		String wordList = keywordHash.get(deleteparams);
+	private static void removeRepeatedWordsParam(PARAMETER param, HashMap<PARAMETER, String> keywordHash) {
+		String wordList = keywordHash.get(param);
 		if(wordList != null && wordList.length() > 0){
 			wordList.replaceAll("(\\b\\w+\\b) (?=.*\\b\\1\\b)", "");
-			keywordHash.put(deleteparams, wordList);
+			keywordHash.put(param, wordList);
 		}
 	}
 
 	/**
-	 * TODO:
-	 * @param userInput
-	 * @param keywords
-	 * @param paramEqv
-	 * @param paramToUse
-	 * @param keywordHash
+	 * Places a matching string in the PARAMTER of keywordHash for a String in the keywords
+	 * @param userInput The string to be parsed for keywords
+	 * @param keywords The keywords each word in the userInput will be compared to
+	 * @param paramEqv The corresponding string to be used for a found match
+	 * @param paramToUse The parameter to store the paramEqv to 
+	 * @param keywordHash The hashmap to obtain the paramToUse
 	 */
 	private static void addStringToParamFromList(String userInput, String[] keywords, String[] paramEqv,
 			PARAMETER paramToUse, HashMap<PARAMETER, String> keywordHash) {
@@ -178,12 +178,15 @@ public class StringParser {
 	}
 
 	/**
-	 * TODO:
-	 * @param inputString 
-	 * @param startingPostion
-	 * @param keywords
-	 * @param keywordHash
-	 * @return
+	 * Obtains the words followed by a keyword that match a list of Strings
+	 * @param inputString The String to parse
+	 * @param startingPosition The starting position of the search
+	 * @param offset The offset of the keyword used to delimit the string
+	 * @param keywords the list of keywords to compare each trailing word to
+	 * @param param The Parameter which each matching word will be added to
+	 * @param keywordHash The hashmap containing the list of interest
+	 * @return The original string with all the trailing words of the keyword that
+	 * matched the keywords and the keyword itself
 	 */
 	private static String obtainTrailingKeywordsToHashmap(String inputString, int startingPosition, int offset, String[] keywords,
 			PARAMETER param, HashMap<PARAMETER, String> keywordHash) {
@@ -209,9 +212,9 @@ public class StringParser {
 	}
 
 	/**
-	 * TODO:
-	 * @param keywords
-	 * @return
+	 * Trims each word inside a list
+	 * @param keywords The list to be trimmed
+	 * @return keywords with all trimmed Strings
 	 */
 	private static String[] trimStringList(String[] keywords) {
 		String[] trimedKeywords = new String[keywords.length];
@@ -222,10 +225,10 @@ public class StringParser {
 	}
 
 	/**
-	 * TODO:
-	 * @param inputString
-	 * @param startingPostion
-	 * @return
+	 * used to obtain the index of the next word from a starting position
+	 * @param inputString The string to traverse
+	 * @param startingPostion The position to start from
+	 * @return The index of the next word
 	 */
 	private static String nextWordFromIndex(String inputString, int startingPostion) {
 		if(inputString.length()>startingPostion){
@@ -424,9 +427,7 @@ public class StringParser {
 		for(int currentPhrase = 0; currentPhrase < stringsToParse.length; currentPhrase++){
 			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase], keywordsInInput);
 			if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) ==  null){
-				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase].trim()); //Ignore the quote delimeters
-			} else if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) !=  null){
-				//TODO: throw exception for double keyword
+				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase].trim());
 			}
 		}
 	}	
