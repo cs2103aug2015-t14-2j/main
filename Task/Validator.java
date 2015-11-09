@@ -34,6 +34,8 @@ public class Validator {
 	 * @return Date object, null if Natty cannot parse into a date
 	 */
 	private static Date parseNatty(String dateString) {
+			return null;
+		}
 		List<DateGroup> dateGroup = parser.parse(dateString);
 		if (dateGroup.size() == 1) {
 			List<Date> dateList = dateGroup.get(0).getDates();
@@ -88,6 +90,9 @@ public class Validator {
 		if (keyDate != null) {
 			start_Date = parseNatty(keyDate);
 			end_Date = parseNatty(keyDate);
+			if( parseNatty(deadlineTime) == null && parseNatty(startTime) == null && parseNatty(endTime)== null && command == COMMAND_TYPE.ADD_TASK){
+				context.displayMessage("WARNING_INVALID_DATEFORMAT");
+			}else
 			if (parseNatty(keyDate) != null && deadlineTime == null) {
 				keyWordUpdateHashMap(start_Date, end_Date, startTime, endTime, objectHashMap,command);
 			}
