@@ -24,7 +24,7 @@ public class JavaFXGUI extends Application {
     private static final int WIN_HEIGHT  			= 725;
 	private static final double TAB_HEIGHT 			= 20;
 	
-	private JavaFXGUI() {
+	public JavaFXGUI() {
 		controller = Controller.getInstance();
 	}
 	

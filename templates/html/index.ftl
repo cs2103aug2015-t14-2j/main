@@ -3,7 +3,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 		<link href="../css/bootstrap.min.css" rel="stylesheet">
-		<link rel='stylesheet' href='../css//fullcalendar.min.css' />
+		<link rel='stylesheet' href='../css/fullcalendar.min.css' />
 		<link rel='stylesheet' href="../css/custom.css">
 		<script src="../js/jQuery_v1.11.2.js"></script>
 		<script src="../js/bootstrap.js"></script>
