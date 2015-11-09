@@ -1,14 +1,19 @@
 package Task;
 
+/**
+ * @@ author A0097689
+ */
+
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 
+@SuppressWarnings({ "unused", "serial" })
 public class TaskDescEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
 	protected String oldValue;
 	protected String newValue;
 	
-	TaskDescEdit(Task _task, String _oldValue, String _newValue) {
+	public TaskDescEdit(Task _task, String _oldValue, String _newValue) {
 		task = _task;
 		oldValue = _oldValue;
 		newValue = _newValue;
@@ -29,7 +34,6 @@ public class TaskDescEdit extends UndoableSignificantEdit implements UndoableEdi
 	public void undo() {
 		super.undo();
 		task.setDescription(oldValue);
-		System.out.println("undoed!");
 	}
 	
 	@Override

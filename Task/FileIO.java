@@ -2,6 +2,8 @@ package Task;
 
 import java.io.*;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
@@ -9,13 +11,15 @@ import com.google.gson.stream.MalformedJsonException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+
+import org.apache.commons.io.FilenameUtils;
+
 import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * 
- * @author Jerry
+ * @@ author A0097689
  *
  * Class that takes care of file input and output.
  * Reads Tasks from a JSON file and converts to ArrayList<Tasks> in memory
@@ -24,10 +28,10 @@ import java.util.Date;
  * Uses GSON, see imports above
  */
 public class FileIO {
+	private static Context context = Context.getInstance();
 	private static Calendar        calendar          = Calendar.getInstance();
-	// private static SimpleDateFormat dateFormat       = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
 	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("yyyy-M-dd HH:mm");
-	
+	private static FileIO fileIO = null;
 	// Error messages
 	private final static String ERROR_MALFORMED_TASK = "ERROR! Corrupted task region. Task %d has been discarded.\n";
 	private final static String ERROR_MALFORMED_FILE = "ERROR! Corrupted file region. Rest of file cannot be read.\n";
@@ -36,10 +40,19 @@ public class FileIO {
 	private int maxTaskId;
 	private String path;
 	
-	public FileIO(String path) {
+	// Private constructor for singleton class
+	private FileIO() {
 		dateFormat.setCalendar(calendar);
-		this.path = path;
 		this.maxTaskId = 0;
+	}
+
+	public static FileIO getInstance() {
+		if (fileIO == null) {
+			fileIO = new FileIO();
+			return fileIO;
+		} else {
+			return fileIO;
+		}
 	}
 	
 	/**
@@ -55,23 +68,7 @@ public class FileIO {
 			while (jsonReader.hasNext()) {
 				String name = jsonReader.nextName();
 				if (name.equals("Tasks")) {
-					jsonReader.beginArray();
-					while (jsonReader.hasNext()) {
-						try {
-							Task task = getJSONTaskFromFile(jsonReader);
-							assert(task!=null);			// Very important that task not be null here
-							if (task != null) {
-								taskList.add(task);
-							}						
-						} catch (ParseException e) {
-							System.out.format(ERROR_MALFORMED_TASK, maxTaskId);
-						} catch (MalformedJsonException e1) {
-							System.out.format(ERROR_MALFORMED_FILE);
-						} catch (IllegalStateException e2) {
-							System.out.format(ERROR_MALFORMED_KEY);
-							System.exit(0);
-						}
-					}
+					readSingleTask(taskList, jsonReader);
 					jsonReader.endArray();
 				}
 			}
@@ -79,17 +76,49 @@ public class FileIO {
 			reader.close();
 		} catch (FileNotFoundException e) {
 			// Create an empty file if file is not found
-			createNewFile();
+			createNewFile(this.path);
 		} catch (MalformedJsonException e1) {
+			context.displayMessage("ERROR_MALFORMED_FILE");
 			System.out.format(ERROR_MALFORMED_FILE);
 		} catch (IllegalStateException e2) {
+			context.displayMessage("ERROR_MALFORMED_KEY");
 			System.out.format(ERROR_MALFORMED_KEY);
 			System.exit(0);
 		} catch (IOException e3) {
+			context.displayMessage("ERROR_FILE_IO");
 			System.out.format(ERROR_FILE_IO);
 			System.exit(0);						
 		}
 		return taskList;
+	}
+
+	/**
+	 * Reads a single task from the taskList
+	 * @param taskList the taskList to be added to
+	 * @param jsonReader The reader to read from
+	 * @throws IOException Thrown when a task could not be read
+	 */
+	private void readSingleTask(ArrayList<Task> taskList, JsonReader jsonReader) throws IOException {
+		jsonReader.beginArray();
+		while (jsonReader.hasNext()) {
+			try {
+				Task task = getJSONTaskFromFile(jsonReader);
+				assert(task!=null);			// Very important that task not be null here
+				if (task != null) {
+					taskList.add(task);
+				}						
+			} catch (ParseException e) {
+				context.displayMessage("ERROR_MALFORMED_TASK");
+				System.out.format(ERROR_MALFORMED_TASK, maxTaskId);
+			} catch (MalformedJsonException e1) {
+				context.displayMessage("ERROR_MALFORMED_FILE");
+				System.out.format(ERROR_MALFORMED_FILE);
+			} catch (IllegalStateException e2) {
+				context.displayMessage("ERROR_MALFORMED_KEY");
+				System.out.format(ERROR_MALFORMED_KEY);
+				System.exit(0);
+			}
+		}
 	}
 
 	/**
@@ -115,13 +144,14 @@ public class FileIO {
 			jsonWriter.endObject();
 			jsonWriter.close();
 		} catch (IOException e) {
+			context.displayMessage("ERROR_FILE_IO");
 			e.printStackTrace();
 		}
 	}
 
-	public void createNewFile() {
+	public void createNewFile(String filePath) {
 		try {
-			FileWriter writer = new FileWriter(this.path);
+			FileWriter writer = new FileWriter(filePath);
 			JsonWriter jsonWriter = new JsonWriter(writer);
 			jsonWriter.setIndent("    ");
 
@@ -134,6 +164,7 @@ public class FileIO {
 
 			readFromFile();
 		} catch (IOException e) {
+			context.displayMessage("ERROR_FILE_IO");
 			e.printStackTrace();
 		}
 
@@ -147,6 +178,27 @@ public class FileIO {
 		return path;
 	}
 
+	// Validate that a JSON file exists at the filePath
+	// Otherwise, change the filePath anyway and create a new empty JSON file.
+	public boolean setFilePath(String _path) {
+		if (isFileExistsAtPath(_path) && isJsonFileExt(_path)) {
+			this.path = _path;
+			context.setFilePath(_path);
+			return true;
+		} else {
+			// File does not exist, create an empty json file
+			createNewFile(_path);
+			this.path = _path;
+			context.setFilePath(_path);
+			context.displayMessage("WARNING_EMPTY_FILE");
+			return false;
+		}
+	}
+
+	private boolean isJsonFileExt(String _path) {
+		return _path.toLowerCase().endsWith(".json");
+	}
+
 	/**
 	 * Parses a JSON task object and instantiates it.
 	 * 
@@ -154,18 +206,15 @@ public class FileIO {
 	 * @return 	Task 	   if parsing error occurs, returns a null task. Informs user of problem.
 	 */
 	private Task getJSONTaskFromFile(JsonReader jsonReader) throws MalformedJsonException , ParseException, IllegalStateException, IOException {
-		Task task = new Task(0, "Error while parsing file. Your file might be corrupted.", null);
+		Task task = new Task(0, "Error while parsing file. Your file might be corrupted.", null, null);
 		int taskId              = 1;
 		String createdTime      = "";
-		String lastModifiedTime = "";
 		String startTime        = "";
 		String endTime          = "";
 		String deadline         = "";
 		String venue            = "";
 		String description      = "";
-		boolean isDone          = false;
-		boolean isPastDeadline  = false;
-		boolean hasEnded        = false;
+		Boolean isDone          = null;
 		
 		try {				
 			jsonReader.beginObject();
@@ -177,9 +226,6 @@ public class FileIO {
 						break;
 					case "createdTime" :
 						createdTime = parseNullOrString(jsonReader);
-						break;
-					case "lastModifiedTime" :
-						lastModifiedTime = parseNullOrString(jsonReader);
 						break;
 					case "startTime" :
 						startTime = parseNullOrString(jsonReader);
@@ -197,13 +243,7 @@ public class FileIO {
 						description = parseNullOrString(jsonReader);
 						break;
 					case "isDone" :
-						isDone = jsonReader.nextBoolean();
-						break;
-					case "isPastDeadline" :
-						isPastDeadline = jsonReader.nextBoolean();
-						break;
-					case "hasEnded" :
-						hasEnded = jsonReader.nextBoolean();
+						isDone = parseNullOrBool(jsonReader);
 						break;
 					default:
 						break;
@@ -214,18 +254,17 @@ public class FileIO {
 			maxTaskId = Math.max(taskId, maxTaskId);
 			
 			Date createdTimeDate      = parseStringToDate(createdTime);
-			Date lastModifiedTimeDate = parseStringToDate(lastModifiedTime);
 			Date deadlineDate         = parseStringToDate(deadline);
 			Date startDate            = parseStringToDate(startTime);
 			Date endDate              = parseStringToDate(endTime);
-			task = new Task(createdTimeDate, lastModifiedTimeDate, taskId, description, startDate, endDate, deadlineDate, venue, isDone, isPastDeadline, hasEnded);
+			task = new Task(createdTimeDate, taskId, description, startDate, endDate, deadlineDate, venue, isDone);
 
 		} catch (IllegalStateException  | 
 			     MalformedJsonException | 
 			     ParseException e1) {
 			throw e1;
 		} 
-		System.out.println(task);
+		
 		return task;
 	}
 	
@@ -247,19 +286,44 @@ public class FileIO {
 		jsonWriter.beginObject();
 		jsonWriter.name("taskId").value(currentTask.getTaskId());
 		jsonWriter.name("createdTime").value(toNullOrDateString(currentTask.getCreatedTime()));
-		jsonWriter.name("lastModifiedTime").value(toNullOrDateString(currentTask.getModifiedTime()));
 		jsonWriter.name("startTime").value(toNullOrDateString(currentTask.getStartDateTime()));
 		jsonWriter.name("endTime").value(toNullOrDateString(currentTask.getEndDateTime()));
 		jsonWriter.name("deadline").value(toNullOrDateString(currentTask.getDeadline()));
 		jsonWriter.name("venue").value(currentTask.getVenue());
 		jsonWriter.name("description").value(currentTask.getDescription());
-		jsonWriter.name("isDone").value(currentTask.isDone());
-		jsonWriter.name("isPastDeadline").value(currentTask.isPastDeadline());
-		jsonWriter.name("hasEnded").value(currentTask.isHasEnded());
+		if(currentTask.isDone() != null){
+			jsonWriter.name("isDone").value(currentTask.isDone());
+		} else {
+			jsonWriter.name("isDone").nullValue();
+		}
 		
 		jsonWriter.endObject();
 	}
+
+	// Check whether path is valid
+	@SuppressWarnings("resource")
+	private boolean isFileExistsAtPath(String path) {
+		try {
+			new FileReader(path);
+			return true;
+		} catch (FileNotFoundException e) {
+			return false;
+		}
+	}
 	
+	/**
+	 * @@ author A0097689
+	 */
+	// Utility method
+		private Boolean parseNullOrBool(JsonReader jsonReader) throws IOException {
+			if (jsonReader.peek() == JsonToken.NULL) {
+				jsonReader.nextNull();
+				return null;
+			} else {
+				return jsonReader.nextBoolean();
+			}
+		}
+
 	// Utility method
 	private String parseNullOrString(JsonReader jsonReader) throws IOException {
 		if (jsonReader.peek() == JsonToken.NULL) {

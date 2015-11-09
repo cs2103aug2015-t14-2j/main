@@ -1,14 +1,19 @@
 package Task;
 
+/**
+ * @@ author A0097689
+ */
+
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 
+@SuppressWarnings({ "unused", "serial" })
 public class TaskDoneEdit extends UndoableSignificantEdit implements UndoableEdit {
 	protected Task   task;
-	protected boolean oldValue;
-	protected boolean newValue;
+	protected Boolean oldValue;
+	protected Boolean newValue;
 	
-	TaskDoneEdit(Task _task, boolean _oldValue, boolean _newValue) {
+	public TaskDoneEdit(Task _task, Boolean _oldValue, Boolean _newValue) {
 		task = _task;
 		oldValue = _oldValue;
 		newValue = _newValue;

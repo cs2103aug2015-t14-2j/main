@@ -1,5 +1,5 @@
 /**
- *  @@author A0009586
+ *  @@author A0145472E
  *  
  *  Represents the test for the String Parser class
  * 
@@ -120,6 +120,59 @@ public class StringParserTest {
 		
 		assertEquals("from to",
 				keywordHash.get(PARAMETER.DELETE_PARAMS));
+		
+		//Use week keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
+				"at \"hong kong\" on next week do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("next week  deadline",
+				keywordHash.get(PARAMETER.DATE));
+		
+		//Use month keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.EDIT_TASK,
+				"at \"hong kong\" on next month do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("next month  deadline",
+				keywordHash.get(PARAMETER.DATE));
+		
+		//Use done keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
+				"at \"hong kong\" on next month do \"to be or not\" deadline done",keywordHash);
+		
+		assertEquals("true",
+				keywordHash.get(PARAMETER.IS_DONE));
+		//Use done keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
+				"at \"hong kong\" ended on next month do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("true",
+				keywordHash.get(PARAMETER.HAS_ENDED));
+		
+		//Use done keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
+				"at \"hong kong\" on next month past do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("true",
+				keywordHash.get(PARAMETER.IS_PAST));
+		
+		//Use all keyword
+		keywordHash =  new HashMap<PARAMETER, String>(0);
+		
+		StringParser.getStringHashMap(COMMAND_TYPE.DISPLAY,
+				"all at \"hong kong\" on next month do \"to be or not\" deadline",keywordHash);
+		
+		assertEquals("true",
+				keywordHash.get(PARAMETER.SPECIAL));
 	}
 	
 	@Test
@@ -195,7 +248,7 @@ public class StringParserTest {
 	}
 	
 	// NORMALLY PRIVATE METHOD TESTING //
-
+	/*
 	@Test
 	public void testTransferQuoteToHashMap() throws ParseException {
 		
@@ -351,4 +404,5 @@ public class StringParserTest {
 		assertEquals(null,StringParser.nextWordFromIndex("",0));
 		
 	}
+	*/
 }
