@@ -21,9 +21,7 @@ import freemarker.template.Version;
  *  Represents the control module that is in charge of initialization and GUI
  *  Singleton structure
  * 
- *  @author A0097689 Tan Si Kai
- *  @author A0009586 Jean Pierre Castillo
- *  @author A0118772 Audrey Tiah
+ *  @@author A0145472E
  */
 
 public class Controller{
@@ -33,6 +31,9 @@ public class Controller{
 	
 	private final static Logger LOGGER = Logger.getLogger(StringParser.class.getName());
 	
+	/**
+	 *  @@author A0097689
+	 */
 	private Controller() {
 		// Configure Freemarker
 		cfg = new Configuration(Configuration.VERSION_2_3_22);
@@ -69,6 +70,9 @@ public class Controller{
 	    
     }
 	
+	/**
+	 *  @@author A0097689
+	 */
     public void executeGUIInput(String text) {
         TaskHandler.inputFeedBack(text);
         renderView();
@@ -76,11 +80,17 @@ public class Controller{
 		JavaFXGUI.update();
     }
 
+    /**
+     *  @@author A0097689
+     */
     public void prepareStartUpScreen() {
     	context.displayMessage("MESSAGE_WELCOME");
     	executeGUIInput("display");
     }
 
+    /**
+     *  @@author A0097689
+     */
     private void renderView() {
         HashMap<String, Object> dataModel = context.getDataModel();
         Template template;  

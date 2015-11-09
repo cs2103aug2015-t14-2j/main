@@ -7,9 +7,7 @@ import java.text.SimpleDateFormat;
 /**
  * This class represents a task that the user adds in
  * 
- *  @author A0097689 Tan Si Kai
- *  @author A0009586 Jean Pierre Castillo
- *  @author A0118772  Audrey Tiah
+ *  @@author A0097689
  */
 
 public class Task {
@@ -362,6 +360,9 @@ public class Task {
 		}
 	}
 	
+	/**
+	 * @@ author A0009586
+	 */
 	public boolean isEmpty() {
 		return
 			taskId			== -1 				&&
