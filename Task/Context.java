@@ -62,7 +62,8 @@ public class Context {
 	private static Pair WARNING_DEADLINE_BEFORE_NOW = new Pair("WARNING: You have specified a deadline that is before the current time");
 	private static Pair WARNING_TASK_NOT_EDITED     = new Pair("Task %d was not edited.");
 	private static Pair WARNING_EMPTY_FILE          = new Pair("WARNING: No file detected at path. Created new empty json file.");
-
+	private static Pair WARNING_INVALID_DATEFORMAT  = new Pair("WARNING: Unable to recognize date format. Please follow correct syntax.");
+	
 	// Define error messages here
 	private static Pair ERROR_INVALID_COMMAND  = new Pair("Invalid Command.");
 	private static Pair ERROR_EMPTY_TASKLIST   = new Pair("You have no tasks!");

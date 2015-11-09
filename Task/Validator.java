@@ -33,6 +33,9 @@ public class Validator {
 	 * @return Date object, null if Natty cannot parse into a date
 	 */
 	private static Date parseNatty(String dateString) {
+		if (dateString ==(null)){
+			return null;
+		}
 		List<DateGroup> dateGroup = parser.parse(dateString);
 		if (dateGroup.size() == 1) {
 			List<Date> dateList = dateGroup.get(0).getDates();
@@ -73,25 +76,56 @@ public class Validator {
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 
-		// System.out.println("startDate: " + startDate);
-		// System.out.println("end date: " + endDate);
-		// System.out.println("start time: " + startTime);
-		// System.out.println("end time: " + endTime);
+	//	 System.out.println("startDate: " + startDate);
+		 System.out.println("end date: " + endDate);
+		 System.out.println("start time: " + startTime);
+		 System.out.println("end time: " + endTime);
 		// System.out.println("deadline date: " + deadlineDate);
-		// System.out.println("deadline time: " + deadlineTime);
-		// System.out.println("date: " + hashmap.get(PARAMETER.DATE));
+		 System.out.println("deadline time: " + deadlineTime);
+		 System.out.println("date: " + hashmap.get(PARAMETER.DATE));
 
 		// used when there is a parsed KeyDate (etc. no deliminator or on _____)
 		if (keyDate != null) {
 			start_Date = parseNatty(keyDate);
 			end_Date = parseNatty(keyDate);
-			if (parseNatty(keyDate) != null) {
+			if( parseNatty(deadlineTime) == null && parseNatty(startTime) == null && parseNatty(endTime)== null && command == COMMAND_TYPE.ADD_TASK){
+				context.displayMessage("WARNING_INVALID_DATEFORMAT");
+			}else
+			if (parseNatty(keyDate) != null && deadlineTime == null) {
 				keyWordUpdateHashMap(start_Date, end_Date, startTime, endTime, objectHashMap,command);
+			}
+			if (deadlineTime != null && parseNatty(keyDate)!= null){
+				if(parseNatty(deadlineTime)!= null){
+					Date DeadlineTime = parseNatty(deadlineTime);
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(parseNatty(keyDate));
+					Calendar cal2 = Calendar.getInstance();
+					cal2.setTime(DeadlineTime);
+					cal.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
+					cal.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
+					cal.set(Calendar.SECOND, 00);
+					cal.set(Calendar.MILLISECOND, 0);
+					DeadlineTime = cal.getTime();
+					objectHashMap.put(PARAMETER.DEADLINE_TIME, DeadlineTime);
+					objectHashMap.put(PARAMETER.DEADLINE_DATE, DeadlineTime);
+				}
 			}
 		} else {
 			// when there is no keyDate ( etc. direct dates: from ___ to ___)
 			if (startTime != null) {
 				updateStartTimeHashMap(startTime, objectHashMap);
+				Date updatedEndTime;
+				if (endTime == null && command == COMMAND_TYPE.ADD_TASK){
+					 updatedEndTime = (Date) objectHashMap.get(PARAMETER.START_TIME);
+					if (updatedEndTime != null){
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(updatedEndTime);
+						cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY)+1);
+						updatedEndTime = cal.getTime();
+						objectHashMap.put(PARAMETER.END_DATE, updatedEndTime);
+						objectHashMap.put(PARAMETER.END_TIME, updatedEndTime);
+					}
+				}
 			}
 			// End time
 			if (endTime != null) {
@@ -145,14 +179,14 @@ public class Validator {
 
 			setFlag(hashmap, PARAMETER.SPECIAL, objectHashMap);
 		}
-/*
+
 		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
 		System.out.println("Passed START_TIME: " + objectHashMap.get(PARAMETER.START_TIME));
 		System.out.println("Passed END_DATE: " + objectHashMap.get(PARAMETER.END_DATE));
 		System.out.println("Passed END_TIME: " + objectHashMap.get(PARAMETER.END_TIME));
 		System.out.println("Passed DEADLINE_DATE: " + objectHashMap.get(PARAMETER.DEADLINE_DATE));
 		System.out.println("Passed DEADLINE_TIME: " + objectHashMap.get(PARAMETER.DEADLINE_TIME));
-	*/	// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
+		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
 
 		return objectHashMap;
 	}
@@ -179,19 +213,19 @@ public class Validator {
 			HashMap<PARAMETER, Object> objectHashMap, COMMAND_TYPE command) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(start_Date);
-
 		cal = setStartTime(cal);
 		start_Date = cal.getTime();
 		cal.setTime(end_Date);
 		cal = setEndTime(cal);
 		end_Date = cal.getTime();
-
+	
+		
 		if (startTime != null && parseNatty(startTime) != null) {
 			Date time = parseNatty(startTime);
 			cal.setTime(start_Date);
 			Calendar timePortion = Calendar.getInstance();
 			timePortion.setTime(time);
-
+			
 			cal.set(Calendar.HOUR_OF_DAY, timePortion.get(Calendar.HOUR_OF_DAY));
 			cal.set(Calendar.MINUTE, timePortion.get(Calendar.MINUTE));
 			cal.set(Calendar.SECOND, 00);
