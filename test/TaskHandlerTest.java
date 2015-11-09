@@ -155,7 +155,7 @@ public class TaskHandlerTest {
 		
 		// Test for add floating task
 		userInput = "add do \"sth1\"";
-		task1      = new Task(1, "sth1", null);
+		task1      = new Task(1, "sth1",null, null);
 		
 		successList = new ArrayList<String>();
 		successList.add(MESSAGE_ADD_TASK);
@@ -295,7 +295,7 @@ public class TaskHandlerTest {
 		// Test for edit desc only
 		userInput = "edit 1 do \"nothing-5\"";
 		
-		task1      = new Task(1, "nothing-5", null);
+		task1      = new Task(1, "nothing-5",null, null);
 		taskList.add(task1);
 		successList = new ArrayList<String>();
 		successList.add(String.format(MESSAGE_EDIT_TASK, 1));
