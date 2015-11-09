@@ -52,6 +52,7 @@ public class Context {
 	private static Pair MESSAGE_DONE_TASK      = new Pair("Successfully updated Task %d to completed.");
 	private static Pair MESSAGE_UNDONE_TASK    = new Pair("Successfully updated Task %d to uncompleted.");
 	private static Pair MESSAGE_EXIT           = new Pair("Thanks for using TaskBuddy! Changes saved to disk.");
+	private static Pair MESSAGE_FILE_FOUND     = new Pair("Found file at location %s");
 	
 	/** 
 	 * Define warning messages here
@@ -299,7 +300,7 @@ public class Context {
 			|| field == "MESSAGE_DONE_TASK" || field == "WARNING_TASK_NOT_EDITED") {
 			result = String.format(original, TASKID);
 		} else if (field == "MESSAGE_PATH" || field == "MESSAGE_OPEN" 
-			|| field == "MESSAGE_SAVE") {
+			|| field == "MESSAGE_SAVE" || field == "MESSAGE_FILE_FOUND") {
 			result = String.format(original, FILEPATH);
 		} else {
 			result = original;

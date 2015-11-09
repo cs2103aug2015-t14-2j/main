@@ -178,19 +178,20 @@ public class FileIO {
 		return path;
 	}
 
-	// Validate filepath before changing
-	// Returns false if filepath is invalid and thus not changed
+	// Validate that a JSON file exists at the filePath
+	// Otherwise, change the filePath anyway and create a new empty JSON file.
 	public boolean setFilePath(String _path) {
-		if (isValidFilePath(_path) && isJsonFileExt(_path)) {
+		if (isFileExistsAtPath(_path) && isJsonFileExt(_path)) {
 			this.path = _path;
 			context.setFilePath(_path);
 			return true;
 		} else {
+			// File does not exist, create an empty json file
 			createNewFile(_path);
 			this.path = _path;
 			context.setFilePath(_path);
 			context.displayMessage("WARNING_EMPTY_FILE");
-			return true;
+			return false;
 		}
 	}
 
@@ -301,7 +302,7 @@ public class FileIO {
 
 	// Check whether path is valid
 	@SuppressWarnings("resource")
-	private boolean isValidFilePath(String path) {
+	private boolean isFileExistsAtPath(String path) {
 		try {
 			new FileReader(path);
 			return true;
