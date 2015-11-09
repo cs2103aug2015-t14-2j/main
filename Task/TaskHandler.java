@@ -101,10 +101,11 @@ public class TaskHandler {
 			case PATH:
 				String filepath = removeFirstWord(userInput);
 				if (fileIO.setFilePath(filepath)) {
-					context.displayMessage("MESSAGE_PATH");
+					context.displayMessage("MESSAGE_FILE_FOUND");
 				} else {
 					context.displayMessage("HELP_PATH");
 				};
+				context.displayMessage("MESSAGE_PATH");
 				break;
 			case FILEOPEN:
 				taskList = fileIO.readFromFile();
