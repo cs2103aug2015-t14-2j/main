@@ -34,6 +34,7 @@ public class Validator {
 	 * @return Date object, null if Natty cannot parse into a date
 	 */
 	private static Date parseNatty(String dateString) {
+		if (dateString ==(null)){
 			return null;
 		}
 		List<DateGroup> dateGroup = parser.parse(dateString);
