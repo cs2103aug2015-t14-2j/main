@@ -15,7 +15,6 @@ import com.joestelmach.natty.*;
  *         This class takes the user input in parts(through a hashmap) and
  *         converts them to their respective objects.
  * 
- * 
  */
 
 public class Validator {
@@ -46,6 +45,7 @@ public class Validator {
 				return null;
 			}
 		} else {
+			context.displayMessage("ERROR_DATEFORMAT");
 			return null;
 		}
 	}
@@ -64,9 +64,6 @@ public class Validator {
 				objectHashMap.put(PARAMETER.VENUE, hashmap.get(PARAMETER.VENUE));
 			}
 		}
-		// DO DATE
-		// START_DATE, END_DATE, START_TIME, END_TIME, DEADLINE_DATE,
-		// DEADLINE_TIME, REMIND_TIMES
 		Date start_Date = null;
 		String endDate = hashmap.get(PARAMETER.END_DATE);
 		Date end_Date = null;
@@ -78,14 +75,6 @@ public class Validator {
 
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
-
-	//	 System.out.println("startDate: " + startDate);
-		 System.out.println("end date: " + endDate);
-		 System.out.println("start time: " + startTime);
-		 System.out.println("end time: " + endTime);
-		// System.out.println("deadline date: " + deadlineDate);
-		 System.out.println("deadline time: " + deadlineTime);
-		 System.out.println("date: " + hashmap.get(PARAMETER.DATE));
 
 		// used when there is a parsed KeyDate (etc. no deliminator or on _____)
 		if (keyDate != null) {
@@ -136,7 +125,7 @@ public class Validator {
 			}
 			// Deadline time ( etc. by _____)
 			if (deadlineTime != null) {
-				updateDeadlineTimeHashMap(deadlineTime, objectHashMap);
+				updateDeadlineTimeHashMap(deadlineTime, objectHashMap, command);
 			}
 		}
 
@@ -183,19 +172,11 @@ public class Validator {
 			setFlag(hashmap, PARAMETER.SPECIAL, objectHashMap);
 		}
 
-		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
-		System.out.println("Passed START_TIME: " + objectHashMap.get(PARAMETER.START_TIME));
-		System.out.println("Passed END_DATE: " + objectHashMap.get(PARAMETER.END_DATE));
-		System.out.println("Passed END_TIME: " + objectHashMap.get(PARAMETER.END_TIME));
-		System.out.println("Passed DEADLINE_DATE: " + objectHashMap.get(PARAMETER.DEADLINE_DATE));
-		System.out.println("Passed DEADLINE_TIME: " + objectHashMap.get(PARAMETER.DEADLINE_TIME));
-		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
-
 		return objectHashMap;
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 *          Used to set the flag a Boolean flag in the hashmap
 	 * @param hashmap
@@ -209,6 +190,9 @@ public class Validator {
 		}
 	}
 
+	/**
+	 * @@author A0118772
+	 */
 	private static void keyWordUpdateHashMap(Date start_Date, Date end_Date, String startTime, String endTime,
 			HashMap<PARAMETER, Object> objectHashMap, COMMAND_TYPE command) {
 		Calendar cal = Calendar.getInstance();
@@ -329,7 +313,7 @@ public class Validator {
 
 	}
 
-	private static void updateDeadlineTimeHashMap(String deadlineTime, HashMap<PARAMETER, Object> objectHashMap) {
+	private static void updateDeadlineTimeHashMap(String deadlineTime, HashMap<PARAMETER, Object> objectHashMap, COMMAND_TYPE command) {
 		Date timeOfDeadline = null;
 		if ((timeOfDeadline = parseNatty(deadlineTime)) == null) {
 			timeOfDeadline = validTimeFormat(deadlineTime);
@@ -337,7 +321,7 @@ public class Validator {
 		Calendar cal = Calendar.getInstance();
 		if (timeOfDeadline != null) {
 			cal.setTime(timeOfDeadline);
-			if (countOccurence(deadlineTime, ' ') != 1) {
+			if (countOccurence(deadlineTime, ' ') != 1 && countOccurence(deadlineTime,' ')!=2) {
 				cal = setEndTime(cal);
 				timeOfDeadline = cal.getTime();
 			}
@@ -346,7 +330,7 @@ public class Validator {
 				cal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
 				cal = setEndTime(cal);
 				timeOfDeadline = cal.getTime();
-			} else if (isMonthWord(deadlineTime)) {
+			} else if (isMonthWord(deadlineTime) && command != COMMAND_TYPE.ADD_TASK) {
 				cal.setTime(timeOfDeadline);
 				cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DATE));
 				cal = setEndTime(cal);
