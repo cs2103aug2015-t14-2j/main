@@ -64,6 +64,7 @@
 					</div>
 					</#if>
 					<div style="display:none" id="default_date">${default_date!.now?date}</div>
+					<div style="display:none" id="lastTaskId">${lastTaskId!0}</div>
 				</div>
 			</div>
 			<div class="row-fluid">

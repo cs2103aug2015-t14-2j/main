@@ -52,7 +52,8 @@ public class Validator {
 
 	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap,
 			COMMAND_TYPE command) {
-
+		System.out.println(hashmap);
+		
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
@@ -406,7 +407,7 @@ public class Validator {
 			endcal.add(Calendar.DAY_OF_WEEK, 7);
 			objectHashMap.put(PARAMETER.END_DATE, endcal.getTime());
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
-		} else if (isMonthWord(keyDate)) {
+		} else if (isMonthWord(keyDate) && !isParseableToDate(keyDate)) {
 			// Calendar cal = Calendar.getInstance();
 			startcal.set(Calendar.DAY_OF_MONTH, startcal.getActualMinimum(Calendar.DATE));
 			objectHashMap.put(PARAMETER.START_DATE, startcal.getTime());
@@ -451,7 +452,7 @@ public class Validator {
 
 		if (query.contains("week") || query.contains("wk")) {
 			context.displayMessage("VIEW_WEEK");
-		} else if (isMonthWord(query)) {
+		} else if (isMonthWord(query) && !isParseableToDate(query)) {
 			context.displayMessage("VIEW_MONTH");
 		} else if (query.contains("yr") || query.contains("year")) {
 			context.displayMessage("VIEW_MONTH");
@@ -607,6 +608,32 @@ public class Validator {
 			return true;
 		}
 		return false;
+	}
+
+	private static boolean isParseableToDate(String dateString) {
+		SimpleDateFormat dayMonthFullYear = new SimpleDateFormat("dd MMM yyyy");
+		SimpleDateFormat dayMonthYear     = new SimpleDateFormat("dd MMM yy");
+		SimpleDateFormat dayMonth         = new SimpleDateFormat("dd MMM");
+		SimpleDateFormat monthDay         = new SimpleDateFormat("MMM dd");
+
+		if (tryToParse(dateString, dayMonthFullYear) ||
+			tryToParse(dateString, dayMonthYear) 	 || 
+			tryToParse(dateString, dayMonth)         ||
+			tryToParse(dateString, monthDay)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private static boolean tryToParse(String dateString, SimpleDateFormat df) {
+		Date date;
+		try {
+			date = df.parse(dateString);
+			return true;
+		} catch (ParseException e) {
+			return false;
+		}
 	}
 
 }

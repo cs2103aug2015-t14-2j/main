@@ -2,6 +2,9 @@
 $(document).ready(function() {
     // page is now ready, initialize the calendar...
  
+ 	// Attach toast messages behaviour
+ 	window.setTimeout(removeMessages, 3000);
+
 	var data = JSON.parse(document.getElementById("jsonData").innerHTML);
 	// Determine view, default month
 	if (document.getElementById("view")!=null){
@@ -12,38 +15,63 @@ $(document).ready(function() {
 		view = 'month';
 	}
 	var defaultDateString = document.getElementById("default_date").innerHTML;
-
-	var events = [];
+	var lastTaskId        = document.getElementById("lastTaskId").innerHTML;	// Last Task Id for styling purposes
+	var events            = [];
+	
 	for (var i=0; i < data.Tasks.length; i++) {
 		eventObj = data.Tasks[i];
+		var calendarEvent = {};
+		
+		var borderColor;
+		var allDay        = isAllDay(eventObj);
+		var isLastUpdated = false;
+		if (eventObj.taskId == lastTaskId) {
+			isLastUpdated = true;
+		}
+
 		if (eventObj.startTime!=null && eventObj.endTime!=null) {
 			incrementEventCount(eventObj.startTime);
-			events.push({
-				id     : eventObj.taskId,
-				title  : eventObj.description,
-				venue  : eventObj.venue,
-				start  : eventObj.startTime,
-				end    : eventObj.endTime,
-				deadline : eventObj.deadline,
-				allDay : false,
-				isDeadline: false,
-				backgroundColor : 'rgb(59,145,173)',
-				borderColor : 'black',
-				textColor : 'white'
-			});
+
+			calendarEvent["id"]              = eventObj.taskId;
+			calendarEvent["title"]           = eventObj.description;
+			calendarEvent["venue"]           = eventObj.venue;
+			calendarEvent["start"]           = eventObj.startTime;
+			calendarEvent["end"]             = eventObj.endTime;
+			calendarEvent["deadline"]        = eventObj.deadline;
+			calendarEvent["allDay"]          = allDay;
+			calendarEvent["isDeadline"]      = false;
+			calendarEvent["backgroundColor"] = 'rbg(59, 145, 173';
+			calendarEvent["borderColor"]     = 'black';
+			calendarEvent["textColor"]       = 'white';
+
+			if (isLastUpdated) {
+				calendarEvent["isLastUpdated"] = true;
+			} else {
+				calendarEvent["isLastUpdated"] = false;
+			}
+
+			events.push(calendarEvent);
+
 		} else if (eventObj.deadline!=null) {
 			incrementEventCount(eventObj.deadline);
-			events.push({
-				id     : eventObj.taskId,
-				title  : eventObj.description,
-				start  : eventObj.deadline,
-				venue  : eventObj.venue,
-				allDay : false,
-				isDeadline: true,
-				backgroundColor : 'rgb(239,131,84)',
-				borderColor: 'black',
-				textColor : 'white'
-			});
+
+			calendarEvent["id"]              = eventObj.taskId;
+			calendarEvent["title"]           = eventObj.description;
+			calendarEvent["venue"]           = eventObj.venue;
+			calendarEvent["start"]           = eventObj.deadline;
+			calendarEvent["allDay"]          = false;
+			calendarEvent["isDeadline"]      = true;
+			calendarEvent["backgroundColor"] = 'rgb(239, 131, 84)';
+			calendarEvent["borderColor"]     = 'black';
+			calendarEvent["textColor"]       = 'white';
+
+			if (isLastUpdated) {
+				calendarEvent["isLastUpdated"] = true;
+			} else {
+				calendarEvent["isLastUpdated"] = false;
+			}
+
+			events.push(calendarEvent);
 		} else {
 			// Floating tasks, do nothing, won't show up on calendar
 		}
@@ -67,12 +95,12 @@ $(document).ready(function() {
         	agendaWeek: {
         		titleFormat: 'MMM D',
         		eventLimit : 10,
-        		allDaySlot : false
+        		allDaySlot : true
         	},
         	agendaDay: {
         		titleFormat: 'MMMM D, YYYY',
         		eventLimit : 10,
-        		allDaySlot : false
+        		allDaySlot : true
         	}
     	},
     	height : 640,
@@ -93,9 +121,14 @@ $(document).ready(function() {
 			var end      = moment(event.end);
 			var duration = end.diff(start, 'hours');
 
+			// Thicken border and set color for last updated event
+			if (event.isLastUpdated) {
+				$(element).css("border-width", "4px");
+				$(element).css("border-color", "#5FAD41");
+			}
+
         	if (view == 'month') {
         		// Collapsed view
-				var badgeClass = (event.isDeadline) ? 'badge-danger' : 'badge-primary'; 
         		if (numberOfEventsInDay(event.start) > 1) {
         			
         			element.find('.fc-title').html(
@@ -119,21 +152,21 @@ $(document).ready(function() {
 						"<div style='float:left;width:480px'>" +
 							"<span style='float:left;width:20%'>ID          :" + event.id    + "</span>" +
 							"<span style='float:left;width:40%'>Description :" + event.title + "</span>" +
-							"<span style='float:left;width:40%'>Venue       :" + event.venue + "</span>" +
+							"<span style='float:left;width:40%'>Venue       :" + nullOrString(event.venue) + "</span>" +
 						"</div>"
 						);
 				} else {
 					element.find('.fc-title').html( 
 		            	"<p>ID    : " + event.id + "</p>" +
 		            	"<p>Desc  : " + event.title + "</p>" +
-		            	"<p>Venue : " + event.venue + "</p>");
+		            	"<p>Venue : " + nullOrString(event.venue) + "</p>");
 				}
         	} else if (view == 'agendaWeek') {
         		// Expanded view, only vertical layout
         		element.find('.fc-title').html( 
 	            	"<p>ID    : " + event.id    + "</p>" +
 	            	"<p>Desc  : " + event.title + "</p>" +
-	            	"<p>Venue : " + event.venue + "</p>");
+	            	"<p>Venue : " + nullOrString(event.venue) + "</p>");
         	} else {
         		// Default
 				element.find('.fc-title').html( 
@@ -157,10 +190,43 @@ var incrementEventCount = function(dateString) {
 	}
 
 	eventCount[dayTime.toISOString()]++;
-}
+};
 
 var numberOfEventsInDay = function(dateString) {
 	var dayTime = moment(dateString).startOf('day');
 	var key = dayTime.toISOString();
 	return eventCount[key];
-}
+};
+
+// Fade out messages after 2 secs
+var removeMessages = function() {
+	$(".alert:not(.alert-info)").each(function() {
+		$(this).fadeOut(2000, function() {
+			$(this).remove();
+		});
+	});
+};
+
+// Given an event, return true if duration is greater or equal to 1 day
+// else return false
+var isAllDay = function(eventObj) {
+	var start = moment(eventObj.startTime);
+	var end   = moment(eventObj.endTime);
+	var dayDuration   = (24 * 60 * 60 * 1000) - 2*60000;
+	console.log(eventObj.taskId + " : " + (end-start) + " : " + dayDuration);
+
+	if ((end - start) >= dayDuration) {
+
+		return true;
+	}
+	return false;
+};
+
+// Returns empty string for null field, else return the field itself
+var nullOrString = function(field) {
+	if (field == null) {
+		return "";
+	} else {
+		return field;
+	}
+};

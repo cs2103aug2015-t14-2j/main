@@ -97,15 +97,13 @@ public class TaskHandler {
 	public static void executeCommand(String userInput) {
 		COMMAND_TYPE command = determineCommandType(getFirstWord(userInput));
 		HashMap<PARAMETER, Object> parsedParamTable;
+
+		// Pre-processing
+		context.setTaskId(0);
+		
 		switch (command) {
 			case PATH:
-				String filepath = removeFirstWord(userInput);
-				if (fileIO.setFilePath(filepath)) {
-					context.displayMessage("MESSAGE_FILE_FOUND");
-				} else {
-					context.displayMessage("HELP_PATH");
-				};
-				context.displayMessage("MESSAGE_PATH");
+				changeFilePath(userInput);
 				break;
 			case FILEOPEN:
 				taskList = fileIO.readFromFile();
@@ -116,6 +114,7 @@ public class TaskHandler {
 			case FILESAVE:
 				fileIO.writeToFile(taskList);
 				context.displayMessage("MESSAGE_SAVE");
+				displayFloatingTasks(taskList);
 				break;
 			case ADD_TASK:
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
@@ -220,8 +219,30 @@ public class TaskHandler {
 				break;
 		
 		}
-		
+		// Common methods to execute regardless of command
+		setCalendarData();
 		updateAllTaskFlags(taskList);
+	}
+
+	/**
+	 * Change file path based on user command
+	 * @param user input 
+	 */
+	private static void changeFilePath(String userInput) {
+		String filepath = removeFirstWord(userInput);
+		if (getWordCount(filepath) == 0) {
+			// Display current filepath
+			context.setFilePath(fileIO.getCanonicalPath());
+			context.displayMessage("MESSAGE_CURRENT_PATH");
+		} else {
+			if (fileIO.setFilePath(filepath)) {
+				context.displayMessage("MESSAGE_FILE_FOUND");
+			} else {
+				context.displayMessage("HELP_PATH");
+			};
+			context.displayMessage("MESSAGE_PATH");
+		}
+		displayFloatingTasks(taskList);
 	}
 
 	private static void updateAllTaskFlags(ArrayList<Task> taskList) {
@@ -571,6 +592,7 @@ public class TaskHandler {
 			undoManager.addEdit(compoundEdit);
 			currentTaskId += 1;
 			context.addTask(task);
+			context.setTaskId(task.getTaskId());
 			context.displayMessage("MESSAGE_ADD_TASK");
 		} else {
 			context.displayMessage("ERROR_NO_DESC");
@@ -714,11 +736,17 @@ public class TaskHandler {
 				_isDone,
 				_isPast,
 				_hasEnded);
+		System.out.println(compareTask.toString());
 		
 		for (Task t : taskList) {
 			if (isTaskSameFields(compareTask, t)) {
 				searchResult.add(t);
 			}
+		}
+
+		// Sets the TaskID for display on fullCalendar if there is only 1 result
+		if (searchResult.size() == 1) {
+			context.setTaskId(searchResult.get(0).getTaskId());
 		}
 		return sortTasks(searchResult);
 	}
@@ -847,7 +875,7 @@ public class TaskHandler {
 			// do nothing, calendar displays current time by default
 		}
 		calendar.set(Calendar.DAY_OF_YEAR, calendar.get(Calendar.DAY_OF_YEAR)-7);	// One week earlier
-
+		
 		return
 			isSameTaskId(compareTask, taskListTask)				&&
 			isBeforeDateTime(compareTask, taskListTask)			&&
@@ -1049,6 +1077,26 @@ public class TaskHandler {
 			context.setDefaultDate(ISO8601.format((Date)paramTable.get(PARAMETER.START_DATE)));
 		} else if (paramTable.get(PARAMETER.DEADLINE_DATE) != null) {
 			context.setDefaultDate(ISO8601.format((Date)paramTable.get(PARAMETER.DEADLINE_DATE)));
+		}
+	}
+
+	/**
+	 * Converts taskList into JSON string and pass to context object for fullCalendar
+	 *
+	 */
+	private static void setCalendarData() {
+		String jsonTaskString = fileIO.writeToString(taskList);
+		context.setCalendarData(jsonTaskString);
+	}
+
+	// Utility function - return number of words in a string delimited by whitespace
+	private static int getWordCount(String userInput) {
+		// Trim leading and trailling whitespaces
+		String trimmed = userInput.trim();
+		if (trimmed.isEmpty()) {
+			return 0;
+		} else {
+			return trimmed.split("\\s+").length;
 		}
 	}
 
