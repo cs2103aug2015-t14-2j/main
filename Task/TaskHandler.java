@@ -873,7 +873,7 @@ public class TaskHandler {
 	 * @return
 	 */
 	private static boolean isSameLogic(Boolean compareTask, Boolean taskListTask) {
-		return compareTask == null || compareTask == taskListTask;
+		return compareTask == null || taskListTask == null || compareTask == taskListTask;
 	}
 
 	/**

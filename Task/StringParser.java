@@ -8,7 +8,6 @@
 
 package Task;
 
-import java.text.ParseException;
 import java.util.HashMap;
 
 
@@ -47,7 +46,6 @@ public class StringParser {
 	 * @param command The type of command used to treat the userInput differently
 	 * @param userInput The string from the user
 	 * @return The hashmap with valid task inputs
-	 * @throws ParseException Used to detect user errors in input
 	 */
 	public static HashMap<PARAMETER, Object> getValuesFromInput(COMMAND_TYPE command, String userInput) {
 		
