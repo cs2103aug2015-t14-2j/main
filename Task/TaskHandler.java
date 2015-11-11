@@ -763,8 +763,10 @@ public class TaskHandler {
 	 */
 	private static boolean containsEarlierThanToday(ArrayList<Task> periodsAndDeadlines) {
 		for(Task t :periodsAndDeadlines){
-			if((t.getDeadline() != null && t.getDeadline().before(new Date())) || 
-					(t.getStartDateTime() != null && t.getStartDateTime().before(new Date()))){
+			if((t.getDeadline() != null && t.getDeadline().before(new Date())) 					|| 
+			   (t.getDeadline() != null && t.getDeadline().equals(new Date()))					||
+			   (t.getStartDateTime() != null && t.getStartDateTime().before(new Date()))		||
+			   (t.getStartDateTime() != null && t.getStartDateTime().equals(new Date()))){
 				return true;
 			}
 		}
@@ -911,7 +913,7 @@ public class TaskHandler {
 	 */
 	private static boolean containsWithinVenue(Task compareTask, Task taskListTask) {
 		return compareTask.getVenue()			== null || (taskListTask.getVenue() != null 	    &&
-				taskListTask.getVenue().toLowerCase().contains(compareTask.getVenue().toLowerCase())									);
+				taskListTask.getVenue().toLowerCase().contains(compareTask.getVenue().toLowerCase()));
 	}
 
 	/**
@@ -923,7 +925,8 @@ public class TaskHandler {
 	 */
 	private static boolean isAfterDateTime(Task compareTask, Task taskListTask) {
 		return compareTask.getEndDateTime()	== null	|| (taskListTask.getEndDateTime() != null   	&&
-			compareTask.getEndDateTime().after(taskListTask.getStartDateTime()));
+			(compareTask.getEndDateTime().after(taskListTask.getStartDateTime()) 					||
+			 compareTask.getEndDateTime().equals(taskListTask.getStartDateTime())					));
 	}
 
 	/**
@@ -934,8 +937,9 @@ public class TaskHandler {
 	 * @return
 	 */
 	private static boolean isBeforeDateTime(Task compareTask, Task taskListTask) {
-		return compareTask.getStartDateTime()	== null	|| (taskListTask.getStartDateTime() != null &&
-			compareTask.getStartDateTime().before(taskListTask.getEndDateTime()));
+		return compareTask.getStartDateTime() == null || (taskListTask.getStartDateTime() != null 	&&
+			(compareTask.getStartDateTime().before(taskListTask.getEndDateTime())					||
+			 compareTask.getEndDateTime().equals(taskListTask.getStartDateTime())					));
 	}
 
 	/**
