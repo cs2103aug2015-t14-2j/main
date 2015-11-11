@@ -33,11 +33,9 @@ public class FileIO {
 	private static SimpleDateFormat dateFormat       = new SimpleDateFormat("yyyy-M-dd HH:mm");
 	private static FileIO fileIO = null;
 	// Error messages
-	private final static String ERROR_MALFORMED_TASK = "ERROR! Corrupted task region. Task %d has been discarded.\n";
-	private final static String ERROR_MALFORMED_FILE = "ERROR! Corrupted file region. Rest of file cannot be read.\n";
-	private final static String ERROR_MALFORMED_KEY  = "ERROR! File does not match expected format. Restart program with a new file location.\n";
-	private final static String ERROR_FILE_IO        = "ERROR! Cannot read from specified file location. Quit and restart. Exiting program...\n";
+
 	private int maxTaskId;
+	private int currentTaskId = 0;
 	private String path;
 	
 	// Private constructor for singleton class
@@ -79,15 +77,10 @@ public class FileIO {
 			createNewFile(this.path);
 		} catch (MalformedJsonException e1) {
 			context.displayMessage("ERROR_MALFORMED_FILE");
-			System.out.format(ERROR_MALFORMED_FILE);
 		} catch (IllegalStateException e2) {
 			context.displayMessage("ERROR_MALFORMED_KEY");
-			System.out.format(ERROR_MALFORMED_KEY);
-			System.exit(0);
 		} catch (IOException e3) {
 			context.displayMessage("ERROR_FILE_IO");
-			System.out.format(ERROR_FILE_IO);
-			System.exit(0);						
 		}
 		return taskList;
 	}
@@ -109,20 +102,17 @@ public class FileIO {
 				}						
 			} catch (ParseException e) {
 				context.displayMessage("ERROR_MALFORMED_TASK");
-				System.out.format(ERROR_MALFORMED_TASK, maxTaskId);
+				context.setTaskId(currentTaskId);
 			} catch (MalformedJsonException e1) {
 				context.displayMessage("ERROR_MALFORMED_FILE");
-				System.out.format(ERROR_MALFORMED_FILE);
 			} catch (IllegalStateException e2) {
 				context.displayMessage("ERROR_MALFORMED_KEY");
-				System.out.format(ERROR_MALFORMED_KEY);
-				System.exit(0);
 			}
 		}
 	}
 
 	/**
-	 * 
+	 * Write TaskList to JSON file at filepath
 	 * @param taskList 	A list of tasks to write to. Will overwrite entire file
 	 */
 	public void writeToFile(ArrayList<Task> taskList) {
@@ -138,7 +128,7 @@ public class FileIO {
 			Iterator<Task> taskIterator = taskList.iterator();
 			while (taskIterator.hasNext()) {
 				Task currentTask = taskIterator.next();
-				writeTaskToFile(jsonWriter, currentTask);
+				writeTaskToJSON(jsonWriter, currentTask);
 			}
 			jsonWriter.endArray();
 			jsonWriter.endObject();
@@ -149,6 +139,38 @@ public class FileIO {
 		}
 	}
 
+	/**
+	 * Write to StringBuffer, usually used by context to render into FTL Template
+	 * @param taskList
+	 */
+	public String writeToString(ArrayList<Task> taskList) {
+		StringWriter writer = new StringWriter();
+		JsonWriter jsonWriter = new JsonWriter(writer);
+		jsonWriter.setIndent("    ");
+		try {
+			jsonWriter.beginObject();
+			jsonWriter.name("Tasks");
+			jsonWriter.beginArray();	
+			Iterator<Task> taskIterator = taskList.iterator();
+			while (taskIterator.hasNext()) {
+				Task currentTask = taskIterator.next();
+				writeTaskToJSON(jsonWriter, currentTask);	
+			}
+			jsonWriter.endArray();
+			jsonWriter.endObject();
+			jsonWriter.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			writer.write("{ \"Tasks\" : [] }");
+			context.displayMessage("ERROR_FILE_IO");
+		}
+		return writer.toString();
+	}
+	
+	/**
+	 * Create a new JSON file with empty Tasks array at filepath
+	 * @param filePath
+	 */
 	public void createNewFile(String filePath) {
 		try {
 			FileWriter writer = new FileWriter(filePath);
@@ -181,16 +203,15 @@ public class FileIO {
 	// Validate that a JSON file exists at the filePath
 	// Otherwise, change the filePath anyway and create a new empty JSON file.
 	public boolean setFilePath(String _path) {
-		if (isFileExistsAtPath(_path) && isJsonFileExt(_path)) {
+		if (isFileExistsAtPath(_path)) {
 			this.path = _path;
 			context.setFilePath(_path);
 			return true;
 		} else {
-			// File does not exist, create an empty json file
-			createNewFile(_path);
+			// File does not exist at path, warn user
 			this.path = _path;
-			context.setFilePath(_path);
-			context.displayMessage("WARNING_EMPTY_FILE");
+			context.setFilePath(_path);	// update path variable in context to sync
+			context.displayMessage("WARNING_FILE_DOES_NOT_EXIST");
 			return false;
 		}
 	}
@@ -206,7 +227,7 @@ public class FileIO {
 	 * @return 	Task 	   if parsing error occurs, returns a null task. Informs user of problem.
 	 */
 	private Task getJSONTaskFromFile(JsonReader jsonReader) throws MalformedJsonException , ParseException, IllegalStateException, IOException {
-		Task task = new Task(0, "Error while parsing file. Your file might be corrupted.", null, null);
+		Task task;
 		int taskId              = 1;
 		String createdTime      = "";
 		String startTime        = "";
@@ -251,6 +272,8 @@ public class FileIO {
 				}
 			}
 			jsonReader.endObject();
+
+			currentTaskId = taskId;
 			maxTaskId = Math.max(taskId, maxTaskId);
 			
 			Date createdTimeDate      = parseStringToDate(createdTime);
@@ -262,6 +285,7 @@ public class FileIO {
 		} catch (IllegalStateException  | 
 			     MalformedJsonException | 
 			     ParseException e1) {
+			e1.printStackTrace();
 			throw e1;
 		} 
 		
@@ -277,12 +301,12 @@ public class FileIO {
 	}
 	
 	/**
-	 * Helper function to write a single Task to file
+	 * Helper function to write a single Task to JSON string
 	 * 
 	 * @param jsonWriter
 	 * @param currentTask
 	 */
-	private void writeTaskToFile(JsonWriter jsonWriter, Task currentTask) throws IOException {
+	private void writeTaskToJSON(JsonWriter jsonWriter, Task currentTask) throws IOException {
 		jsonWriter.beginObject();
 		jsonWriter.name("taskId").value(currentTask.getTaskId());
 		jsonWriter.name("createdTime").value(toNullOrDateString(currentTask.getCreatedTime()));
@@ -311,6 +335,20 @@ public class FileIO {
 		}
 	}
 	
+	/**
+	 * Gets the canonical filepath of path variable
+	 * @return canonical path of file if found, file not found message otherwise.
+	 */
+	public String getCanonicalPath() {
+		File file = new File(fileIO.path);
+		try {
+			return file.getCanonicalPath();
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "[FILE NOT FOUND]";
+		}
+	}
+
 	/**
 	 * @@ author A0097689
 	 */
