@@ -401,7 +401,7 @@ public class TaskHandler {
 			// E.g. edit 2 on 12/10/15 from 1200 to 1400
 			if (startDate != null && startTime != null && endDate != null && endTime != null){
 				startDateTime = combineDateAndTime(startDate, startTime);
-				endDateTime   = combineDateAndtime(endDate, endTime);
+				endDateTime   = combineDateAndTime(endDate, endTime);
 
 				newPeriod = new Period(startDateTime, endDateTime);
 				task.setStartDateTime(startDateTime);
@@ -1141,7 +1141,7 @@ public class TaskHandler {
 		}
 	}
 
-	private static Date getDateOnly(Date date) {
+	private static Date getDateOnly(Date date) throws ParseException {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date dateString = dateFormat.parse(date);
 
@@ -1149,7 +1149,7 @@ public class TaskHandler {
 	}
 
 	// Utility function
-	private static Date getTimeOnly(Date date) {
+	private static Date getTimeOnly(Date date) throws ParseException {
 		SimpleDateFormat timeFormat = new SimpleDateFormat("hhmm");
 		Date timeString = timeFormat.parse(date);
 

@@ -602,7 +602,7 @@ public class Validator {
 		return dateOnlyObj;
 	}
 
-	public static Date getTimeOnly(Date dateobj) throws ParseException {
+	public static Date getTimeOnly(Date dateObj) throws ParseException {
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
 		String timeOnlyString       = timeFormat.format(dateObj);
 		Date timeOnlyObj            = timeFormat.parse(timeOnlyString);
