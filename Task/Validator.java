@@ -128,17 +128,87 @@ public class Validator {
 
 	private static void updateHashMapForAdd(HashMap<PARAMETER, String> parsedMap, 
 		HashMap<PARAMETER, Object> objectHashMap) {
-		String dateString   = parsedMap.get(PARAMETER.DATE);
-		String startTime    = parsedMap.get(PARAMETER.START_TIME);
-		String endTime      = parsedMap.get(PARAMETER.END_TIME);
-		String deadlineTime = parsedMap.get(PARAMETER.DEADLINE_TIME);
+		Date startDateObj;
+		Date startTimeObj;
+		Date endDateObj;
+		Date endTimeObj;
+		Date deadlineDateObj;
+		Date deadlineTimeObj;
 
-		Date nattyDate = parseNatty(dateString);
-		Date nattyStart = parseNatty(startTime);
-		Date nattyEnd = parseNatty(endTime);
-		Date nattyDeadline = parseNatty(deadlineTime);
+		if (parsedMap.containsKey((Object)PARAMETER.DATE) && 
+			!parsedMap.get(PARAMETER.DATE).isEmpty()) {
 
-		Date 
+			String dateString   = parsedMap.get(PARAMETER.DATE);
+
+			if (parsedMap.containsKey((Object)PARAMETER.START_TIME) && 
+				!parsedMap.get(PARAMETER.START_TIME).isEmpty()) {
+				
+				String startTime    = parsedMap.get(PARAMETER.START_TIME);
+				startTime += " " + dateString;
+				
+				if (userSpecifiedTimeOnly(startTime) {
+					Date nattyStart    = parseNatty(startTime);
+					startTimeObj = getTimeOnly(nattyStart);
+					
+				} else if (userSpecifiedDateOnly(startTime)) {
+					Date nattyStart = parseNatty(startTime);
+					startDateObj = getDateOnly(nattyStart);
+
+				} else if (userSpecifiedDateAndTime(startTime)) {
+					// Both date and time 
+					Date nattyStart = parseNatty(startTime);
+					startTimeObj = getTimeOnly(nattyStart);
+					startDateObj = getDateOnly(nattyEnd);
+
+				} else {
+					// cannot be parsed as date
+					
+				}				
+			}
+			if (parsedMap.containsKey((Object)PARAMETER.END_TIME) && 
+				!parsedMap.get(PARAMETER.END_TIME).isEmpty()) {
+				String endTime      = parsedMap.get(PARAMETER.END_TIME);
+				endTime += " " + dateString;
+				Date nattyEnd      = parseNatty(endTime);
+
+			}
+			if (parsedMap.containsKey((Object)PARAMETER.DEADLINE_TIME) && 
+				!parsedMap.get(PARAMETER.DEADLINE_TIME).isEmpty()) {
+				String deadlineTime = parsedMap.get(PARAMETER.DEADLINE_TIME);
+				deadlineTime += " " + dateString;
+				Date nattyDeadline = parseNatty(deadlineTime);
+
+			}
+		} else {
+			if (parsedMap.containsKey((Object)PARAMETER.START_TIME) && 
+				!parsedMap.get(PARAMETER.START_TIME).isEmpty()) {
+				String startTime    = parsedMap.get(PARAMETER.START_TIME);
+				
+			}
+			if (parsedMap.containsKey((Object)PARAMETER.END_TIME) && 
+				!parsedMap.get(PARAMETER.END_TIME).isEmpty()) {
+				String endTime      = parsedMap.get(PARAMETER.END_TIME);
+
+			}
+			if (parsedMap.containsKey((Object)PARAMETER.DEADLINE_TIME) && 
+				!parsedMap.get(PARAMETER.DEADLINE_TIME).isEmpty()) {
+				String deadlineTime = parsedMap.get(PARAMETER.DEADLINE_TIME);
+
+			}			
+		}
+
+		// Check for null combinations
+
+		// Default parameters if not specified by user
+
+
+		// Put date objects into hashmap
+		objectHashMap.put(PARAMETER.START_DATE, startDateObj);
+		objectHashMap.put(PARAMETER.START_TIME, startTimeObj);
+		objectHashMap.put(PARAMETER.END_DATE, endDateObj);
+		objectHashMap.put(PARAMETER.END_TIME, endTimeObj);
+		objectHashMap.put(PARAMETER.DEADLINE_DATE, deadlineDateObj);
+		objectHashMap.put(PARAMETER.DEADLINE_TIME, deadlineTimeObj); 
 	}
 
 	private static void updateHashMapForDisplay(HashMap<PARAMETER, String> parsedMap,
@@ -402,6 +472,11 @@ public class Validator {
 		return timeOnlyObj;
 	}
 
+	private static boolean isDateOnly(Date dateObj) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+
+	}
+
 	/**
 	 * Takes a date from Natty and checks the Date parsed from the Date PARAMETER to figure out
 	 * whether user specified a date
@@ -449,6 +524,16 @@ public class Validator {
 		} else {
 			return false;
 		}
+	}
+
+	private static boolean userSpecifiedDateAndTime(String dateString) {
+		Date date = parseNatty(dateString);
+		
+		if (date == null) {
+			return false;
+		}
+
+		return (!date.equals(new Date() && !userSpecifiedDateOnly(dateString) && !userSpecifiedTimeOnly(dateString));
 	}
 
 	private static boolean isToday(Date date) {
