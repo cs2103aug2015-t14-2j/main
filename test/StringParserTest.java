@@ -1,5 +1,5 @@
 /**
- *  @@author A0009586
+ *  @@author A0145472E
  *  
  *  Represents the test for the String Parser class
  * 

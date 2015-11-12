@@ -1,5 +1,9 @@
 package Task;
 
+/**
+ * @@ author A0097689
+ */
+
 import javax.swing.undo.AbstractUndoableEdit;
 import javax.swing.undo.UndoableEdit;
 
@@ -30,7 +34,6 @@ public class TaskDescEdit extends UndoableSignificantEdit implements UndoableEdi
 	public void undo() {
 		super.undo();
 		task.setDescription(oldValue);
-		System.out.println("undoed!");
 	}
 	
 	@Override

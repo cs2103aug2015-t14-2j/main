@@ -1,5 +1,9 @@
 package Task;
 
+/**
+ *  @@author A0097689
+ */
+
 import javafx.application.Platform;
 import javafx.application.Application;
 import javafx.stage.WindowEvent;
@@ -15,20 +19,14 @@ import javafx.scene.control.TextField;
 
 public class JavaFXGUI extends Application {
     
-    private static Controller controller = null;
-    private static JavaFXGUI GUI         = null;
-    private static Stage stage           = null;
-    private static TextField tb          = null;
-    private static WebView browser       = null;
-    private static final int WIN_WIDTH 	 = 1000;
-    private static final int WIN_HEIGHT  = 740;
-    
-    // @@author A0009586
-    private static final int 	FADE_DURATION_MS 	= 2;
-	private static final float 	FADE_OUT_VAL		= .01f;
-	private static final float 	FADE_IN_VAL 		= .05f;
-	private static final float 	FADED_OUT 			= FADE_OUT_VAL;
-	private static final float 	FADED_IN 			= 1f - FADE_IN_VAL;
+    private static Controller controller 			= null;
+    private static JavaFXGUI GUI         			= null;
+    private static Stage stage           			= null;
+    private static TextField tb          			= null;
+    private static WebView browser       			= null;
+    private static final int WIN_WIDTH 	 			= 1000;
+    private static final int WIN_HEIGHT  			= 725;
+	private static final double TAB_HEIGHT 			= 20;
 	
 	public JavaFXGUI() {
 		controller = Controller.getInstance();
@@ -66,6 +64,8 @@ public class JavaFXGUI extends Application {
         });
         controller.prepareStartUpScreen();
         stage.setScene(scene);  
+        stage.setMinWidth(WIN_WIDTH);
+        stage.setMinHeight(WIN_HEIGHT + TAB_HEIGHT);
         stage.show();
     } 
     
@@ -80,7 +80,7 @@ public class JavaFXGUI extends Application {
         hbox.setStyle("-fx-background-color: #336699;");
         
         tb = new TextField();
-        tb.setPrefSize(WIN_WIDTH, 20);
+        tb.setPrefSize(Integer.MAX_VALUE, TAB_HEIGHT);
         //Setting an action for the textbox
         tb.setOnAction(new EventHandler<ActionEvent>() {
             @Override
@@ -110,23 +110,4 @@ public class JavaFXGUI extends Application {
             }
         });
     }
-
-    // @@author A0009586
-	public static void switchViewWindow() throws InterruptedException {
-		if(stage.getOpacity() > FADED_OUT){
-    		while(stage.getOpacity() > FADED_OUT){
-    			stage.setOpacity(stage.getOpacity()-FADE_OUT_VAL);
-    			Thread.sleep(FADE_DURATION_MS);
-    		}
-    		stage.setOpacity(0f);
-    	} else {    	
-    		while(stage.getOpacity() < FADED_IN){
-    			stage.setOpacity(stage.getOpacity()+FADE_IN_VAL);
-    			Thread.sleep(FADE_DURATION_MS);
-    		}
-    		stage.setOpacity(FADED_IN + FADE_IN_VAL);
-    		tb.requestFocus();
-    	}
-		
-	}
 }

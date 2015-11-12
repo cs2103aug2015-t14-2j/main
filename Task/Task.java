@@ -7,9 +7,7 @@ import java.text.SimpleDateFormat;
 /**
  * This class represents a task that the user adds in
  * 
- *  @author A0097689 Tan Si Kai
- *  @author A0009586 Jean Pierre Castillo
- *  @author A0118772  Audrey Tiah
+ *  @@author A0097689
  */
 
 public class Task {
@@ -28,24 +26,6 @@ public class Task {
 	private Boolean isDone         = null;
 	private Boolean isPastDeadline = null;
 	private Boolean hasEnded       = null;
-	
-	/**
-	 * Constructor for tasks without startTime, endTime and deadline. 
-	 * To be called when user adds a new task.
-	 * 
-	 * @param taskId
-	 * @param desc
-	 */
-	public Task (int taskId, String desc, String venue) {
-		this.createdTime = new Date();
-		this.taskId = taskId;
-		
-		this.period = null;
-		this.deadline = null;
-		this.venue = venue;
-		this.description = desc;
-		setFlags(false);
-	}
 	
 	/**
 	 * Constructor for tasks with startTime and endTime only.
@@ -74,7 +54,7 @@ public class Task {
 	}
 		
 	/**
-	 * Constructor for tasks with only deadline and desc.
+	 * Constructor for tasks with only deadline, venue and desc.
 	 * Used when user adds a new task
 	 * 
 	 * @param taskId
@@ -129,7 +109,7 @@ public class Task {
 		setFlags(isDone);
 	}
 
-	//To be used for tempory tasks
+	//To be used for temporary tasks
 	public Task(int taskId, String desc, String venue, Date startTime, Date endTime, Date deadline, Boolean isDone, Boolean isPastDeadline, Boolean hasEnded) {
 		this.createdTime = null;
 		this.period = null;
@@ -179,7 +159,7 @@ public class Task {
 		result += "   Venue             : " + this.venue + "\n";
 		result += "   Completed?        : " + this.isDone + "\n";
 		result += "   Is Past Deadline? : " + this.isPastDeadline + "\n";
-		result += "   Has Ended?        : " + this.isPastDeadline + "\n";
+		result += "   Has Ended?        : " + this.hasEnded + "\n";
 		
 		return result;
 	}
@@ -380,6 +360,9 @@ public class Task {
 		}
 	}
 	
+	/**
+	 * @@ author A0009586
+	 */
 	public boolean isEmpty() {
 		return
 			taskId			== -1 				&&

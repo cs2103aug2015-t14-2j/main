@@ -23,7 +23,7 @@ import javafx.application.Platform;
  *  @@author A0097689
  */
 @SuppressWarnings("unused")
-public class TaskHandler {	
+public class TaskHandler {
 	private static final Logger LOGGER = Logger.getLogger(TaskHandler.class.getName());
 	
 	private static final boolean TASK_DONE    	= true;
@@ -101,8 +101,11 @@ public class TaskHandler {
 			case PATH:
 				String filepath = removeFirstWord(userInput);
 				if (fileIO.setFilePath(filepath)) {
-					context.displayMessage("MESSAGE_PATH");
+					context.displayMessage("MESSAGE_FILE_FOUND");
+				} else {
+					context.displayMessage("HELP_PATH");
 				};
+				context.displayMessage("MESSAGE_PATH");
 				break;
 			case FILEOPEN:
 				taskList = fileIO.readFromFile();
@@ -238,7 +241,7 @@ public class TaskHandler {
 		boolean notFound = true;
 		for (Task t:taskList){
 			if (t.getTaskId() == taskID){
-				boolean prevDone      = t.isDone();
+				Boolean prevDone      = t.isDone();
 				TaskEdit compoundEdit = new TaskEdit(t);
 				TaskDoneEdit edit     = new TaskDoneEdit(t, prevDone, isDone);
 				edit.setSignificant();
@@ -584,7 +587,7 @@ public class TaskHandler {
 		} else if (deadlineDate != null){
 			return new Task(taskID, desc, deadlineDate, venue);		// Deadline task
 		} else {
-			return new Task(taskID, desc, venue);						// Floating task
+			return new Task(taskID, desc, null, venue);				// Floating task
 		}
 	}
 	
@@ -629,8 +632,12 @@ public class TaskHandler {
 	 */
 	private static void showHelpMenu() {
 		context.displayMessage("HELP_TITLE");
+		context.displayMessage("HELP_HEADING");
 		context.displayMessage("HELP_SUBTITLE");
 		context.displayMessage("HELP_ADD_TASK");
+		context.displayMessage("HELP_PATH");
+		context.displayMessage("HELP_FILEOPEN");
+		context.displayMessage("HELP_FILESAVE");
 		context.displayMessage("HELP_DISPLAY");
 		context.displayMessage("HELP_EDIT_TASK");
 		context.displayMessage("HELP_UNDO");
@@ -640,7 +647,6 @@ public class TaskHandler {
 		context.displayMessage("HELP_DELETE_TASK");
 		context.displayMessage("HELP_HELP");
 		context.displayMessage("HELP_EXIT");
-
 	}
 	
 	/**
@@ -664,6 +670,7 @@ public class TaskHandler {
 	}
 	
 	/**
+	 * @@author A0145472E
 	 * Returns a task with taskID if found, null otherwise
 	 * @param taskId
 	 * @return Task or null
@@ -678,7 +685,7 @@ public class TaskHandler {
 	}
 	
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param parsedParamTable
 	 * @return
@@ -687,15 +694,26 @@ public class TaskHandler {
 		ArrayList<Task> searchResult = new ArrayList<Task>(50);
 		Task compareTask = null;
 		
+		Boolean _isDone = null;
+		Boolean _isPast = null;
+		Boolean _hasEnded = null;
+		
+		if(!isDisplayAll(parsedParamTable)){
+			_isDone 	= (parsedParamTable.get(PARAMETER.IS_DONE) != null)   ? 
+					(Boolean)parsedParamTable.get(PARAMETER.IS_DONE) 	: false;
+			_isPast 	= (Boolean)parsedParamTable.get(PARAMETER.IS_PAST);
+			_hasEnded 	= (Boolean)parsedParamTable.get(PARAMETER.HAS_ENDED);
+		}
+		
 		compareTask = new Task((int)parsedParamTable.get(PARAMETER.TASKID),
 				(String)parsedParamTable.get(PARAMETER.DESC),
 				(String)parsedParamTable.get(PARAMETER.VENUE), 
 				(Date)parsedParamTable.get(PARAMETER.START_DATE),
 				(Date)parsedParamTable.get(PARAMETER.END_DATE), 
 				(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-				(Boolean)parsedParamTable.get(PARAMETER.IS_DONE),
-				(Boolean)parsedParamTable.get(PARAMETER.IS_PAST),
-				(Boolean)parsedParamTable.get(PARAMETER.HAS_ENDED));
+				_isDone,
+				_isPast,
+				_hasEnded);
 		
 		for (Task t : taskList) {
 			if (isTaskSameFields(compareTask, t)) {
@@ -704,9 +722,13 @@ public class TaskHandler {
 		}
 		return sortTasks(searchResult);
 	}
+
+	private static boolean isDisplayAll(HashMap<PARAMETER, Object> parsedParamTable) {
+		return parsedParamTable.get(PARAMETER.SPECIAL) != null && (boolean)parsedParamTable.get(PARAMETER.SPECIAL);
+	}
 	
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param searchResult
 	 * @return
@@ -725,7 +747,7 @@ public class TaskHandler {
 			}
 		}
 		
-		bubbleSortTasks(periodsAndDeadlines);
+		bubbleSortTasks(periodsAndDeadlines,containsEarlierThanToday(periodsAndDeadlines));
 		
 		result.addAll(periodsAndDeadlines);
 		result.addAll(floating);
@@ -734,39 +756,58 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
+	 * 
+	 * @param periodsAndDeadlines
+	 * @return
+	 */
+	private static boolean containsEarlierThanToday(ArrayList<Task> periodsAndDeadlines) {
+		for(Task t :periodsAndDeadlines){
+			if((t.getDeadline() != null && t.getDeadline().before(new Date())) || 
+					(t.getStartDateTime() != null && t.getStartDateTime().before(new Date()))){
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @@author A0145472E
 	 * 
 	 * @param taskListToSort
 	 */
-	private static void bubbleSortTasks(ArrayList<Task> taskListToSort) {
+	private static void bubbleSortTasks(ArrayList<Task> taskListToSort, boolean isSortAsending) {
 		for (int i=0; i < taskListToSort.size() - 1;i++)
 	    {
-	        if(isAfterPeriodDeadline(taskListToSort.get(i),taskListToSort.get(i+1)))
+	        if(isPeriodDeadlineComp(taskListToSort.get(i),taskListToSort.get(i+1),isSortAsending))
 	        {
 	        	sendToEndOfList(taskListToSort, i);
-	            bubbleSortTasks(taskListToSort);
+	            bubbleSortTasks(taskListToSort,isSortAsending);
 	        }
 	    }
 		
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param firstTask
 	 * @param secondTask
 	 * @return
 	 */
-	private static boolean isAfterPeriodDeadline(Task firstTask, Task secondTask) {
+	private static boolean isPeriodDeadlineComp(Task firstTask, Task secondTask, boolean isSortAsending) {
 		
 		Date compDateOne = deadlineOrPeriodDate(firstTask);
 		Date compDateTwo = deadlineOrPeriodDate(secondTask);
-		
-		return compDateOne.after(compDateTwo);
+		if(isSortAsending){
+			return compDateOne.after(compDateTwo);
+		} else {
+			return compDateOne.before(compDateTwo);
+		}
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param firstTask
 	 * @return
@@ -780,7 +821,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param tasklist
 	 * @param i
@@ -791,7 +832,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -825,7 +866,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -836,7 +877,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -849,7 +890,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -862,7 +903,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -874,7 +915,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -886,7 +927,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -898,7 +939,7 @@ public class TaskHandler {
 	}
 
 	/**
-	 * @@author A0009586
+	 * @@author A0145472E
 	 * 
 	 * @param compareTask
 	 * @param taskListTask
@@ -908,8 +949,9 @@ public class TaskHandler {
 		return compareTask.getTaskId()		== -1 	|| compareTask.getTaskId()		== ALL_TASKS ||
 			compareTask.getTaskId() == taskListTask.getTaskId();
 	}
-
-	/**
+	
+	/** 
+	 *  @@author A0097689
 	 * Takes a single word and figure out the command
 	 * @param commandTypeString The string containing a command
 	 * @return The enum value corresponding to the commandTypeString

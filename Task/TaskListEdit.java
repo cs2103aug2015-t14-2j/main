@@ -1,5 +1,9 @@
 package Task;
 
+/**
+ * @@ author A0097689
+ */
+
 import javax.swing.undo.UndoableEdit;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,6 +16,9 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 	protected ArrayList<Task> taskListContents;
 	protected boolean isAdd;
 	
+	/**
+	 *  @@author A0145472E
+	 */
 	public TaskListEdit(Task task, ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
 		super();
 		taskList = _taskList;
@@ -25,6 +32,9 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		isAdd = _isAdd;
 	}
 	
+	/**
+	 *  @@author A0145472E
+	 */
 	public TaskListEdit(ArrayList<Task> _taskList, int _oldCurrentId, int _newCurrentId,boolean _isAdd) {
 		super();
 		taskList = _taskList;
@@ -45,6 +55,9 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		return "Redo add task.";
 	}
 	
+	/**
+	 *  @@author A0145472E
+	 */
 	@Override
 	public void undo() {
 		super.undo();
@@ -69,6 +82,9 @@ public class TaskListEdit extends UndoableSignificantEdit implements UndoableEdi
 		TaskHandler.setCurrentTaskId(oldCurrentId);
 	}
 	
+	/**
+	 *  @@author A0145472E
+	 */
 	@Override
 	public void redo() {
 		super.redo();
