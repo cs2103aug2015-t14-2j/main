@@ -72,62 +72,103 @@ public class Validator {
 		String deadlineTime = hashmap.get(PARAMETER.DEADLINE_TIME);
 		String taskID = hashmap.get(PARAMETER.TASKID);
 		String keyDate = hashmap.get(PARAMETER.DATE);
-
+		//	 System.out.println("startDate: " + startDate);
+		 System.out.println("end date: " + endDate);
+		 System.out.println("start time: " + startTime);
+		 System.out.println("end time: " + endTime);
+		// System.out.println("deadline date: " + deadlineDate);
+		 System.out.println("deadline time: " + deadlineTime);
+		 System.out.println("date: " + hashmap.get(PARAMETER.DATE));	
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
-
-		// used when there is a parsed KeyDate (etc. no deliminator or on _____)
-		if (keyDate != null) {
+		//if(command == COMMAND_TYPE.ADD_TASK){
+			if (deadlineTime != null){
+				updateDeadlineTimeHashMap(deadlineTime, objectHashMap, COMMAND_TYPE.ADD_TASK);
+			}
+		if(keyDate != null){
 			start_Date = parseNatty(keyDate);
 			end_Date = parseNatty(keyDate);
-			if( parseNatty(deadlineTime) == null && parseNatty(startTime) == null && parseNatty(endTime)== null && command == COMMAND_TYPE.ADD_TASK){
+			if( parseNatty(deadlineTime) == null && parseNatty(startTime) == null && parseNatty(endTime)== null){
 				context.displayMessage("WARNING_INVALID_DATEFORMAT");
-			}else
+			}
 			if (parseNatty(keyDate) != null && deadlineTime == null) {
 				keyWordUpdateHashMap(start_Date, end_Date, startTime, endTime, objectHashMap,command);
 			}
-			if (deadlineTime != null && parseNatty(keyDate)!= null){
-				if(parseNatty(deadlineTime)!= null){
-					Date DeadlineTime = parseNatty(deadlineTime);
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(parseNatty(keyDate));
-					Calendar cal2 = Calendar.getInstance();
-					cal2.setTime(DeadlineTime);
-					cal.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
-					cal.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
-					cal.set(Calendar.SECOND, 00);
-					cal.set(Calendar.MILLISECOND, 0);
-					DeadlineTime = cal.getTime();
-					objectHashMap.put(PARAMETER.DEADLINE_TIME, DeadlineTime);
-					objectHashMap.put(PARAMETER.DEADLINE_DATE, DeadlineTime);
-				}
+		if (deadlineTime != null && parseNatty(keyDate)!= null){
+			if(parseNatty(deadlineTime)!= null){
+				Date DeadlineTime = parseNatty(deadlineTime);
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(parseNatty(keyDate));
+				Calendar cal2 = Calendar.getInstance();
+				cal2.setTime(DeadlineTime);
+				cal.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
+				cal.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
+				cal.set(Calendar.SECOND, 00);
+				cal.set(Calendar.MILLISECOND, 0);
+				DeadlineTime = cal.getTime();
+				objectHashMap.put(PARAMETER.DEADLINE_TIME, DeadlineTime);
+				objectHashMap.put(PARAMETER.DEADLINE_DATE, DeadlineTime);
 			}
-		} else {
+		}
+		}else {
 			// when there is no keyDate ( etc. direct dates: from ___ to ___)
 			if (startTime != null) {
 				updateStartTimeHashMap(startTime, objectHashMap);
 				Date updatedEndTime;
-				if (endTime == null && command == COMMAND_TYPE.ADD_TASK){
+				if (endTime == null){
 					 updatedEndTime = (Date) objectHashMap.get(PARAMETER.START_TIME);
+					 Date endingDate = (Date) objectHashMap.get(PARAMETER.START_DATE);
 					if (updatedEndTime != null){
 						Calendar cal = Calendar.getInstance();
 						cal.setTime(updatedEndTime);
 						cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY)+1);
-						updatedEndTime = cal.getTime();
-						objectHashMap.put(PARAMETER.END_DATE, updatedEndTime);
-						objectHashMap.put(PARAMETER.END_TIME, updatedEndTime);
+						updatedEndTime = cal.getTime();      
+						
+						objectHashMap.put(PARAMETER.END_DATE, endingDate);			
+
+					    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+					    try {
+							Date endingTime = sdftime.parse(sdftime.format(updatedEndTime));
+							objectHashMap.put(PARAMETER.END_TIME, endingTime);			
+					    } catch (ParseException e) {
+							e.printStackTrace();
+						}   
 					}
 				}
 			}
 			// End time
 			if (endTime != null) {
 				updateEndTimeHashMap(endTime, endDate, objectHashMap);
+				Date updatedStartTime;
+				if (startTime == null){
+					 updatedStartTime = (Date) objectHashMap.get(PARAMETER.END_TIME);
+					 Date startDate = (Date) objectHashMap.get(PARAMETER.END_DATE);
+					if (updatedStartTime != null){
+						Calendar cal = Calendar.getInstance();
+						cal.setTime(updatedStartTime);
+						cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY)-1);
+						updatedStartTime = cal.getTime();     
+						objectHashMap.put(PARAMETER.START_DATE, startDate);			
+
+					    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+					    try {
+							Date startingTime = sdftime.parse(sdftime.format(updatedStartTime));
+							objectHashMap.put(PARAMETER.START_TIME, startingTime);			
+					    } catch (ParseException e) {
+							e.printStackTrace();
+						}   
+					}
+				}
 			}
 			// Deadline time ( etc. by _____)
 			if (deadlineTime != null) {
 				updateDeadlineTimeHashMap(deadlineTime, objectHashMap, command);
 			}
+			
 		}
+		
+		
+		
 
 		if (taskID != null) {
 			if (containsOnlyNumbers(taskID)) {
@@ -172,6 +213,15 @@ public class Validator {
 			setFlag(hashmap, PARAMETER.SPECIAL, objectHashMap);
 		}
 
+		
+		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
+		System.out.println("Passed START_TIME: " + objectHashMap.get(PARAMETER.START_TIME));
+		System.out.println("Passed END_DATE: " + objectHashMap.get(PARAMETER.END_DATE));
+		System.out.println("Passed END_TIME: " + objectHashMap.get(PARAMETER.END_TIME));
+		System.out.println("Passed DEADLINE_DATE: " + objectHashMap.get(PARAMETER.DEADLINE_DATE));
+		System.out.println("Passed DEADLINE_TIME: " + objectHashMap.get(PARAMETER.DEADLINE_TIME));
+		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
+		
 		return objectHashMap;
 	}
 
@@ -196,14 +246,14 @@ public class Validator {
 	private static void keyWordUpdateHashMap(Date start_Date, Date end_Date, String startTime, String endTime,
 			HashMap<PARAMETER, Object> objectHashMap, COMMAND_TYPE command) {
 		Calendar cal = Calendar.getInstance();
+		if(parseNatty(startTime) == null && parseNatty(endTime) == null){
 		cal.setTime(start_Date);
 		cal = setStartTime(cal);
 		start_Date = cal.getTime();
 		cal.setTime(end_Date);
 		cal = setEndTime(cal);
 		end_Date = cal.getTime();
-	
-		
+		}		
 		if (startTime != null && parseNatty(startTime) != null) {
 			Date time = parseNatty(startTime);
 			cal.setTime(start_Date);
@@ -215,8 +265,28 @@ public class Validator {
 			cal.set(Calendar.SECOND, 00);
 			cal.set(Calendar.MILLISECOND, 0);
 			start_Date = cal.getTime();
-			objectHashMap.put(PARAMETER.START_DATE, start_Date);
-			objectHashMap.put(PARAMETER.START_TIME, start_Date);
+			
+			if(endTime == null){
+				cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY)+1);
+				end_Date = cal.getTime();
+			}
+			
+			
+		    SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");      
+		    try {
+				Date startDate = sdf.parse(sdf.format(start_Date));
+				objectHashMap.put(PARAMETER.START_DATE, startDate);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}
+		    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+		    try {
+				Date startingTime = sdftime.parse(sdftime.format(start_Date));
+				objectHashMap.put(PARAMETER.START_TIME, startingTime);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}
+
 		}
 		if (endTime != null && parseNatty(endTime) != null) {
 			Date time = parseNatty(endTime);
@@ -229,14 +299,54 @@ public class Validator {
 			cal.set(Calendar.SECOND, 00);
 			cal.set(Calendar.MILLISECOND, 0);
 			end_Date = cal.getTime();
-			objectHashMap.put(PARAMETER.END_DATE, end_Date);
-			objectHashMap.put(PARAMETER.END_TIME, end_Date);
+			
+			if(startTime == null){
+				cal.set(Calendar.HOUR_OF_DAY, cal.get(Calendar.HOUR_OF_DAY)-1);
+				start_Date = cal.getTime();
+			}
+			
+		    SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");      
+		    try {
+				Date endDate = sdf.parse(sdf.format(end_Date));
+				objectHashMap.put(PARAMETER.END_DATE, endDate);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}
+		    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+		    try {
+				Date endingTime = sdftime.parse(sdftime.format(end_Date));
+				objectHashMap.put(PARAMETER.END_TIME, endingTime);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}
 		}
 		if (command != COMMAND_TYPE.EDIT_TASK) {
-			objectHashMap.put(PARAMETER.START_DATE, start_Date);
-			objectHashMap.put(PARAMETER.START_TIME, start_Date);
-			objectHashMap.put(PARAMETER.END_DATE, end_Date);
-			objectHashMap.put(PARAMETER.END_TIME, end_Date);
+		    SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");      
+		    try {
+				Date startDate = sdf.parse(sdf.format(start_Date));
+				objectHashMap.put(PARAMETER.START_DATE, startDate);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}
+		    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+		    try {
+				Date startingTime = sdftime.parse(sdftime.format(start_Date));
+				objectHashMap.put(PARAMETER.START_TIME, startingTime);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}   
+		    try {
+				Date endDate = sdf.parse(sdf.format(end_Date));
+				objectHashMap.put(PARAMETER.END_DATE, endDate);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			} 
+		    try {
+				Date endingTime = sdftime.parse(sdftime.format(end_Date));
+				objectHashMap.put(PARAMETER.END_TIME, endingTime);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -250,13 +360,25 @@ public class Validator {
 		cal.set(Calendar.MILLISECOND, 0);
 		if (start_Time != null) {
 			cal.setTime(start_Time);
-			if (countOccurence(startTime, ' ') != 1) {
+			Calendar today = Calendar.getInstance();
+			if (cal.get(Calendar.HOUR_OF_DAY)== today.get(Calendar.HOUR_OF_DAY) && cal.get(Calendar.MINUTE)== today.get(Calendar.MINUTE)) {
 				cal = setStartTime(cal);
 				start_Time = cal.getTime();
 			}
-
-			objectHashMap.put(PARAMETER.START_TIME, start_Time);
-			objectHashMap.put(PARAMETER.START_DATE, start_Time);
+		    SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");      
+		    try {
+				Date startDate = sdf.parse(sdf.format(start_Time));
+				objectHashMap.put(PARAMETER.START_DATE, startDate);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}
+		    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+		    try {
+				Date startingTime = sdftime.parse(sdftime.format(start_Time));
+				objectHashMap.put(PARAMETER.START_TIME, startingTime);			
+		    } catch (ParseException e) {
+				e.printStackTrace();
+			}   
 
 		} else {
 			context.displayMessage("PARAM_SUBTITLE");
@@ -275,7 +397,8 @@ public class Validator {
 		cal.set(Calendar.MILLISECOND, 0);
 		if (end_Time != null) {
 			cal.setTime(end_Time);
-			if (countOccurence(endTime, ' ') != 1) {
+			Calendar today = Calendar.getInstance();
+			if (today.get(Calendar.HOUR_OF_DAY)== cal.get(Calendar.HOUR_OF_DAY) && today.get(Calendar.MINUTE)== cal.get(Calendar.MINUTE) ) {
 				cal = setEndTime(cal);
 				end_Time = cal.getTime();
 			}
@@ -286,23 +409,58 @@ public class Validator {
 						cal.setTime(end_Time);
 						cal.add(Calendar.DAY_OF_MONTH, 7);
 						end_Time = cal.getTime();
-						objectHashMap.put(PARAMETER.END_TIME, end_Time);
-						objectHashMap.put(PARAMETER.END_DATE, end_Time);
+						
+					    SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");      
+					    try {
+							Date date1 = sdf.parse(sdf.format(end_Time));
+							objectHashMap.put(PARAMETER.END_DATE, date1);			
+					    } catch (ParseException e) {
+							e.printStackTrace();
+						}
+					    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+					    try {
+							Date time1 = sdftime.parse(sdftime.format(end_Time));
+							objectHashMap.put(PARAMETER.END_TIME, time1);			
+					    } catch (ParseException e) {
+							e.printStackTrace();
+						}
+
 					} else {
 						context.displayMessage("ERROR_START_BEFORE_END");
 					}
 				} else {
-					objectHashMap.put(PARAMETER.END_TIME, end_Time);
-					objectHashMap.put(PARAMETER.END_DATE, end_Time);
+				    SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");      
+				    try {
+						Date date1 = sdf.parse(sdf.format(end_Time));
+						objectHashMap.put(PARAMETER.END_DATE, date1);			
+				    } catch (ParseException e) {
+						e.printStackTrace();
+					}
+				    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+				    try {
+						Date time1 = sdftime.parse(sdftime.format(end_Time));
+						objectHashMap.put(PARAMETER.END_TIME, time1);			
+				    } catch (ParseException e) {
+						e.printStackTrace();
+					}
 				}
 			} catch (NullPointerException n) {
 				if (parseNatty(endDate + " " + endTime) != null) {
 					end_Time = parseNatty(endDate + " " + endTime);
-					cal.setTime(end_Time);
-					cal = setEndTime(cal);
-					end_Time = cal.getTime();
-					objectHashMap.put(PARAMETER.END_TIME, end_Time);
-					objectHashMap.put(PARAMETER.END_DATE, end_Time);
+				    SimpleDateFormat sdf = new SimpleDateFormat("dd/M/yyyy");      
+				    try {
+						Date date1 = sdf.parse(sdf.format(end_Time));
+						objectHashMap.put(PARAMETER.END_DATE, date1);			
+				    } catch (ParseException e) {
+						e.printStackTrace();
+					}
+				    SimpleDateFormat sdftime = new SimpleDateFormat("HH:mm");      
+				    try {
+						Date time1 = sdftime.parse(sdftime.format(end_Time));
+						objectHashMap.put(PARAMETER.END_TIME, time1);			
+				    } catch (ParseException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 
@@ -321,7 +479,8 @@ public class Validator {
 		Calendar cal = Calendar.getInstance();
 		if (timeOfDeadline != null) {
 			cal.setTime(timeOfDeadline);
-			if (countOccurence(deadlineTime, ' ') != 1 && countOccurence(deadlineTime,' ')!=2) {
+			Calendar today = Calendar.getInstance();
+			if (cal.get(Calendar.HOUR_OF_DAY) == today.get(Calendar.HOUR_OF_DAY) && cal.get(Calendar.MINUTE)== today.get(Calendar.MINUTE)) {
 				cal = setEndTime(cal);
 				timeOfDeadline = cal.getTime();
 			}
@@ -347,8 +506,8 @@ public class Validator {
 			if (cal.getTime().before(current.getTime())) {
 				context.displayMessage("WARNING_DEADLINE_BEFORE_NOW");
 			}
+			
 			objectHashMap.put(PARAMETER.DEADLINE_TIME, timeOfDeadline);
-			objectHashMap.put(PARAMETER.DEADLINE_DATE, timeOfDeadline);
 
 		} else {
 			context.displayMessage("PARAM_SUBTITLE");
