@@ -149,6 +149,7 @@ public class Validator {
 
 	public static void updateHashMapForAdd(HashMap<PARAMETER, String> parsedMap, 
 		HashMap<PARAMETER, Object> objectHashMap) {
+		Date keyDate;
 		Date startDateObj;
 		Date startTimeObj;
 		Date endDateObj;
@@ -160,6 +161,7 @@ public class Validator {
 			!parsedMap.get(PARAMETER.DATE).isEmpty()) {
 
 			String dateString   = parsedMap.get(PARAMETER.DATE);
+			keyDate = parseNatty();
 
 			if (parsedMap.containsKey((Object)PARAMETER.START_TIME) && 
 				!parsedMap.get(PARAMETER.START_TIME).isEmpty()) {
@@ -167,61 +169,129 @@ public class Validator {
 				String startTime    = parsedMap.get(PARAMETER.START_TIME);
 				startTime += " " + dateString;
 				
+				Date nattyStart  = parseNatty(startTime);
 				if (userSpecifiedTimeOnly(startTime) {
-					Date nattyStart    = parseNatty(startTime);
 					startTimeObj = getTimeOnly(nattyStart);
 					
 				} else if (userSpecifiedDateOnly(startTime)) {
-					Date nattyStart = parseNatty(startTime);
 					startDateObj = getDateOnly(nattyStart);
-
 				} else if (userSpecifiedDateAndTime(startTime)) {
 					// Both date and time 
-					Date nattyStart = parseNatty(startTime);
 					startTimeObj = getTimeOnly(nattyStart);
 					startDateObj = getDateOnly(nattyEnd);
-
 				} else {
 					// cannot be parsed as date
-					
-				}				
+				}
 			}
 			if (parsedMap.containsKey((Object)PARAMETER.END_TIME) && 
 				!parsedMap.get(PARAMETER.END_TIME).isEmpty()) {
 				String endTime      = parsedMap.get(PARAMETER.END_TIME);
 				endTime += " " + dateString;
-				Date nattyEnd      = parseNatty(endTime);
-
+				
+				Date nattyEnd  = parseNatty(endTime);
+				if (userSpecifiedTimeOnly(endTime) {
+					endTimeObj = getTimeOnly(nattyEnd);
+				} else if (userSpecifiedDateOnly(endTime)) {
+					endDateObj = getDateOnly(nattyEnd);
+				} else if (userSpecifiedDateAndTime(endTime)) {
+					// Both date and time 
+					endTimeObj = getTimeOnly(nattyEnd);
+					endDateObj = getDateOnly(nattyEnd);
+				} else {
+					// cannot be parsed as date
+				}
 			}
 			if (parsedMap.containsKey((Object)PARAMETER.DEADLINE_TIME) && 
 				!parsedMap.get(PARAMETER.DEADLINE_TIME).isEmpty()) {
 				String deadlineTime = parsedMap.get(PARAMETER.DEADLINE_TIME);
 				deadlineTime += " " + dateString;
-				Date nattyDeadline = parseNatty(deadlineTime);
-
+				
+				Date nattyDeadline  = parseNatty(deadlineTime);
+				if (userSpecifiedTimeOnly(deadlineTime) {
+					deadlineTimeObj = getTimeOnly(nattyDeadline);	
+				} else if (userSpecifiedDateOnly(deadlineTime)) {
+					deadlineDateObj = getDateOnly(nattyDeadline);
+				} else if (userSpecifiedDateAndTime(deadlineTime)) {
+					// Both date and time 
+					deadlineTimeObj = getTimeOnly(nattyDeadline);
+					deadlineDateObj = getDateOnly(nattyDeadline);
+				} else {
+					// cannot be parsed as date
+				}
 			}
 		} else {
 			if (parsedMap.containsKey((Object)PARAMETER.START_TIME) && 
 				!parsedMap.get(PARAMETER.START_TIME).isEmpty()) {
 				String startTime    = parsedMap.get(PARAMETER.START_TIME);
 				
+				Date nattyStart    = parseNatty(startTime);
+				if (userSpecifiedTimeOnly(startTime) {
+					startTimeObj = getTimeOnly(nattyStart);
+					
+				} else if (userSpecifiedDateOnly(startTime)) {
+					startDateObj = getDateOnly(nattyStart);
+				} else if (userSpecifiedDateAndTime(startTime)) {
+					// Both date and time 
+					startTimeObj = getTimeOnly(nattyStart);
+					startDateObj = getDateOnly(nattyEnd);
+				} else {
+					// cannot be parsed as date
+				}
 			}
 			if (parsedMap.containsKey((Object)PARAMETER.END_TIME) && 
 				!parsedMap.get(PARAMETER.END_TIME).isEmpty()) {
 				String endTime      = parsedMap.get(PARAMETER.END_TIME);
 
+				Date nattyEnd    = parseNatty(endTime);
+				if (userSpecifiedTimeOnly(endTime) {
+					endTimeObj = getTimeOnly(nattyEnd);
+				} else if (userSpecifiedDateOnly(endTime)) {
+					endDateObj = getDateOnly(nattyEnd);
+				} else if (userSpecifiedDateAndTime(endTime)) {
+					// Both date and time 
+					endTimeObj = getTimeOnly(nattyEnd);
+					endDateObj = getDateOnly(nattyEnd);
+				} else {
+					// cannot be parsed as date
+				}
 			}
 			if (parsedMap.containsKey((Object)PARAMETER.DEADLINE_TIME) && 
 				!parsedMap.get(PARAMETER.DEADLINE_TIME).isEmpty()) {
 				String deadlineTime = parsedMap.get(PARAMETER.DEADLINE_TIME);
-
+				
+				Date nattyDeadline  = parseNatty(deadlineTime);
+				if (userSpecifiedTimeOnly(deadlineTime) {
+					deadlineTimeObj = getTimeOnly(nattyDeadline);	
+				} else if (userSpecifiedDateOnly(deadlineTime)) {
+					deadlineDateObj = getDateOnly(nattyDeadline);
+				} else if (userSpecifiedDateAndTime(deadlineTime)) {
+					// Both date and time 
+					deadlineTimeObj = getTimeOnly(nattyDeadline);
+					deadlineDateObj = getDateOnly(nattyDeadline);
+				} else {
+					// cannot be parsed as date
+				}
 			}			
 		}
 
 		// Check for null combinations
-
 		// Default parameters if not specified by user
+		if (deadlineDateObj != null && deadlineTimeObj == null) {
+			deadlineTimeObj = getTimeOnly(setDefaultDeadline(deadlineDateObj));
+		}
 
+		if (startTimeObj == null && endTimeObj != null) {
+			startTimeObj = getTimeOnly(setDefaultStartTime(endTimeObj));
+		}
+
+		if (startTimeObj != null && endTimeObj == null) {
+			endTimeObj = getTimeOnly(setDefaultEndTime(startTimeObj));
+		}
+
+		if (keyDate != null && startTimeObj == null && endTimeObj == null) {
+			startTimeObj = getTimeOnly(setDefaultStartTime());
+			endTimeObj   = getTimeOnly(setDefaultEndTime());
+		}
 
 		// Put date objects into hashmap
 		objectHashMap.put(PARAMETER.START_DATE, startDateObj);
@@ -373,6 +443,58 @@ public class Validator {
 		cal.set(Calendar.SECOND, 00);
 		cal.set(Calendar.MILLISECOND, 0);
 		return cal;
+	}
+
+	private static Date setDefaultDeadline(Date date) {
+		if (date == null) {
+			return null;
+		}
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 00);
+		cal.set(Calendar.MILLISECOND, 0);
+
+		return cal.getTime();
+	}
+
+	private static Date setDefaultStartTime(Date date) {
+		Date defaultDate;
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+
+		if (date == null) {
+			// Default time is 12pm
+			cal.set(Calendar.HOUR_OF_DAY, 12);
+			cal.set(Calendar.MINUTE, 00);
+			cal.set(Calendar.SECCOND, 00);
+			return cal.getTime();
+		}
+		int endTime = cal.get(Calendar.HOUR_OF_DAY);
+		cal.set(Calendar.HOUR_OF_DAY, endTime-1);
+		defaultDate = cal.getTime();
+
+		return defaultDate;
+	}
+
+	private static Date setDefaultEndTime(Date date) {
+		Date defaultDate;
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+
+		if (date == null) {
+			// Default time is 1pm
+			cal.set(Calendar.HOUR_OF_DAY, 13);
+			cal.set(Calendar.MINUTE, 00);
+			cal.set(Calendar.SECCOND, 00);
+			return cal.getTime();
+		}
+		int startTime = cal.get(Calendar.HOUR_OF_DAY);
+		cal.set(Calendar.HOUR_OF_DAY, startTime+1);
+		defaultDate = cal.getTime();
+
+		return defaultDate;
 	}
 
 	public static boolean isValidString(String string) {
