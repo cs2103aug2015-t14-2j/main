@@ -25,6 +25,7 @@ public class Validator {
 
 	public static String TRUE_STRING = "true";
 	
+	@SuppressWarnings("serial")
 	public static List<SimpleDateFormat> dateFormats = new ArrayList<SimpleDateFormat>() {{
 	    add(new SimpleDateFormat("M/dd/yyyy"));
 	    add(new SimpleDateFormat("M.dd.yyyy"));
@@ -71,7 +72,7 @@ public class Validator {
 	}
 
 	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap,
-			COMMAND_TYPE command) {
+			COMMAND_TYPE command) throws ParseException {
 		System.out.println(hashmap);
 		
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
@@ -102,10 +103,10 @@ public class Validator {
 				updateHashMapForDisplay(hashmap, objectHashMap);
 				updateHashMapForDisplay(hashmap, objectHashMap);
 				break;
-			case ADD:
+			case ADD_TASK:
 				updateHashMapForAdd(hashmap, objectHashMap);
 				break;
-			case EDIT:
+			case EDIT_TASK:
 				updateHashMapForEdit(hashmap, objectHashMap);
 				break;
 			default:
@@ -129,16 +130,8 @@ public class Validator {
 	 */
 	public static void updateTaskIdHashMap(HashMap<PARAMETER, String> parsedMap, 
 		HashMap<PARAMETER, Object> objectHashMap) {	
-		if (objectHashMap.get(PARAMETER.TASKID) != null) {
-			if (containsOnlyNumbers(taskID)) {
-				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
-			} else {
-				context.displayMessage("PARAM_SUBTITLE");
-				context.displayMessage("PARAM_TASKID_NUM");
-				objectHashMap.put(PARAMETER.TASKID, 0);
-			}
-		} else {
-			objectHashMap.put(PARAMETER.TASKID, -1);
+		if (parsedMap.get(PARAMETER.TASKID) != null) {
+			objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(parsedMap.get(PARAMETER.TASKID)));
 		}
 	}
 
@@ -148,20 +141,21 @@ public class Validator {
 	}
 
 	public static void updateHashMapForAdd(HashMap<PARAMETER, String> parsedMap, 
-		HashMap<PARAMETER, Object> objectHashMap) {
-		Date keyDate;
-		Date startDateObj;
-		Date startTimeObj;
-		Date endDateObj;
-		Date endTimeObj;
-		Date deadlineDateObj;
-		Date deadlineTimeObj;
+		HashMap<PARAMETER, Object> objectHashMap) throws ParseException {
+		
+		Date keyDate			= null;
+		Date startDateObj 		= null;
+		Date startTimeObj		= null;
+		Date endDateObj			= null;
+		Date endTimeObj			= null;
+		Date deadlineDateObj 	= null;
+		Date deadlineTimeObj 	= null;
 
 		if (parsedMap.containsKey((Object)PARAMETER.DATE) && 
 			!parsedMap.get(PARAMETER.DATE).isEmpty()) {
 
 			String dateString   = parsedMap.get(PARAMETER.DATE);
-			keyDate = parseNatty();
+			keyDate = parseNatty(dateString);
 
 			if (parsedMap.containsKey((Object)PARAMETER.START_TIME) && 
 				!parsedMap.get(PARAMETER.START_TIME).isEmpty()) {
@@ -170,7 +164,7 @@ public class Validator {
 				startTime += " " + dateString;
 				
 				Date nattyStart  = parseNatty(startTime);
-				if (userSpecifiedTimeOnly(startTime) {
+				if (userSpecifiedTimeOnly(startTime)) {
 					startTimeObj = getTimeOnly(nattyStart);
 					
 				} else if (userSpecifiedDateOnly(startTime)) {
@@ -178,7 +172,7 @@ public class Validator {
 				} else if (userSpecifiedDateAndTime(startTime)) {
 					// Both date and time 
 					startTimeObj = getTimeOnly(nattyStart);
-					startDateObj = getDateOnly(nattyEnd);
+					startDateObj = getDateOnly(nattyStart);
 				} else {
 					// cannot be parsed as date
 				}
@@ -189,7 +183,7 @@ public class Validator {
 				endTime += " " + dateString;
 				
 				Date nattyEnd  = parseNatty(endTime);
-				if (userSpecifiedTimeOnly(endTime) {
+				if (userSpecifiedTimeOnly(endTime)) {
 					endTimeObj = getTimeOnly(nattyEnd);
 				} else if (userSpecifiedDateOnly(endTime)) {
 					endDateObj = getDateOnly(nattyEnd);
@@ -207,7 +201,7 @@ public class Validator {
 				deadlineTime += " " + dateString;
 				
 				Date nattyDeadline  = parseNatty(deadlineTime);
-				if (userSpecifiedTimeOnly(deadlineTime) {
+				if (userSpecifiedTimeOnly(deadlineTime)) {
 					deadlineTimeObj = getTimeOnly(nattyDeadline);	
 				} else if (userSpecifiedDateOnly(deadlineTime)) {
 					deadlineDateObj = getDateOnly(nattyDeadline);
@@ -225,7 +219,7 @@ public class Validator {
 				String startTime    = parsedMap.get(PARAMETER.START_TIME);
 				
 				Date nattyStart    = parseNatty(startTime);
-				if (userSpecifiedTimeOnly(startTime) {
+				if (userSpecifiedTimeOnly(startTime)) {
 					startTimeObj = getTimeOnly(nattyStart);
 					
 				} else if (userSpecifiedDateOnly(startTime)) {
@@ -233,7 +227,7 @@ public class Validator {
 				} else if (userSpecifiedDateAndTime(startTime)) {
 					// Both date and time 
 					startTimeObj = getTimeOnly(nattyStart);
-					startDateObj = getDateOnly(nattyEnd);
+					startDateObj = getDateOnly(nattyStart);
 				} else {
 					// cannot be parsed as date
 				}
@@ -243,7 +237,7 @@ public class Validator {
 				String endTime      = parsedMap.get(PARAMETER.END_TIME);
 
 				Date nattyEnd    = parseNatty(endTime);
-				if (userSpecifiedTimeOnly(endTime) {
+				if (userSpecifiedTimeOnly(endTime)) {
 					endTimeObj = getTimeOnly(nattyEnd);
 				} else if (userSpecifiedDateOnly(endTime)) {
 					endDateObj = getDateOnly(nattyEnd);
@@ -260,7 +254,7 @@ public class Validator {
 				String deadlineTime = parsedMap.get(PARAMETER.DEADLINE_TIME);
 				
 				Date nattyDeadline  = parseNatty(deadlineTime);
-				if (userSpecifiedTimeOnly(deadlineTime) {
+				if (userSpecifiedTimeOnly(deadlineTime)) {
 					deadlineTimeObj = getTimeOnly(nattyDeadline);	
 				} else if (userSpecifiedDateOnly(deadlineTime)) {
 					deadlineDateObj = getDateOnly(nattyDeadline);
@@ -289,8 +283,8 @@ public class Validator {
 		}
 
 		if (keyDate != null && startTimeObj == null && endTimeObj == null) {
-			startTimeObj = getTimeOnly(setDefaultStartTime());
-			endTimeObj   = getTimeOnly(setDefaultEndTime());
+			startTimeObj = getTimeOnly(setDefaultStartTime(null));
+			endTimeObj   = getTimeOnly(setDefaultEndTime(null));
 		}
 
 		// Put date objects into hashmap
@@ -350,7 +344,7 @@ public class Validator {
 			objectHashMap.put(PARAMETER.END_TIME, endcal.getTime());
 		}
 
-		updateContextDisplay(deadlineTime, keyDate);
+		//updateContextDisplay(deadlineTime, keyDate);
 	}
 
 	public static void updateDeleteParamsHashMap(String editString,
@@ -468,7 +462,7 @@ public class Validator {
 			// Default time is 12pm
 			cal.set(Calendar.HOUR_OF_DAY, 12);
 			cal.set(Calendar.MINUTE, 00);
-			cal.set(Calendar.SECCOND, 00);
+			cal.set(Calendar.SECOND, 00);
 			return cal.getTime();
 		}
 		int endTime = cal.get(Calendar.HOUR_OF_DAY);
@@ -487,7 +481,7 @@ public class Validator {
 			// Default time is 1pm
 			cal.set(Calendar.HOUR_OF_DAY, 13);
 			cal.set(Calendar.MINUTE, 00);
-			cal.set(Calendar.SECCOND, 00);
+			cal.set(Calendar.SECOND, 00);
 			return cal.getTime();
 		}
 		int startTime = cal.get(Calendar.HOUR_OF_DAY);
