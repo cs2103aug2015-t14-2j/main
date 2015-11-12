@@ -2,10 +2,12 @@ package Task;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+
 import com.joestelmach.natty.*;
 
 /**
@@ -18,12 +20,12 @@ import com.joestelmach.natty.*;
  */
 
 public class Validator {
-	private static Context context = Context.getInstance();
-	private static Parser parser = new Parser();
+	public static Context context = Context.getInstance();
+	public static Parser parser = new Parser();
 
-	private static String TRUE_STRING = "true";
+	public static String TRUE_STRING = "true";
 	
-	private static List<SimpleDateFormat> dateFormats = new ArrayList<simpledateformat>() {{
+	public static List<SimpleDateFormat> dateFormats = new ArrayList<SimpleDateFormat>() {{
 	    add(new SimpleDateFormat("M/dd/yyyy"));
 	    add(new SimpleDateFormat("M.dd.yyyy"));
 	    add(new SimpleDateFormat("MMM.dd.yyyy"));
@@ -38,7 +40,7 @@ public class Validator {
 	    add(new SimpleDateFormat("EEE, M/d/yy"));
     }};
     
-    private static String[] todayStringList = {"today","present day","current day"};
+    public static String[] todayStringList = {"today","present day","current day","this day"};
     
    
 
@@ -50,7 +52,7 @@ public class Validator {
 	 * @param dateString
 	 * @return Date object, null if Natty cannot parse into a date
 	 */
-	private static Date parseNatty(String dateString) {
+	public static Date parseNatty(String dateString) {
 		if (dateString == (null)) {
 			return null;
 		}
@@ -76,7 +78,7 @@ public class Validator {
  
  		String editString = hashmap.get(PARAMETER.DELETE_PARAMS);
 
-		// Common behaviour regardles of COMMAND
+		// Common behavior regardless of COMMAND
 		if (isValidString(hashmap.get(PARAMETER.DESC))) {
 			objectHashMap.put(PARAMETER.DESC, hashmap.get(PARAMETER.DESC));
 		}
@@ -125,8 +127,8 @@ public class Validator {
 	/**
 	 * Checks and validates taskId
 	 */
-	private static void updateTaskIdHashMap(HashMap<PARAMETER, String> parsedMap, 
-		HashMap<PARAMETER, String> objectHashMap) {	
+	public static void updateTaskIdHashMap(HashMap<PARAMETER, String> parsedMap, 
+		HashMap<PARAMETER, Object> objectHashMap) {	
 		if (objectHashMap.get(PARAMETER.TASKID) != null) {
 			if (containsOnlyNumbers(taskID)) {
 				objectHashMap.put(PARAMETER.TASKID, Integer.parseInt(taskID));
@@ -140,12 +142,12 @@ public class Validator {
 		}
 	}
 
-	private static void updateHashMapForEdit(HashMap<PARAMETER, String> parsedMap,
+	public static void updateHashMapForEdit(HashMap<PARAMETER, String> parsedMap,
 		HashMap<PARAMETER, Object> objectHashMap) {
 
 	}
 
-	private static void updateHashMapForAdd(HashMap<PARAMETER, String> parsedMap, 
+	public static void updateHashMapForAdd(HashMap<PARAMETER, String> parsedMap, 
 		HashMap<PARAMETER, Object> objectHashMap) {
 		Date startDateObj;
 		Date startTimeObj;
@@ -230,8 +232,9 @@ public class Validator {
 		objectHashMap.put(PARAMETER.DEADLINE_TIME, deadlineTimeObj); 
 	}
 
-	private static void updateHashMapForDisplay(HashMap<PARAMETER, String> parsedMap,
-		HashMap<PARAMETER, Object> objectHashMap, ) {
+	//TODO:
+	public static void updateHashMapForDisplay(HashMap<PARAMETER, String> parsedMap,
+		HashMap<PARAMETER, Object> objectHashMap) {
 		Calendar startcal = Calendar.getInstance();
 		Calendar endcal   = Calendar.getInstance();
 		String keyDate;
@@ -280,7 +283,7 @@ public class Validator {
 		updateContextDisplay(deadlineTime, keyDate);
 	}
 
-	private static void updateDeleteParamsHashMap(String editString,
+	public static void updateDeleteParamsHashMap(String editString,
 			HashMap<PARAMETER, Object> objectHashMap) {
 		int n = 0;
 		String[] splitString = editString.split("\\s+");
@@ -322,7 +325,7 @@ public class Validator {
 	 * @param deadline
 	 * @param date
 	 */
-	private static void updateContextDisplay(String deadline, String date) {
+	public static void updateContextDisplay(String deadline, String date) {
 		String query;
 		if (date != null) {
 			query = date;
@@ -352,11 +355,11 @@ public class Validator {
 	 * @return A boolean representation of whether the string provided is all
 	 *         numbers
 	 */
-	private static boolean containsOnlyNumbers(String numString) {
+	public static boolean containsOnlyNumbers(String numString) {
 		return (numString.matches("[-+]?\\d*\\.?\\d+"));
 	}
 
-	private static Calendar setStartOfDay(Calendar cal) {
+	public static Calendar setStartOfDay(Calendar cal) {
 		cal.set(Calendar.HOUR_OF_DAY, 00);
 		cal.set(Calendar.MINUTE, 00);
 		cal.set(Calendar.SECOND, 00);
@@ -364,7 +367,7 @@ public class Validator {
 		return cal;
 	}
 
-	private static Calendar setEndOfDay(Calendar cal) {
+	public static Calendar setEndOfDay(Calendar cal) {
 		cal.set(Calendar.HOUR_OF_DAY, 23);
 		cal.set(Calendar.MINUTE, 59);
 		cal.set(Calendar.SECOND, 00);
@@ -372,7 +375,7 @@ public class Validator {
 		return cal;
 	}
 
-	private static boolean isValidString(String string) {
+	public static boolean isValidString(String string) {
 		if (string == null || string.trim().equals("")) {
 			return false;
 		}
@@ -387,7 +390,7 @@ public class Validator {
 	 * @param isDone
 	 * @param objectHashMap
 	 */
-	private static void setFlag(HashMap<PARAMETER, String> hashmap, PARAMETER param,
+	public static void setFlag(HashMap<PARAMETER, String> hashmap, PARAMETER param,
 			HashMap<PARAMETER, Object> objectHashMap) {
 		if (hashmap.get(param) != null) {
 			objectHashMap.put(param, hashmap.get(param).equals(TRUE_STRING));
@@ -400,7 +403,7 @@ public class Validator {
 	 * *
 	 *********************************************************************/
 
-	private static boolean isDayWord(String string) {
+	public static boolean isDayWord(String string) {
 		string = string.toLowerCase();
 		if (string.contains("monday") || string.contains("mon") || string.contains("tue") || string.contains("tuesday")
 				|| string.contains("tues") || string.contains("wed") || string.contains("wednes")
@@ -413,7 +416,7 @@ public class Validator {
 		return false;
 	}
 
-	private static boolean isMonthWord(String string) {
+	public static boolean isMonthWord(String string) {
 		string = string.toLowerCase();
 		if (string.contains("month") || string.contains("mth") || string.contains("january") || string.contains("jan")
 				|| string.contains("january") || string.contains("feb") || string.contains("february")
@@ -429,23 +432,23 @@ public class Validator {
 		return false;
 	}
 
-	private static boolean isParseableToTime(String timeString) {
-		SimpleDateFormat 12HourMin      = new SimpleDateFormat("hhmmaa");
-		SimpleDateFormat 12HourColonMin = new SimpleDateFormat("hh:mmaa");
-		SimpleDateFormat 24HourMin      = new SimpleDateFormat("HHmm");
-		SimpleDateFormat 24HourColonMin = new SimpleDateFormat("HH:mm");
+	public static boolean isParseableToTime(String timeString) {
+		SimpleDateFormat _12HourMin      = new SimpleDateFormat("hhmmaa");
+		SimpleDateFormat _12HourColonMin = new SimpleDateFormat("hh:mmaa");
+		SimpleDateFormat _24HourMin      = new SimpleDateFormat("HHmm");
+		SimpleDateFormat _24HourColonMin = new SimpleDateFormat("HH:mm");
 
-		if (tryToParse(timeString, 12HourMin) 		 ||
-			tryToParse(timeString, 12HourColonMin)   || 
-			tryToParse(timeString, 24HourMin)		 ||
-			tryToParse(timeString, 24HourColonMin)) {
+		if (tryToParse(timeString, _12HourMin) 		 ||
+			tryToParse(timeString, _12HourColonMin)   || 
+			tryToParse(timeString, _24HourMin)		 ||
+			tryToParse(timeString, _24HourColonMin)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	private static boolean isParseableToDate(String dateString) {
+	public static boolean isParseableToDate(String dateString) {
 		SimpleDateFormat dayMonthFullYear = new SimpleDateFormat("dd MMM yyyy");
 		SimpleDateFormat dayMonthYear     = new SimpleDateFormat("dd MMM yy");
 		SimpleDateFormat dayMonth         = new SimpleDateFormat("dd MMM");
@@ -465,7 +468,7 @@ public class Validator {
 	 * Tries to parse a string into a date object using the dateformat given, returns false if parseException
 	 *
 	 */
-	private static boolean tryToParse(String dateString, SimpleDateFormat df) {
+	public static boolean tryToParse(String dateString, SimpleDateFormat df) {
 		Date date;
 		try {
 			date = df.parse(dateString);
@@ -475,7 +478,7 @@ public class Validator {
 		}
 	}
 
-	private static Date getDateOnly(Date dateObj) {
+	public static Date getDateOnly(Date dateObj) throws ParseException {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 		String dateOnlyString       = dateFormat.format(dateObj);
 		Date dateOnlyObj            = dateFormat.parse(dateOnlyString);
@@ -483,7 +486,7 @@ public class Validator {
 		return dateOnlyObj;
 	}
 
-	private static Date getTimeOnly(Date dateobj) {
+	public static Date getTimeOnly(Date dateobj) throws ParseException {
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
 		String timeOnlyString       = timeFormat.format(timeFormat);
 		Date timeOnlyObj            = timeFormat.parse(timeOnlyString);
@@ -491,20 +494,14 @@ public class Validator {
 		return timeOnlyObj;
 	}
 
-	private static boolean isDateOnly(Date dateObj) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-
-	}
-
 	/**
 	 * Takes the dateString from Natty and checks the Date parsed from the Date PARAMETER to figure out
 	 * whether the user only used a time
 	 */
-	private static boolean userSpecifiedTimeOnly(String dateString) {
+	public static boolean userSpecifiedTimeOnly(String dateString) {
 		Date date = parseNatty(dateString);
-
 		if (date != null) {
-			return isToday(date) && isToday(dateString);
+			return isToday(date) && !containsToday(dateString);
 		}
 		
 		return false;
@@ -514,7 +511,7 @@ public class Validator {
 	 * Checks if string from user is a date only
 	 *
 	 */
-	private static boolean userSpecifiedDateOnly(String dateString) {
+	public static boolean userSpecifiedDateOnly(String dateString) {
 		Date date         = parseNatty(dateString);
 		
 		if (date == null) {
@@ -536,17 +533,16 @@ public class Validator {
 		}
 	}
 
-	private static boolean userSpecifiedDateAndTime(String dateString) {
+	public static boolean userSpecifiedDateAndTime(String dateString) {
 		Date date = parseNatty(dateString);
 		
 		if (date == null) {
 			return false;
 		}
-
-		return (!date.equals(new Date() && !userSpecifiedDateOnly(dateString) && !userSpecifiedTimeOnly(dateString));
+		return (!date.equals(new Date()) && !userSpecifiedDateOnly(dateString) && !userSpecifiedTimeOnly(dateString));
 	}
 
-	private static boolean isToday(Date date) {
+	public static boolean isToday(Date date) {
 		Calendar cal = Calendar.getInstance();
 		Calendar today = Calendar.getInstance();
 		cal.setTime(date);
@@ -557,7 +553,7 @@ public class Validator {
 		}
 	}
 	
-	private static boolean isToday(String date) {
+	public static boolean containsToday(String date) {
 		Date today = new Date();
 		
 		for(String s:todayStringList){
@@ -572,5 +568,7 @@ public class Validator {
 				return true;
 			}
 		}
+		
+		return false;
 	}
 }

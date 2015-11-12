@@ -113,6 +113,14 @@ public class ValidatorTest {
 		}
 		return returnDate;
 	}
+	
+	private String getTime(Date dateTime) {
+		return dateTime == null ? null:timeFormat.format(dateTime);
+	}
+
+	private String getDate(Date dateTime) {
+		return dateTime == null ? null:dateFormat.format(dateTime);
+	}
 
 	@Test
 	public void testAllInputOutputAdd(){
@@ -138,14 +146,23 @@ public class ValidatorTest {
 		}
 	}
 	
-	private String getTime(Date dateTime) {
-		return dateTime == null ? null:timeFormat.format(dateTime);
-	}
-
-	private String getDate(Date dateTime) {
-		return dateTime == null ? null:dateFormat.format(dateTime);
+	@Test
+	public void testUserSpecifiedTimeOnly(){
+		assertEquals(true,Validator.userSpecifiedTimeOnly("2300"));
+		assertEquals(true,Validator.userSpecifiedTimeOnly("12:06"));
+		assertEquals(true,Validator.userSpecifiedTimeOnly("2800"));
+		assertEquals(true,Validator.userSpecifiedTimeOnly("6pm"));
+		assertEquals(true,Validator.userSpecifiedTimeOnly("12.6"));
 	}
 	
-	
+	@Test
+	public void userSpecifiedDateAndTime(){
+		assertEquals(true,Validator.userSpecifiedDateAndTime("wed 2300"));
+		assertEquals(true,Validator.userSpecifiedDateAndTime("today 12:06"));
+		assertEquals(false,Validator.userSpecifiedDateAndTime("12/2 2800"));
+		assertEquals(true,Validator.userSpecifiedDateAndTime("this day 6pm"));
+		assertEquals(false,Validator.userSpecifiedDateAndTime("12.6"));
+		assertEquals(false,Validator.userSpecifiedDateAndTime("1600"));
+	}
 	
 }
