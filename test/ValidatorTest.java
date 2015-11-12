@@ -16,7 +16,6 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import Task.COMMAND_TYPE;
 import Task.PARAMETER;
 import Task.Validator;
 
@@ -113,22 +112,38 @@ public class ValidatorTest {
 		}
 		return returnDate;
 	}
+	
+	private String getTime(Date dateTime) {
+		return dateTime == null ? null:timeFormat.format(dateTime);
+	}
+
+	private String getDate(Date dateTime) {
+		return dateTime == null ? null:dateFormat.format(dateTime);
+	}
 
 	@Test
-	public void testAllInputOutputAdd(){
+	public void testAllInputOutputAdd() throws ParseException{
 		
 		for(int i = 0; i < differentInputCombinations.length; i++){
 			HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-			testHashMap.put(PARAMETER.DESC, "Test" + i);
-			testHashMap.put(PARAMETER.DATE, 			differentInputCombinations[i][0]);
-			testHashMap.put(PARAMETER.START_TIME, 		differentInputCombinations[i][1]);
-			testHashMap.put(PARAMETER.END_TIME, 		differentInputCombinations[i][2]);
-			testHashMap.put(PARAMETER.DEADLINE_TIME, 	differentInputCombinations[i][3]);
+			//testHashMap.put(PARAMETER.DESC, "Test" + i);
+			if (differentInputCombinations[i][0] != null){
+				testHashMap.put(PARAMETER.DATE, 				differentInputCombinations[i][0]);
+			}
+			if (differentInputCombinations[i][1] != null){
+				testHashMap.put(PARAMETER.START_TIME, 			differentInputCombinations[i][1]);
+			}
+			if (differentInputCombinations[i][2] != null){
+				testHashMap.put(PARAMETER.END_TIME, 			differentInputCombinations[i][2]);
+			}
+			if (differentInputCombinations[i][3] != null){
+				testHashMap.put(PARAMETER.DEADLINE_TIME, 		differentInputCombinations[i][3]);
+			}
 			
 			HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-			returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
+			Validator.updateHashMapForAdd(testHashMap, returnedHashMap);
 			
-			assertEquals(returnedHashMap.get(PARAMETER.DESC), "Test" + i);
+			//assertEquals(returnedHashMap.get(PARAMETER.DESC), "Test" + i);
 			assertEquals(getDate((Date)returnedHashMap.get(PARAMETER.START_DATE)), 	  getDate(differentOutputCombinationsAdd[i][0]));
 			assertEquals(getTime((Date)returnedHashMap.get(PARAMETER.START_TIME)), 	  getTime(differentOutputCombinationsAdd[i][1]));
 			assertEquals(getDate((Date)returnedHashMap.get(PARAMETER.END_DATE)), 	  getDate(differentOutputCombinationsAdd[i][2]));
@@ -138,14 +153,23 @@ public class ValidatorTest {
 		}
 	}
 	
-	private String getTime(Date dateTime) {
-		return dateTime == null ? null:timeFormat.format(dateTime);
-	}
-
-	private String getDate(Date dateTime) {
-		return dateTime == null ? null:dateFormat.format(dateTime);
+	@Test
+	public void testUserSpecifiedTimeOnly(){
+		assertEquals(true,Validator.userSpecifiedTimeOnly("2300"));
+		assertEquals(true,Validator.userSpecifiedTimeOnly("12:06"));
+		assertEquals(true,Validator.userSpecifiedTimeOnly("2800"));
+		assertEquals(true,Validator.userSpecifiedTimeOnly("6pm"));
+		assertEquals(true,Validator.userSpecifiedTimeOnly("12.6"));
 	}
 	
-	
+	@Test
+	public void userSpecifiedDateAndTime(){
+		assertEquals(true,Validator.userSpecifiedDateAndTime("wed 2300"));
+		assertEquals(true,Validator.userSpecifiedDateAndTime("today 12:06"));
+		assertEquals(false,Validator.userSpecifiedDateAndTime("12/2 2800"));
+		assertEquals(true,Validator.userSpecifiedDateAndTime("this day 6pm"));
+		assertEquals(false,Validator.userSpecifiedDateAndTime("12.6"));
+		assertEquals(false,Validator.userSpecifiedDateAndTime("1600"));
+	}
 	
 }
