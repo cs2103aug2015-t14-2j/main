@@ -2,7 +2,6 @@ package Task;
 
 import java.io.*;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -11,8 +10,6 @@ import com.google.gson.stream.MalformedJsonException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
-
-import org.apache.commons.io.FilenameUtils;
 
 import java.util.Calendar;
 import java.util.ArrayList;
@@ -66,7 +63,7 @@ public class FileIO {
 			while (jsonReader.hasNext()) {
 				String name = jsonReader.nextName();
 				if (name.equals("Tasks")) {
-					readSingleTask(taskList, jsonReader);
+					readAllTasks(taskList, jsonReader);
 					jsonReader.endArray();
 				}
 			}
@@ -91,7 +88,7 @@ public class FileIO {
 	 * @param jsonReader The reader to read from
 	 * @throws IOException Thrown when a task could not be read
 	 */
-	private void readSingleTask(ArrayList<Task> taskList, JsonReader jsonReader) throws IOException {
+	private void readAllTasks(ArrayList<Task> taskList, JsonReader jsonReader) throws IOException {
 		jsonReader.beginArray();
 		while (jsonReader.hasNext()) {
 			try {
@@ -216,10 +213,6 @@ public class FileIO {
 		}
 	}
 
-	private boolean isJsonFileExt(String _path) {
-		return _path.toLowerCase().endsWith(".json");
-	}
-
 	/**
 	 * Parses a JSON task object and instantiates it.
 	 * 
@@ -267,7 +260,8 @@ public class FileIO {
 						isDone = parseNullOrBool(jsonReader);
 						break;
 					default:
-						break;
+						finishCurrentTaskParse(jsonReader);
+						throw new IllegalStateException();
 					
 				}
 			}
@@ -291,7 +285,14 @@ public class FileIO {
 		
 		return task;
 	}
-	
+
+	private void finishCurrentTaskParse(JsonReader jsonReader) throws IOException {
+		while(jsonReader.hasNext()){
+			jsonReader.skipValue();
+		}
+		jsonReader.endObject();
+	}
+
 	private Date parseStringToDate(String dateString) throws ParseException {
 		if (dateString == null) {
 			return null;

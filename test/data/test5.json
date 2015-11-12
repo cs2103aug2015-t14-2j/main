@@ -1,0 +1,62 @@
+{
+    "Tasks": [
+        {
+            "$$$$[": 1,
+            "createdTime": "2015-9-10 13:56",
+            "startTime": "2015-9-10 12:00",
+            "endTime": "2015-9-11 14:00",
+            "deadline": "2015-9-12 12:00",
+            "venue": "NUS",
+            "description": "Buy lunch",
+            "isDone": null
+        },
+        {
+            "taskId": 2,
+            "OPPS CORRUPTESDSF": "2015-9-10 13:56",
+            "startTime": "2015-9-14 18:00",
+            "endTime": "2015-9-14 20:00",
+            "deadline": null,
+            "venue": "Jurong West St.71 #07-10",
+            "description": "haircut",
+            "isDone": null
+        },
+        {
+            "taskId": 3,
+            "createdTime": "2015-9-10 13:56",
+            "startTime": null,
+            "endTime": null,
+            "deadline": "2015-9-29 12:00",
+            "venue": null,
+            "description": "Shop for groceries!",
+            "34234234": false
+        },
+        {
+            "taskId": 4,
+            "createdTime": "2015-9-10 13:56",
+            "startTimeasdfwe":"",
+            "venue": null,
+            "description": "CS2103 mid-terms",
+            "isDone": false
+        },
+        {
+            "taskId": 5,
+            "createdTime": "2015-9-10 13:56",
+            "startTime": "sd55hhfhtr",
+            "endTime": null,
+            "deadline": null,
+            "venue": null,
+            "description": "CS2103 mid-terms",
+            "isDone": false
+        },
+        {
+            "taskId": 5,
+            "createdTime": "2015-9-10 13:56",
+            "startTime": null,
+            "endTime": null,
+            "deadline": null,
+            "venue": null,
+            "description": "CS2103 mid-terms",
+            "isDone": false
+        }
+    ]
+}

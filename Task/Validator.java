@@ -907,6 +907,7 @@ public class Validator {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static boolean tryToParse(String dateString, SimpleDateFormat df) {
 		Date date;
 		try {

@@ -30,6 +30,7 @@ public class TestFileIO {
 	private static Task expectedTask2;
 	private static Task expectedTask3;
 	private static Task expectedTask4;
+	private static Task expectedTask5;
 	
 	private static ArrayList<Task> expectedTaskList = new ArrayList<Task>();
 	private static ArrayList<Task> actualTaskList = new ArrayList<Task>();
@@ -105,6 +106,22 @@ public class TestFileIO {
 		} catch (ParseException e4) {
 			e4.printStackTrace();
 		}
+		
+		// Task4 - no deadline, no startTime and endTime, null venue
+		taskId = 5;
+		venue = null;
+		description = "CS2103 mid-terms";
+		isDone = false;
+		
+		try {
+			createdTime = dateFormat.parse("Thu, 10 Sep, 2015 1356");
+			startTime = null;
+			endTime = null;
+			deadline = null;
+			expectedTask5  = new Task(createdTime, taskId, description, startTime, endTime, deadline, venue, isDone);
+		} catch (ParseException e5) {
+			e5.printStackTrace();
+		}
 	}
 	
 	@Test
@@ -151,6 +168,14 @@ public class TestFileIO {
 		expectedTaskList.add(expectedTask4);
 		fileIO = FileIO.getInstance();
 		fileIO.setFilePath("./test/data/test4.json");
+		actualTaskList = fileIO.readFromFile();
+		assertEquals(expectedTaskList, actualTaskList);
+		
+		// Test 5
+		expectedTaskList = new ArrayList<Task>();
+		expectedTaskList.add(expectedTask5);
+		fileIO = FileIO.getInstance();
+		fileIO.setFilePath("./test/data/test5.json");
 		actualTaskList = fileIO.readFromFile();
 		assertEquals(expectedTaskList, actualTaskList);
 	}
