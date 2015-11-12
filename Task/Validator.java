@@ -595,7 +595,8 @@ public class Validator {
 	}
 
 	public static Date getDateOnly(Date dateObj) throws ParseException {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MM/dd/yyyy");
+		dateFormat.setLenient(false);
 		String dateOnlyString       = dateFormat.format(dateObj);
 		Date dateOnlyObj            = dateFormat.parse(dateOnlyString);
 
@@ -604,7 +605,7 @@ public class Validator {
 
 	public static Date getTimeOnly(Date dateobj) throws ParseException {
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
-		String timeOnlyString       = timeFormat.format(timeFormat);
+		String timeOnlyString       = timeFormat.format(dateobj);
 		Date timeOnlyObj            = timeFormat.parse(timeOnlyString);
 
 		return timeOnlyObj;
