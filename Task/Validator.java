@@ -607,7 +607,7 @@ public class Validator {
 
 	private static Date getTimeOnly(Date dateobj) {
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
-		String timeOnlyString       = timeFormat.format(timeFormat);
+		String timeOnlyString       = timeFormat.format(dateObj);
 		Date timeOnlyObj            = timeFormat.parse(timeOnlyString);
 
 		return timeOnlyObj;
