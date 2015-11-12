@@ -118,7 +118,7 @@ public class StringParser {
 				userInput = transferQuoteToHashMap(PARAMETER.DESC,"",userInput, keywordHash);
 			}
 			
-			addAttributesWithoutKeyword(keywordsInInput, paramInInput, userInput.split(obtainDelimiterStringList(keywordsInInput)), keywordHash);
+			addAttributesWithoutKeyword(keywordsInInput, paramInInput, (userInput + " ").split(obtainDelimiterStringList(keywordsInInput)), keywordHash);
 			
 			if(keywordHash.get(PARAMETER.START_TIME) == null && keywordHash.get(PARAMETER.END_TIME) == null && keywordHash.get(PARAMETER.DEADLINE_TIME) == null){
 				addAttributesWithOneParamKeyword(daysInInput, PARAMETER.DATE, userInput.split(obtainDelimiterStringList(daysInInput)), keywordHash);
@@ -389,7 +389,13 @@ public class StringParser {
 		if(input != null && keywordsInInput != null){
 			for(int i = 0;i< keywordsInInput.length;i++){
 			   if(input.toLowerCase().contains(keywordsInInput[i])){
-				   return i;
+				   //int index = input.toLowerCase().indexOf(keywordsInInput[i]);
+				   //if((index == 0 && input.toLowerCase().charAt(index - 1) == ' ') || 
+					//	   (input.length() >= index+keywordsInInput[i].length() && 
+						//   input.toLowerCase().charAt(index + keywordsInInput[i].length()) == ' ' )){
+					   return i;
+				   //}
+				   //return PARAM_NOT_FOUND;
 			   }
 			}
 		}
@@ -441,9 +447,14 @@ public class StringParser {
 	private static void addAttributesWithoutKeyword(String[] keywordsInInput,PARAMETER[] paramInInputs, String[] stringsToParse, HashMap<PARAMETER, String> keywordHash) {
 		//Traverses the string word by word
 		for(int currentPhrase = 0; currentPhrase < stringsToParse.length; currentPhrase++){
-			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase], keywordsInInput);
+			int commandFromKeywordIndex = indexKeywordInString(stringsToParse[currentPhrase] + " ", keywordsInInput);
 			if(commandFromKeywordIndex != PARAM_NOT_FOUND && keywordHash.get(paramInInputs[commandFromKeywordIndex]) ==  null){
-				keywordHash.put(paramInInputs[commandFromKeywordIndex], stringsToParse[currentPhrase].split(keywordsInInput[commandFromKeywordIndex])[1].trim()); //Ignore the quote delimeters
+				if(stringsToParse[currentPhrase].split(keywordsInInput[commandFromKeywordIndex]).length > 1){
+					keywordHash.put(paramInInputs[commandFromKeywordIndex], 
+							stringsToParse[currentPhrase].split(keywordsInInput[commandFromKeywordIndex])[1].trim()); //Ignore the quote delimeters
+				} else {
+					keywordHash.put(paramInInputs[commandFromKeywordIndex],"");
+				} 
 			}
 		}
 	}

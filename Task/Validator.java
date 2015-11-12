@@ -22,6 +22,25 @@ public class Validator {
 	private static Parser parser = new Parser();
 
 	private static String TRUE_STRING = "true";
+	
+	private static List<SimpleDateFormat> dateFormats = new ArrayList<simpledateformat>() {{
+	    add(new SimpleDateFormat("M/dd/yyyy"));
+	    add(new SimpleDateFormat("M.dd.yyyy"));
+	    add(new SimpleDateFormat("MMM.dd.yyyy"));
+	    add(new SimpleDateFormat("MMM-dd-yyyy")); 
+	    add(new SimpleDateFormat("M/dd/yyyy"));
+	    add(new SimpleDateFormat("EEEE, MMMM d, yyyy"));
+	    add(new SimpleDateFormat("MMMM d, yyyy"));
+	    add(new SimpleDateFormat("EEE, MMM d, yyyy"));
+	    add(new SimpleDateFormat("MMM d, yyyy"));
+	    add(new SimpleDateFormat("EEE, MM/dd/yyyy"));
+	    add(new SimpleDateFormat("MM/dd/yyyy"));
+	    add(new SimpleDateFormat("EEE, M/d/yy"));
+    }};
+    
+    private static String[] todayStringList = {"today","present day","current day"};
+    
+   
 
 	public Validator() {}
 
@@ -478,23 +497,14 @@ public class Validator {
 	}
 
 	/**
-	 * Takes a date from Natty and checks the Date parsed from the Date PARAMETER to figure out
-	 * whether user specified a date
+	 * Takes the dateString from Natty and checks the Date parsed from the Date PARAMETER to figure out
+	 * whether the user only used a time
 	 */
-	private static boolean userSpecifiedTimeOnly(String dateString, String dateParam) {
+	private static boolean userSpecifiedTimeOnly(String dateString) {
 		Date date = parseNatty(dateString);
-		Date dateParamObj = parseNatty(dateParam);
 
 		if (date != null) {
-			if (isToday(date)) {
-				if (dateParamObj != null && isToday(dateParamObj)) {
-					return false;
-				} else {
-					return true;
-				}
-			} else {
-				return false;
-			}
+			return isToday(date) && isToday(dateString);
 		}
 		
 		return false;
@@ -544,6 +554,23 @@ public class Validator {
 			return true;
 		} else {
 			return false;
+		}
+	}
+	
+	private static boolean isToday(String date) {
+		Date today = new Date();
+		
+		for(String s:todayStringList){
+			if(date.toLowerCase().contains(s)){
+				return true;
+			}
+		}
+		
+		for(SimpleDateFormat d:dateFormats){
+			d.setLenient(false);
+			if(date.toLowerCase().contains(d.format(today))){
+				return true;
+			}
 		}
 	}
 }

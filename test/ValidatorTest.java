@@ -5,194 +5,147 @@
  * 
  */
 
- package test;
+package test;
 
 import static org.junit.Assert.*;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.junit.Test;
 
+import Task.COMMAND_TYPE;
+import Task.PARAMETER;
 import Task.Validator;
-import Task.*;
+
 
 public class ValidatorTest {
 
-	@Test
-	public void testgetObjectHashMap(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.START_TIME, "1200");
-		testHashMap.put(PARAMETER.END_TIME, "8pm");
-		testHashMap.put(PARAMETER.DATE, "11/15");
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "15-11-2015 1200");
-		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "15-11-2015 2000");
+	private static SimpleDateFormat fullDateFormat      = new SimpleDateFormat("EEE, dd MMM, yyyy HHmm");
+	private static SimpleDateFormat dateFormat 			= new SimpleDateFormat("dd-MM-yyyy");
+	private static SimpleDateFormat timeFormat 			= new SimpleDateFormat("HHmm");
+	
+	private String differentInputCombinations[][] = {
+	/*		Date		   Start Time   End Time	 	Deadline Time	*/
+	/*1*/	{null,		   null,		 null,			null			},
+	/*2*/	{null,		   null,		 null,			newSDate(30)	},
+	/*3*/	{null,		   null,		 newSDate(20), 	null			},
+	/*4*/	{null,		   null,		 newSDate(20), 	newSDate(30)	},
+	/*5*/	{null,		   newSDate(10), null,			null			},
+	/*6*/	{null,		   newSDate(10), null,			newSDate(30)	},
+	/*7*/	{null,		   newSDate(10), newSDate(20), 	null			},
+	/*8*/	{null,		   newSDate(10), newSDate(20), 	newSDate(30)	},
+	/*9*/	{newSDate(0),  null,		 null,			null			},
+	/*10*/	{newSDate(0),  null,		 null,			newSDate(30)	},
+	/*11*/	{newSDate(0),  null,		 newSDate(20), 	null			},
+	/*12*/	{newSDate(0),  null,		 newSDate(20), 	newSDate(30)	},
+	/*13*/	{newSDate(0),  newSDate(10), null,			null			},
+	/*14*/	{newSDate(0),  newSDate(10), null,			newSDate(30)	},
+	/*15*/	{newSDate(0),  newSDate(10), newSDate(20), 	null			},
+	/*16*/	{newSDate(0),  newSDate(10), newSDate(20), 	newSDate(30)	}
+	};
+	
+	private Date differentOutputCombinationsAdd[][] = {
+	/*		Start Date	  Start Time   End Date	    End Time	  Deadline Date	Deadline Time	*/
+	/*1*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*2*/	{null,		  null,		   null,		null,		  newDate(30),	newDate(30)		},
+	/*3*/	{newDate(19), newDate(19), newDate(20), newDate(20),  null,			null			},
+	/*4*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*5*/	{newDate(10), newDate(10), newDate(11), newDate(11),  null,			null			},
+	/*6*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*7*/	{newDate(10), newDate(10), newDate(20), newDate(20),  null,			null			},
+	/*8*/	{newDate(10), newDate(10), newDate(20), newDate(20),  newDate(30),	newDate(30)		},
+	/*9*/	{newDate(0),  newDate(1),  newDate(0),  newDate(2),   null,			null			},
+	/*10*/	{null,		  null,		   null,		null,		  newDate(0),   newDate(30)		},
+	/*11*/	{newDate(0),  newDate(19), newDate(0),  newDate(20),  null,			null			},
+	/*12*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*13*/	{newDate(0),  newDate(10), newDate(0),  newDate(11),  null,			null			},
+	/*14*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*15*/	{newDate(0),  newDate(10), newDate(0),  newDate(20),  null,			null			},
+	/*16*/	{newDate(0),  newDate(10), newDate(0),  newDate(20),  newDate(30),	newDate(30)		},
+	};
+	
+	//TODO:
+	private Date differentOutputCombinationsEdit[][] = {
+	/*		Start Date	  Start Time   End Date	    End Time	  Deadline Date	Deadline Time	*/
+	/*1*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*2*/	{null,		  null,		   null,		null,		  newDate(30),	newDate(30)		},
+	/*3*/	{newDate(19), newDate(19), newDate(20), newDate(20),  null,			null			},
+	/*4*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*5*/	{newDate(10), newDate(10), newDate(11), newDate(11),  null,			null			},
+	/*6*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*7*/	{newDate(10), newDate(10), newDate(20), newDate(20),  null,			null			},
+	/*8*/	{newDate(10), newDate(10), newDate(20), newDate(20),  newDate(30),	newDate(30)		},
+	/*9*/	{newDate(0),  newDate(1),  newDate(0),  newDate(2),   null,			null			},
+	/*10*/	{null,		  null,		   null,		null,		  newDate(0),   newDate(30)		},
+	/*11*/	{newDate(0),  newDate(19), newDate(0),  newDate(20),  null,			null			},
+	/*12*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*13*/	{newDate(0),  newDate(10), newDate(0),  newDate(11),  null,			null			},
+	/*14*/	{null,		  null,		   null,		null,		  null,			null			},
+	/*15*/	{newDate(0),  newDate(10), newDate(0),  newDate(20),  null,			null			},
+	/*16*/	{newDate(0),  newDate(10), newDate(0),  newDate(20),  newDate(30),	newDate(30)		},
+	};
+	
+	private String newSDate(int feed) {
+		switch (feed){
+			case 0:  return "Mon, 7 Sep, 2015 0000";
+			case 1:  return "Mon, 7 Sep, 2015 1200";
+			case 2:  return "Mon, 7 Sep, 2015 2359";
+			case 10: return "Wed, 9 Sep, 2015 0800";
+			case 11: return "Wed, 9 Sep, 2015 0900";
+			case 19: return "Fri, 11 Sep, 2015 1300";
+			case 20: return "Fri, 11 Sep, 2015 1400";
+			case 30: return "Sun, 13 Sep, 2015 2359";
+			default:
+				assert(false);
+				return null;
+		}
 	}
 	
+	private Date newDate(int feed) {
+		Date returnDate = null;
+		try{
+			returnDate = fullDateFormat.parse(newSDate(feed));
+		} catch(ParseException e){
+			assert(false);
+		}
+		return returnDate;
+	}
+
 	@Test
-	public void testgetObjectHashMap1(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DATE, "11/15/17");
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "15-11-2017 0000");
-		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "15-11-2017 2359");
+	public void testAllInputOutputAdd(){
+		
+		for(int i = 0; i < differentInputCombinations.length; i++){
+			HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
+			testHashMap.put(PARAMETER.DESC, "Test" + i);
+			testHashMap.put(PARAMETER.DATE, 			differentInputCombinations[i][0]);
+			testHashMap.put(PARAMETER.START_TIME, 		differentInputCombinations[i][1]);
+			testHashMap.put(PARAMETER.END_TIME, 		differentInputCombinations[i][2]);
+			testHashMap.put(PARAMETER.DEADLINE_TIME, 	differentInputCombinations[i][3]);
+			
+			HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
+			returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
+			
+			assertEquals(returnedHashMap.get(PARAMETER.DESC), "Test" + i);
+			assertEquals(getDate((Date)returnedHashMap.get(PARAMETER.START_DATE)), 	  getDate(differentOutputCombinationsAdd[i][0]));
+			assertEquals(getTime((Date)returnedHashMap.get(PARAMETER.START_TIME)), 	  getTime(differentOutputCombinationsAdd[i][1]));
+			assertEquals(getDate((Date)returnedHashMap.get(PARAMETER.END_DATE)), 	  getDate(differentOutputCombinationsAdd[i][2]));
+			assertEquals(getTime((Date)returnedHashMap.get(PARAMETER.END_TIME)), 	  getTime(differentOutputCombinationsAdd[i][3]));
+			assertEquals(getDate((Date)returnedHashMap.get(PARAMETER.DEADLINE_DATE)), getDate(differentOutputCombinationsAdd[i][4]));
+			assertEquals(getTime((Date)returnedHashMap.get(PARAMETER.DEADLINE_TIME)), getTime(differentOutputCombinationsAdd[i][5]));
+		}
 	}
 	
-	@Test
-	public void testgetObjectHashMap2(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DATE, "15/noV");
+	private String getTime(Date dateTime) {
+		return dateTime == null ? null:timeFormat.format(dateTime);
+	}
 
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "15-11-2015 0000");
-		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "15-11-2015 2359");
+	private String getDate(Date dateTime) {
+		return dateTime == null ? null:dateFormat.format(dateTime);
 	}
 	
-	@Test
-	public void testgetObjectHashMap3(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.START_TIME, "11/02 5pm");
-		testHashMap.put(PARAMETER.END_TIME, "11/5 3am");
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "02-11-2015 1700");
-		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "05-11-2015 0300");
-	}
-	
-	@Test
-	public void testgetObjectHashMap4(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DEADLINE_TIME, "11/15");
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String deadlineTime = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_TIME));
-		assertEquals(deadlineTime, "15-11-2015 2359");
-	}
-	
-	@Test
-	public void testgetObjectHashMap5(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DEADLINE_TIME, "11/15 4pm");
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String deadlineTime = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_TIME));
-		assertEquals(deadlineTime, "15-11-2015 1600");
-	}
-	
-	@Test
-	public void testgetObjectHashMap6(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DEADLINE_TIME, "wrwfwfw");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		assertEquals(returnedHashMap.get(PARAMETER.DEADLINE_TIME), null);
-	}
-	
-	@Test
-	public void testgetObjectHashMap7(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DATE, "11/15");
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.DISPLAY );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "15-11-2015 0000");
-		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "15-11-2015 2359");
-	}
-	
-	@Test
-	public void testgetObjectHashMap8(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DEADLINE_TIME, "11/15");
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.DISPLAY );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String deadlineTime = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_TIME));
-		assertEquals(deadlineTime, "15-11-2015 2359");
-	}
-	
-	@Test
-	public void testgetObjectHashMap9(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.START_TIME, "2pm");
-		testHashMap.put(PARAMETER.DATE, "11/15");
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.EDIT_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String startTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(startTime, "15-11-2015 1400");
-		assertEquals(returnedHashMap.get(PARAMETER.END_TIME), null);
-	}
-	
-	@Test
-	public void testgetObjectHashMap10(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DEADLINE_TIME, "11/15 3pm");
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.EDIT_TASK );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String deadlineTime = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_TIME));
-		assertEquals(deadlineTime, "15-11-2015 1500");
-	}
 	
 	
 }
