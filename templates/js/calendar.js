@@ -59,7 +59,7 @@ $(document).ready(function() {
 			calendarEvent["title"]           = eventObj.description;
 			calendarEvent["venue"]           = eventObj.venue;
 			calendarEvent["start"]           = eventObj.deadline;
-			calendarEvent["allDay"]          = false;
+			calendarEvent["allDay"]          = allDay
 			calendarEvent["isDeadline"]      = true;
 			calendarEvent["backgroundColor"] = 'rgb(239, 131, 84)';
 			calendarEvent["borderColor"]     = 'black';
@@ -94,7 +94,7 @@ $(document).ready(function() {
         	},
         	agendaWeek: {
         		titleFormat: 'MMM D',
-        		eventLimit : 10,
+        		eventLimit : true,
         		allDaySlot : true
         	},
         	agendaDay: {
@@ -213,11 +213,17 @@ var isAllDay = function(eventObj) {
 	var start = moment(eventObj.startTime);
 	var end   = moment(eventObj.endTime);
 	var dayDuration   = (24 * 60 * 60 * 1000) - 2*60000;
-	console.log(eventObj.taskId + " : " + (end-start) + " : " + dayDuration);
 
 	if ((end - start) >= dayDuration) {
 
 		return true;
+	}
+	if (eventObj.deadline != null) {
+		var deadlineTime = moment(eventObj.deadline);
+		if (deadlineTime.get('hour') == 23 &&
+			deadlineTime.get('minute') == 59) {
+			return true;
+		}
 	}
 	return false;
 };
