@@ -33,9 +33,13 @@ public class ValidatorTest {
 		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
 		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
 		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "15-11-2015 1200");
+		assertEquals(returnedStartTime, "01-01-1970 1200");
+		String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.START_DATE));
+		assertEquals(returnedStartDate, "15-11-2015 0000");
 		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "15-11-2015 2000");
+		assertEquals(returnedEndTime, "01-01-1970 2000");
+		String returnedEndDate = dateFormat.format(returnedHashMap.get(PARAMETER.END_DATE));
+		assertEquals(returnedEndDate, "15-11-2015 0000");
 	}
 	
 	@Test
@@ -50,9 +54,13 @@ public class ValidatorTest {
 		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
 		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
 		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "15-11-2017 0000");
+		assertEquals(returnedStartTime, "01-01-1970 0000");
+		String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.START_DATE));
+		assertEquals(returnedStartDate, "15-11-2017 0000");
 		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "15-11-2017 2359");
+		assertEquals(returnedEndTime, "01-01-1970 2359");
+		String returnedEndDate = dateFormat.format(returnedHashMap.get(PARAMETER.END_DATE));
+		assertEquals(returnedEndDate, "15-11-2017 0000");
 	}
 	
 	@Test
@@ -67,9 +75,13 @@ public class ValidatorTest {
 		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
 		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
 		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "15-11-2015 0000");
+		assertEquals(returnedStartTime, "01-01-1970 0000");
+		String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.START_DATE));
+		assertEquals(returnedStartDate, "15-11-2015 0000");
 		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "15-11-2015 2359");
+		assertEquals(returnedEndTime, "01-01-1970 2359");
+		String returnedEndDate = dateFormat.format(returnedHashMap.get(PARAMETER.END_DATE));
+		assertEquals(returnedEndDate, "15-11-2015 0000");
 	}
 	
 	@Test
@@ -85,9 +97,13 @@ public class ValidatorTest {
 		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.ADD_TASK );
 		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
 		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(returnedStartTime, "02-11-2015 1700");
+		assertEquals(returnedStartTime, "01-01-1970 1700");
+		String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.START_DATE));
+		assertEquals(returnedStartDate, "02-11-2015 0000");
 		String returnedEndTime = dateFormat.format(returnedHashMap.get(PARAMETER.END_TIME));
-		assertEquals(returnedEndTime, "05-11-2015 0300");
+		assertEquals(returnedEndTime, "01-01-1970 0300");
+		String returnedEndDate = dateFormat.format(returnedHashMap.get(PARAMETER.END_DATE));
+		assertEquals(returnedEndDate, "05-11-2015 0000");
 	}
 	
 	@Test
@@ -153,21 +169,6 @@ public class ValidatorTest {
 	public void testgetObjectHashMap8(){
 		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
 		testHashMap.put(PARAMETER.DESC, "Eat Apple");
-		testHashMap.put(PARAMETER.DEADLINE_TIME, "11/15");
-
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
-
-		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
-		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.DISPLAY );
-		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String deadlineTime = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_TIME));
-		assertEquals(deadlineTime, "15-11-2015 2359");
-	}
-	
-	@Test
-	public void testgetObjectHashMap9(){
-		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
-		testHashMap.put(PARAMETER.DESC, "Eat Apple");
 		testHashMap.put(PARAMETER.START_TIME, "2pm");
 		testHashMap.put(PARAMETER.DATE, "11/15");
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HHmm");
@@ -175,13 +176,15 @@ public class ValidatorTest {
 		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
 		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.EDIT_TASK );
 		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String startTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
-		assertEquals(startTime, "15-11-2015 1400");
+		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.START_TIME));
+		assertEquals(returnedStartTime, "01-01-1970 1400");
+		String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.DATE));
+		assertEquals(returnedStartDate, "15-11-2015 0000");
 		assertEquals(returnedHashMap.get(PARAMETER.END_TIME), null);
 	}
 	
 	@Test
-	public void testgetObjectHashMap10(){
+	public void testgetObjectHashMap9(){
 		HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
 		testHashMap.put(PARAMETER.DESC, "Eat Apple");
 		testHashMap.put(PARAMETER.DEADLINE_TIME, "11/15 3pm");
@@ -190,8 +193,10 @@ public class ValidatorTest {
 		HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
 		returnedHashMap = Validator.getObjectHashMap(testHashMap,COMMAND_TYPE.EDIT_TASK );
 		assertEquals(returnedHashMap.get(PARAMETER.DESC), "Eat Apple");
-		String deadlineTime = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_TIME));
-		assertEquals(deadlineTime, "15-11-2015 1500");
+		String returnedStartTime = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_TIME));
+		assertEquals(returnedStartTime, "01-01-1970 1500");
+		String returnedStartDate = dateFormat.format(returnedHashMap.get(PARAMETER.DEADLINE_DATE));
+		assertEquals(returnedStartDate, "15-11-2015 0000");
 	}
 	
 	
