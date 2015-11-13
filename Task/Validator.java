@@ -52,7 +52,6 @@ public class Validator {
 
 	public static HashMap<PARAMETER, Object> getObjectHashMap(HashMap<PARAMETER, String> hashmap,
 			COMMAND_TYPE command) {
-		System.out.println(hashmap);
 		
 		HashMap<PARAMETER, Object> objectHashMap = new HashMap<PARAMETER, Object>();
 
@@ -74,13 +73,6 @@ public class Validator {
 		String taskID = hashmap.get(PARAMETER.TASKID);
 		String keyDate = hashmap.get(PARAMETER.DATE);
 
-		// System.out.println("startDate: " + startDate);
-		System.out.println("end date: " + endDate);
-		System.out.println("start time: " + startTime);
-		System.out.println("end time: " + endTime);
-		// System.out.println("deadline date: " + deadlineDate);
-		System.out.println("deadline time: " + deadlineTime);
-		System.out.println("date: " + hashmap.get(PARAMETER.DATE));
 		// Validate START_DATE, if valid, convert to DateTime and store in
 		// hashMap
 		if (command == COMMAND_TYPE.ADD_TASK) {
@@ -342,15 +334,6 @@ public class Validator {
 
 			setFlag(hashmap, PARAMETER.SPECIAL, objectHashMap);
 		}
-
-		System.out.println("Passed START_DATE: " + objectHashMap.get(PARAMETER.START_DATE));
-		System.out.println("Passed START_TIME: " + objectHashMap.get(PARAMETER.START_TIME));
-		System.out.println("Passed END_DATE: " + objectHashMap.get(PARAMETER.END_DATE));
-		System.out.println("Passed END_TIME: " + objectHashMap.get(PARAMETER.END_TIME));
-		System.out.println("Passed DEADLINE_DATE: " + objectHashMap.get(PARAMETER.DEADLINE_DATE));
-		System.out.println("Passed DEADLINE_TIME: " + objectHashMap.get(PARAMETER.DEADLINE_TIME));
-		System.out.println("Passed DATE: " + objectHashMap.get(PARAMETER.DATE));
-		// System.out.println(hashmap.get(PARAMETER.DELETEPARAMS));
 
 		return objectHashMap;
 	}

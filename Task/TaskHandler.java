@@ -781,7 +781,6 @@ public class TaskHandler {
 				_isDone,
 				_isPast,
 				_hasEnded);
-		System.out.println(compareTask.toString());
 		
 		for (Task t : taskList) {
 			if (isTaskSameFields(compareTask, t)) {
