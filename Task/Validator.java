@@ -276,15 +276,19 @@ public class Validator {
 
 		if (startTimeObj == null && endTimeObj != null) {
 			startTimeObj = getTimeOnly(setDefaultStartTime(endTimeObj));
+			startDateObj = getDateOnly(setDefaultStartTime(endDateObj));
 		}
 
 		if (startTimeObj != null && endTimeObj == null) {
 			endTimeObj = getTimeOnly(setDefaultEndTime(startTimeObj));
+			endDateObj = getDateOnly(setDefaultEndTime(startDateObj));
 		}
 
 		if (keyDate != null && startTimeObj == null && endTimeObj == null) {
 			startTimeObj = getTimeOnly(setDefaultStartTime(null));
 			endTimeObj   = getTimeOnly(setDefaultEndTime(null));
+			startDateObj = getDateOnly(setDefaultStartTime(null));
+			endDateObj   = getDateOnly(setDefaultEndTime(null));
 		}
 
 		// Put date objects into hashmap
@@ -596,16 +600,15 @@ public class Validator {
 
 	public static Date getDateOnly(Date dateObj) throws ParseException {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MM/dd/yyyy");
-		dateFormat.setLenient(false);
 		String dateOnlyString       = dateFormat.format(dateObj);
 		Date dateOnlyObj            = dateFormat.parse(dateOnlyString);
 
 		return dateOnlyObj;
 	}
 
-	public static Date getTimeOnly(Date dateobj) throws ParseException {
+	public static Date getTimeOnly(Date dateObj) throws ParseException {
 		SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
-		String timeOnlyString       = timeFormat.format(dateobj);
+		String timeOnlyString       = timeFormat.format(dateObj);
 		Date timeOnlyObj            = timeFormat.parse(timeOnlyString);
 
 		return timeOnlyObj;

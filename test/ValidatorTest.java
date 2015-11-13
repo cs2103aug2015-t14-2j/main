@@ -143,6 +143,8 @@ public class ValidatorTest {
 			HashMap<PARAMETER, Object> returnedHashMap = new HashMap<PARAMETER, Object>();
 			Validator.updateHashMapForAdd(testHashMap, returnedHashMap);
 			
+			System.out.println(returnedHashMap.toString());
+			
 			//assertEquals(returnedHashMap.get(PARAMETER.DESC), "Test" + i);
 			assertEquals(getDate((Date)returnedHashMap.get(PARAMETER.START_DATE)), 	  getDate(differentOutputCombinationsAdd[i][0]));
 			assertEquals(getTime((Date)returnedHashMap.get(PARAMETER.START_TIME)), 	  getTime(differentOutputCombinationsAdd[i][1]));
