@@ -118,7 +118,7 @@
             "deadline": null,
             "venue": null,
             "description": "study guide",
-            "isDone": false
+            "isDone": true
         },
         {
             "taskId": 13,
