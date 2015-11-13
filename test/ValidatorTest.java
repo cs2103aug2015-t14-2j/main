@@ -124,7 +124,7 @@ public class ValidatorTest {
 	@Test
 	public void testAllInputOutputAdd() throws ParseException{
 		
-		for(int i = 2; i < differentInputCombinations.length; i++){
+		for(int i = 0; i < differentInputCombinations.length; i++){
 			HashMap<PARAMETER, String> testHashMap = new HashMap<PARAMETER, String>();
 			//testHashMap.put(PARAMETER.DESC, "Test" + i);
 			if (differentInputCombinations[i][0] != null){

@@ -271,24 +271,24 @@ public class Validator {
 		// Check for null combinations
 		// Default parameters if not specified by user
 		if (deadlineDateObj != null && deadlineTimeObj == null) {
-			deadlineTimeObj = getTimeOnly(setDefaultDeadline(deadlineDateObj));
+			deadlineTimeObj = getTimeOnly(setDefaultDeadline(deadlineDateObj, deadlineTimeObj));
 		}
 
 		if (startTimeObj == null && endTimeObj != null) {
-			startTimeObj = getTimeOnly(setDefaultStartTime(endTimeObj));
-			startDateObj = getDateOnly(setDefaultStartTime(endDateObj));
+			startTimeObj = getTimeOnly(setDefaultStartTime(endDateObj, endTimeObj));
+			startDateObj = getDateOnly(setDefaultStartTime(endDateObj, endTimeObj));
 		}
 
 		if (startTimeObj != null && endTimeObj == null) {
-			endTimeObj = getTimeOnly(setDefaultEndTime(startTimeObj));
-			endDateObj = getDateOnly(setDefaultEndTime(startDateObj));
+			endTimeObj = getTimeOnly(setDefaultEndTime(startDateObj, startTimeObj));
+			endDateObj = getDateOnly(setDefaultEndTime(startDateObj, startTimeObj));
 		}
 
 		if (keyDate != null && startTimeObj == null && endTimeObj == null) {
-			startTimeObj = getTimeOnly(setDefaultStartTime(null));
-			endTimeObj   = getTimeOnly(setDefaultEndTime(null));
-			startDateObj = getDateOnly(setDefaultStartTime(null));
-			endDateObj   = getDateOnly(setDefaultEndTime(null));
+			startTimeObj = getTimeOnly(setDefaultStartTime(null,null));
+			endTimeObj   = getTimeOnly(setDefaultEndTime(null,null));
+			startDateObj = getDateOnly(setDefaultStartTime(null,null));
+			endDateObj   = getDateOnly(setDefaultEndTime(null,null));
 		}
 
 		// Put date objects into hashmap
@@ -443,12 +443,16 @@ public class Validator {
 		return cal;
 	}
 
-	private static Date setDefaultDeadline(Date date) {
+	private static Date setDefaultDeadline(Date date, Date time) {
 		if (date == null) {
 			return null;
 		}
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
+		
+		if (date != null) {
+			cal.setTime(date);
+		}
+		
 		cal.set(Calendar.HOUR_OF_DAY, 23);
 		cal.set(Calendar.MINUTE, 59);
 		cal.set(Calendar.SECOND, 00);
@@ -457,14 +461,17 @@ public class Validator {
 		return cal.getTime();
 	}
 
-	private static Date setDefaultStartTime(Date date) {
+	private static Date setDefaultStartTime(Date date, Date time) {
 		Date defaultDate;
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
+		
+		if (date != null) {
+			cal.setTime(date);
+		}
 
-		if (date == null) {
+		if (time == null) {
 			// Default time is 12pm
-			cal.set(Calendar.HOUR_OF_DAY, 12);
+			cal.set(Calendar.HOUR_OF_DAY, 13);
 			cal.set(Calendar.MINUTE, 00);
 			cal.set(Calendar.SECOND, 00);
 			return cal.getTime();
@@ -476,14 +483,17 @@ public class Validator {
 		return defaultDate;
 	}
 
-	private static Date setDefaultEndTime(Date date) {
+	private static Date setDefaultEndTime(Date date, Date time) {
 		Date defaultDate;
 		Calendar cal = Calendar.getInstance();
-		cal.setTime(date);
+		
+		if (date != null) {
+			cal.setTime(date);
+		}
 
-		if (date == null) {
+		if (time == null) {
 			// Default time is 1pm
-			cal.set(Calendar.HOUR_OF_DAY, 13);
+			cal.set(Calendar.HOUR_OF_DAY, 12);
 			cal.set(Calendar.MINUTE, 00);
 			cal.set(Calendar.SECOND, 00);
 			return cal.getTime();
