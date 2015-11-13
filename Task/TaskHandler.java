@@ -139,16 +139,16 @@ public class TaskHandler {
 				parsedParamTable = StringParser.getValuesFromInput(command, removeFirstWord(userInput));
 				if (taskList.isEmpty()) {
 					context.displayMessage("ERROR_EMPTY_TASKLIST");
-				} else if(removeFirstWord(userInput).length() != 0){
-					if(searchTasks(parsedParamTable).size() == 0){
-						context.displayMessage("ERROR_NO_RESUlTS_FOUND");
-					} else {
-						context.displayMessage("MESSAGE_DISPLAY");
-						displayAllTasks(searchTasks(parsedParamTable));	
-					}			
 				} else {
-					context.displayMessage("MESSAGE_DISPLAY_ALL");
-					displayFloatingTasks(taskList);
+					if(removeFirstWord(userInput).length() == 0){
+						context.displayMessage("MESSAGE_DISPLAY_ALL");
+					} else if(searchTasks(parsedParamTable).size() == 0){
+						context.displayMessage("ERROR_NO_RESUlTS_FOUND");
+						break;
+					} else {
+						context.displayMessage("MESSAGE_DISPLAY");	
+					}			
+					displayAllTasks(searchTasks(parsedParamTable));
 				}
 				setCalendarView(parsedParamTable);
 				break;

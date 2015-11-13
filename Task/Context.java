@@ -44,7 +44,7 @@ public class Context {
 	private static Pair MESSAGE_OPEN		   = new Pair("Opening calendar at path %s");
 	private static Pair MESSAGE_ADD_TASK       = new Pair("Successfully added task.");
 	private static Pair MESSAGE_GET_TASK       = new Pair("Task %d returned");
-	private static Pair MESSAGE_DISPLAY_ALL    = new Pair("All tasks displayed.");
+	private static Pair MESSAGE_DISPLAY_ALL    = new Pair("All undone tasks displayed.");
 	private static Pair MESSAGE_DISPLAY		   = new Pair("Search results:");
 	private static Pair MESSAGE_SEARCH_TASK    = new Pair("Here are tasks matching your keywords:");
 	private static Pair MESSAGE_DELETE_TASK    = new Pair("Task %d has been deleted");
