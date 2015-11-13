@@ -365,7 +365,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertTrue(isSameObjHash(expected, actual));
+		assertFalse(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 		
@@ -411,7 +411,7 @@ public class TaskHandlerTest {
 		
 		TaskHandler.executeCommand(userInput);
 		actual = stripJson(context.getDataModel());
-		assertFalse(isSameObjHash(expected, actual));//@A0118772 endtime should not change!
+		assertTrue(isSameObjHash(expected, actual));
 		context.clearAllMessages();
 		clearArrayLists(successList,warningList,helpList,paramList,errorList,taskList);
 
@@ -440,10 +440,10 @@ public class TaskHandlerTest {
 		
 		
 		// Test for edit task endDate and endTime only
-		userInput = "edit 5 on 10/25/15 to 0030";
+		userInput = "edit 5 on 10/25/15 to 1130";
 		try {
-			startTime = df.parse("09/25/15 1000");
-			endTime = df.parse("10/25/15 0030");
+			startTime = df.parse("10/25/15 1000");
+			endTime = df.parse("10/25/15 1130");
 			
 		} catch (ParseException e) {
 			e.printStackTrace();
