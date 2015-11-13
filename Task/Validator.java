@@ -585,6 +585,7 @@ public class Validator {
 	}
 
 	/**
+	@SuppressWarnings("unused")
 	 * Tries to parse a string into a date object using the dateformat given, returns false if parseException
 	 *
 	 */
