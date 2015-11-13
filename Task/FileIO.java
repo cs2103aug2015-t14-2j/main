@@ -67,7 +67,7 @@ public class FileIO {
 					jsonReader.endArray();
 				}
 			}
-			jsonReader.endObject();		
+			jsonReader.endObject();
 			reader.close();
 		} catch (FileNotFoundException e) {
 			// Create an empty file if file is not found
@@ -90,6 +90,10 @@ public class FileIO {
 	 */
 	private void readAllTasks(ArrayList<Task> taskList, JsonReader jsonReader) throws IOException {
 		jsonReader.beginArray();
+		if (!jsonReader.hasNext()) {
+			// Empty file - reset maxTaskId
+			this.maxTaskId = 0;
+		}
 		while (jsonReader.hasNext()) {
 			try {
 				Task task = getJSONTaskFromFile(jsonReader);

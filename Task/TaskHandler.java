@@ -107,6 +107,7 @@ public class TaskHandler {
 				break;
 			case FILEOPEN:
 				taskList = fileIO.readFromFile();
+				setCurrentTaskId(fileIO.getMaxTaskId());
 				context.displayMessage("MESSAGE_OPEN");
 				context.displayMessage("MESSAGE_DISPLAY_ALL");
 				displayFloatingTasks(taskList);
@@ -163,7 +164,8 @@ public class TaskHandler {
 					(Date)parsedParamTable.get(PARAMETER.START_TIME),
 					(Date)parsedParamTable.get(PARAMETER.END_TIME),
 					(Date)parsedParamTable.get(PARAMETER.DEADLINE_DATE),
-					(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME));
+					(Date)parsedParamTable.get(PARAMETER.DEADLINE_TIME),
+					(Date)parsedParamTable.get(PARAMETER.DATE));
 				
 				fileIO.writeToFile(taskList);
 				break;
@@ -324,7 +326,7 @@ public class TaskHandler {
 	 * @param task The task to be added to the taskList
 	 * @return 
 	 */
-	private static void editTask(int ID, PARAMETER[] deleteParams, String desc,String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) {
+	private static void editTask(int ID, PARAMETER[] deleteParams, String desc,String venue, Date startDate, Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime, Date keyDate) {
 		// Declare local variables
 		SimpleDateFormat timeFormat      = new SimpleDateFormat("HHmm");
 
@@ -336,9 +338,9 @@ public class TaskHandler {
 		Period oldPeriod = null;
 		Period newPeriod;
 		
-		String prevStartTime 	= "1200";
-		String prevEndTime 		= "1300";
-		String prevDeadlineTime = null;
+		Date prevStartTime = null;
+		Date prevEndTime = null;
+		Date prevDeadlineTime = null;
 
 		boolean isUpdated = false;
 		Boolean prevIsdone;
@@ -375,30 +377,38 @@ public class TaskHandler {
 			isUpdated = true;
 		}
 
-		prevStartDate    = task.getStartDateTime();
-		prevEndDate      = task.getEndDateTime();
-		prevDeadlineDate = task.getDeadline();
-		if(prevStartDate != null && prevEndDate != null){
-			// Get the original time of the day for start and end of the event
-			prevStartTime    = timeFormat.format(prevStartDate);
-			prevEndTime      = timeFormat.format(prevEndDate);
-			oldPeriod        = new Period(prevStartDate, prevEndDate);
-		}
-		
-		prevIsdone 			= task.isDone();
-		
-		if (prevDeadlineDate != null) {
-			prevDeadlineTime = timeFormat.format(prevDeadlineDate);
-		}
 		
 		try {
+			prevStartDate       = task.getStartDateTime();
+			prevEndDate         = task.getEndDateTime();
+			prevDeadlineDate    = task.getDeadline();
+			prevIsdone 			= task.isDone();
+			if(prevStartDate != null && prevEndDate != null){
+				// Get the original time of the day for start and end of the event
+				prevStartTime    = getTimeOnly(prevStartDate);
+				prevEndTime      = getTimeOnly(prevEndDate);
+				oldPeriod        = new Period(prevStartDate, prevEndDate);
+			}
+			
+			
+			if (prevDeadlineDate != null) {
+				prevDeadlineTime = getTimeOnly(prevDeadlineDate);
+			}
+			
+			if (keyDate != null) {
+				startDate = keyDate;
+				endDate   = keyDate;
+			}
 			// Set startDate, startTime, endDate and endTime
 			// E.g. edit 2 from 12/10/15 1200 to 13/10/15 1400
 			// E.g. edit 2 on 12/10/15 from 1200 to 1400
 			if (startDate != null && startTime != null && endDate != null && endTime != null){
-				newPeriod = new Period(startTime, endTime);
-				task.setStartDateTime(startTime);
-				task.setEndDateTime(endTime);
+				startDate = combineDateTime(startDate, startTime);
+				endDate   = combineDateTime(endDate, endTime);
+
+				newPeriod = new Period(startDate, endDate);
+				task.setStartDateTime(startDate);
+				task.setEndDateTime(endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				
 				compoundEdit.addEdit(edit);
@@ -407,10 +417,10 @@ public class TaskHandler {
 
 			// Set startDate and endDate, without changing startTime and endTime
 			// E.g. edit 2 on 12/10/15
-			if (startDate != null && startTime == null && endDate != null && endTime == null) {
+			if (startDate != null && startTime == null && endDate != null && endTime == null && prevEndDate != null) {
 				
-				startDate	= changeDateTime(startDate, prevStartTime);
-				endDate		= changeDateTime(endDate, prevEndTime);
+				startDate	= combineDateTime(startDate, prevStartTime);
+				endDate		= combineDateTime(endDate, prevEndTime);
 				
 				task.setStartDateTime(startDate);
 				task.setEndDateTime(endDate);
@@ -432,12 +442,16 @@ public class TaskHandler {
 				isUpdated  = true;
 			}
 
-			// Set startDate, startTime according to user; endDate, endTime remains unchanged
+			// Set startDate, startTime, endDate according to user; endTime remains unchanged
 			// E.g. edit 2 on 12/10/15 from 1400
 			if (startDate != null && startTime != null && endDate != null && endTime == null && prevEndDate != null) {
-				newPeriod = new Period(startTime, prevEndDate);
+				startDate = combineDateTime(startDate, startTime);
+				endDate   = combineDateTime(endDate, prevEndTime);
 
-				task.setStartDateTime(startTime);
+				newPeriod = new Period(startDate, endDate);
+
+				task.setStartDateTime(startDate);
+				task.setEndDateTime(endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated  = true;
@@ -446,7 +460,7 @@ public class TaskHandler {
 			// Set startDate only
 			// E.g. edit 2 from 12/10/15
 			if (startDate != null && startTime == null && endDate == null && endTime == null && prevEndDate != null) {								
-				startDate = changeDateTime(startDate, prevStartTime);
+				startDate = combineDateTime(startDate, prevStartTime);
 				newPeriod = new Period(startDate, prevEndDate);
 
 				task.setStartDateTime(startDate);
@@ -454,7 +468,19 @@ public class TaskHandler {
 				compoundEdit.addEdit(edit);
 				isUpdated     = true;
 			}
-			
+
+			// Set startTime only
+			// E.g. edit 2 from 12pm
+			if (startDate == null && startTime != null && endDate == null && endTime == null && prevEndDate != null) {								
+				startDate = combineDateTime(prevStartDate, startTime);
+				newPeriod = new Period(startDate, prevEndDate);
+
+				task.setStartDateTime(startDate);
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated     = true;
+			}
+
 			// Set endDate, endTime
 			// E.g. edit 2 to 12/10/15 1400
 			if (startDate == null && startTime == null && endDate != null && endTime != null && prevEndDate != null) {
@@ -466,13 +492,15 @@ public class TaskHandler {
 				isUpdated = true;
 			}
 			
-			// Set endDate, endTime according to user; startDate, startTime remains unchanged
+			// Set startDate, endDate, endTime according to user, startTime remains unchanged
 			// E.g. edit 2 on 12/10/15 to 1600
 			if (startDate != null && startTime == null && endDate != null && endTime != null && prevStartDate != null && prevEndDate != null) {
-				startDate = changeDateTime(startDate, prevStartTime);
-				newPeriod = new Period(startDate, endTime);
+				startDate = combineDateTime(startDate, prevStartTime);
+				endDate   = combineDateTime(endDate, endTime);
 
-				task.setEndDateTime(endTime);
+				newPeriod = new Period(startDate, endDate);
+
+				task.setEndDateTime(endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated = true;
@@ -481,7 +509,20 @@ public class TaskHandler {
 			// Set endDate only
 			// E.g. edit 2 to 12/10/15
 			if (startDate == null && startTime == null && endDate != null && endTime == null && prevStartDate != null) {				
-				endDate    = changeDateTime(endDate, prevEndTime);
+				endDate    = combineDateTime(endDate, prevEndTime);
+				
+				newPeriod = new Period(prevStartDate, endDate);
+				
+				task.setEndDateTime(endDate);	
+				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
+				compoundEdit.addEdit(edit);
+				isUpdated   = true;			
+			}
+
+			// Set endTime only
+			// E.g. edit 2 to 2pm
+			if (startDate == null && startTime == null && endDate == null && endTime != null && prevStartDate != null) {				
+				endDate    = combineDateTime(prevEndDate, endTime);
 				
 				newPeriod = new Period(prevStartDate, endDate);
 				
@@ -501,7 +542,7 @@ public class TaskHandler {
 			
 			// Set deadlineDate and deadlineTime
 			if (deadlineDate != null && deadlineTime == null && prevDeadlineTime != null){				
-				_deadlineDate = changeDateTime(deadlineDate, prevDeadlineTime);
+				_deadlineDate = combineDateTime(deadlineDate, prevDeadlineTime);
 				task.setDeadline(_deadlineDate);
 				edit = new TaskDeadlineEdit(task, prevDeadlineDate, _deadlineDate);
 				compoundEdit.addEdit(edit);
@@ -604,10 +645,13 @@ public class TaskHandler {
 	 */
 	private static Task createTask(int taskID, String desc, String venue, Date startDate, 
 			Date endDate, Date startTime, Date endTime, Date deadlineDate, Date deadlineTime) throws IllegalArgumentException{
+		
 		if (startTime != null && endTime != null){
-			return new Task(taskID, desc, startDate, endDate, venue);// Event
-		} else if (deadlineDate != null){
-			return new Task(taskID, desc, deadlineDate, venue);		// Deadline task
+			Date startDateTime = combineDateTime(startDate, startTime);
+			Date endDateTime   = combineDateTime(endDate, endTime);
+			return new Task(taskID, desc, startDateTime, endDateTime, venue);// Event
+		} else if (deadlineTime != null){
+			return new Task(taskID, desc, deadlineTime, venue);		// Deadline task
 		} else {
 			return new Task(taskID, desc, null, venue);				// Floating task
 		}
@@ -1104,5 +1148,29 @@ public class TaskHandler {
 	private static Date changeDateTime(Date date, String prevTimeString) throws ParseException {
 		String test1 = dateFormat.format(date);
 		return new SimpleDateFormat("dd/M/yyyy HHmm").parse(test1.split(" ")[0] + " " + prevTimeString);
+	}
+
+	// Utility function that combines a date with date and date with time and returns a single date obj
+	private static Date combineDateTime(Date datePart, Date timePart) {
+		SimpleDateFormat dateFormat     = new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat timeFormat     = new SimpleDateFormat("HHmm");
+		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HHmm");
+
+		String dateString = dateFormat.format(datePart);
+		String timeString = timeFormat.format(timePart);
+
+		try {
+			Date date = dateTimeFormat.parse(dateString + " " + timeString);
+			return date;
+		} catch (ParseException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	private static Date getTimeOnly(Date dateTime) throws ParseException {
+		SimpleDateFormat timeFormat = new SimpleDateFormat("HHmm");
+		String timeString           = timeFormat.format(dateTime);
+		return timeFormat.parse(timeString);
 	}
 }
