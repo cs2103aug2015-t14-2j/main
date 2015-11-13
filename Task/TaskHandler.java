@@ -484,9 +484,10 @@ public class TaskHandler {
 			// Set endDate, endTime
 			// E.g. edit 2 to 12/10/15 1400
 			if (startDate == null && startTime == null && endDate != null && endTime != null && prevEndDate != null) {
-				newPeriod = new Period(prevStartDate, endTime);
+				endDate   = combineDateTime(endDate, endTime);
+				newPeriod = new Period(prevStartDate, endDate);
 
-				task.setEndDateTime(endTime);
+				task.setEndDateTime(endDate);
 				edit = new TaskPeriodEdit(task, oldPeriod, newPeriod);
 				compoundEdit.addEdit(edit);
 				isUpdated = true;
