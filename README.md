@@ -1,5 +1,5 @@
 # TaskBuddy
-## Scheduler/Tasking app for email power users! ##
+## Scheduler for busy people! ##
 
 ### Launching of application ###
 
